@@ -35,7 +35,6 @@ RUN mkdir -p game_service/protos
 
 # Generate gRPC files from proto files
 RUN python -m grpc_tools.protoc -I./protos --python_out=./game_service/protos --grpc_python_out=./game_service/protos ./protos/*.proto
-RUN /bin/sh -c python manage.py migrate
 # Expose the port for the gRPC server
 EXPOSE 50051
 

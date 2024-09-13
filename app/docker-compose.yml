@@ -12,6 +12,11 @@ services:
       - ./DB:/var/lib/postgresql/data
     networks:
       - db_network
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q", "-d", "django_db", "-U", "django_user" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   main_service:
     build:
@@ -23,8 +28,6 @@ services:
       - '8001:8000'
     volumes:
       - ./django_service/main_service:/usr/src/app
-    depends_on:
-      - postgres
     networks:
       - django_network
     environment:
@@ -36,11 +39,12 @@ services:
       context: ./django_service/user_service
       dockerfile: Dockerfile
     container_name: user_service
-    command: python manage.py grpcrunserver --dev
+    command: sh -c "python manage.py migrate && python manage.py grpcrunserver --dev"
     volumes:
       - ./django_service/user_service:/usr/src/app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
@@ -53,75 +57,84 @@ services:
       context: ./django_service/stat_service
       dockerfile: Dockerfile
     container_name: stat_service
-    command: python manage.py grpcrunserver --dev
+    command: sh -c "python manage.py migrate && python manage.py grpcrunserver --dev"
     volumes:
       - ./django_service/stat_service:/usr/src/app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+
   game_service:
     build:
       context: ./django_service/game_service
       dockerfile: Dockerfile
     container_name: game_service
-    command: python manage.py grpcrunserver --dev
+    command: sh -c "python manage.py migrate && python manage.py grpcrunserver --dev"
     volumes:
       - ./django_service/game_service:/usr/src/app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+
   chat_service:
     build:
       context: ./django_service/chat_service
       dockerfile: Dockerfile
     container_name: chat_service
-    command: python manage.py grpcrunserver --dev
+    command: sh -c "python manage.py migrate && python manage.py grpcrunserver --dev"
     volumes:
       - ./django_service/chat_service:/usr/src/app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+
   auth_service:
     build:
       context: ./django_service/auth_service
       dockerfile: Dockerfile
     container_name: auth_service
-    command: python manage.py grpcrunserver --dev
+    command: sh -c "python manage.py migrate && python manage.py grpcrunserver --dev"
     volumes:
       - ./django_service/auth_service:/usr/src/app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+
   admin_service:
     build:
       context: ./django_service/auth_service
       dockerfile: Dockerfile
     container_name: admin_service
-    command: python manage.py grpcrunserver --dev
+    command: sh -c "python manage.py migrate && python manage.py grpcrunserver --dev"
     volumes:
       - ./django_service/admin_service:/usr/src/app
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
