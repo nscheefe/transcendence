@@ -2,11 +2,12 @@
 import graphene
 from .userSchema import Query as UserQuery, Mutation as UserMutation
 from .statSchema import Query as StatQuery, Mutation as StatMutation
+from .gameSchema import Query as gameQuery, Mutation as gameMutation
 
-class Query(UserQuery, StatQuery, graphene.ObjectType):
+class Query(UserQuery, StatQuery, gameQuery, graphene.ObjectType):
     pass
 
-class Mutation(UserMutation, StatMutation, graphene.ObjectType):
+class Mutation(UserMutation, StatMutation, gameMutation, graphene.ObjectType):
     pass
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

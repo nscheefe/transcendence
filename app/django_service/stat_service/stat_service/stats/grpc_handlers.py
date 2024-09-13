@@ -1,4 +1,3 @@
-# python
 import grpc
 from concurrent import futures
 from stat_service.protos import stat_pb2_grpc, stat_pb2
@@ -26,6 +25,12 @@ class StatServiceHandler(stat_pb2_grpc.StatServiceServicer):
         stat.save()
         return stat_pb2.Stat(
             id=stat.id
+        )
+
+    def GetStats(self, request, context):
+        stats = Stat.objects.all()
+        return stat_pb2.StatList(
+            stats=[stat_pb2.Stat(id=stat.id) for stat in stats]
         )
 
     @classmethod
