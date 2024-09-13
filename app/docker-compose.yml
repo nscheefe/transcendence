@@ -80,6 +80,22 @@ services:
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+  chat_service:
+    build:
+      context: ./django_service/chat_service
+      dockerfile: Dockerfile
+    container_name: chat_service
+    command: python manage.py grpcrunserver --dev
+    volumes:
+      - ./django_service/chat_service:/usr/src/app
+    depends_on:
+      - postgres
+    networks:
+      - django_network
+      - db_network
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
 
 networks:
   django_network:
