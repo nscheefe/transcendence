@@ -8,7 +8,9 @@
     "start": "webpack serve --open"
   },
   "dependencies": {
-    "three": "^0.132.2"
+    "express": "^4.21.0",
+    "three": "^0.132.2",
+    "ws": "^8.18.0"
   },
   "devDependencies": {
     "@types/three": "^0.168.0",
