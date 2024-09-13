@@ -52,81 +52,106 @@
 		return ball;
 	}
 
-	function handleBallMovement(ball, ballSpeed, paddle1, paddle2) {
-		ball.position.x += ballSpeed.x;
-		ball.position.z += ballSpeed.z;
 
-		// Ball collision with walls (left/right)
-		if (ball.position.x <= -4.5 || ball.position.x >= 4.5) {
-			ballSpeed.x = -ballSpeed.x;
-		}
+const socket = new WebSocket('ws://localhost:4000');
 
-		// Ball collision with paddles
-		if (ball.position.z <= -8.5 && ball.position.x >= paddle1.position.x - 1 && ball.position.x <= paddle1.position.x + 1) {
-			ballSpeed.z = -ballSpeed.z;
-		}
-		if (ball.position.z >= 8.5 && ball.position.x >= paddle2.position.x - 1 && ball.position.x <= paddle2.position.x + 1) {
-			ballSpeed.z = -ballSpeed.z;
-		}
+let lastSentTime = 0;
+const THROTTLE_INTERVAL = 100; // milliseconds
 
-		// Ball out of bounds (reset position)
-		if (ball.position.z <= -10 || ball.position.z >= 10) {
-			ball.position.set(0, 0.5, 0);
-			ballSpeed.x = 0;
-			ballSpeed.z = 0;
-		}
-	}
+function handlePaddleMovement(event, paddle1, paddle2) {
+  let move = false;
+  let player = 0;
+  let x = 0;
 
-	function handlePaddleMovement(event, paddle1, paddle2, ballSpeed) {
-		switch (event.key) {
-			case 'ArrowLeft':
-				if (paddle1.position.x > -4.5) paddle1.position.x -= 0.5;
-				break;
-			case 'ArrowRight':
-				if (paddle1.position.x < 4.5) paddle1.position.x += 0.5;
-				break;
-			case 'a':
-				if (paddle2.position.x > -4.5) paddle2.position.x -= 0.5;
-				break;
-			case 'd':
-				if (paddle2.position.x < 4.5) paddle2.position.x += 0.5;
-				break;
-			case ' ':
-				ballSpeed.x = 0.05;
-				ballSpeed.z = 0.05;
-				break;
-		}
-	}
+  switch (event.key) {
+    case 'ArrowLeft':
+      if (paddle1.position.x > -4.5) {
+        paddle1.position.x -= 0.5;
+        move = true;
+        player = 1;
+        x = paddle1.position.x;
+      }
+      break;
+    case 'ArrowRight':
+      if (paddle1.position.x < 4.5) {
+        paddle1.position.x += 0.5;
+        move = true;
+        player = 1;
+        x = paddle1.position.x;
+      }
+      break;
+    case 'a':
+      if (paddle2.position.x > -4.5) {
+        paddle2.position.x -= 0.5;
+        move = true;
+        player = 2;
+        x = paddle2.position.x;
+      }
+      break;
+    case 'd':
+      if (paddle2.position.x < 4.5) {
+        paddle2.position.x += 0.5;
+        move = true;
+        player = 2;
+        x = paddle2.position.x;
+      }
+      break;
+  }
 
-	function animate(renderer, scene, camera, ball, ballSpeed, paddle1, paddle2) {
-		function render() {
-			requestAnimationFrame(render);
-			handleBallMovement(ball, ballSpeed, paddle1, paddle2);
-			renderer.render(scene, camera);
-		}
-		render();
-	}
+  const currentTime = Date.now();
+  if (move && socket.readyState === WebSocket.OPEN && currentTime - lastSentTime > THROTTLE_INTERVAL) {
+    socket.send(JSON.stringify({ type: 'movePaddle', player, x }));
+    lastSentTime = currentTime;
+  }
+}
 
-	function main() {
-		const scene = createScene();
-		const camera = createCamera();
-		const renderer = createRenderer();
-		createLights(scene);
-		createTable(scene);
+function animate(renderer, scene, camera, ball, paddle1, paddle2) {
+  socket.onmessage = (event) => {
+    const state = JSON.parse(event.data);
+    console.log('Received state:', state); // Add logging to debug
 
-		const paddle1 = createPaddle(0x0000ff, 0, -9);
-		const paddle2 = createPaddle(0x0000ff, 0, 9);
-		scene.add(paddle1);
-		scene.add(paddle2);
+    if (state.type === 'updateBall') {
+      if (state.x !== undefined && state.y !== undefined && state.z !== undefined) {
+        ball.position.set(state.x, state.y, state.z);
+      } else {
+        console.error('Invalid ball state received:', state);
+      }
+    } else if (state.type === 'movePaddle') {
+      if (state.player === 1 && state.x !== undefined) {
+        paddle1.position.x = state.x;
+      } else if (state.player === 2 && state.x !== undefined) {
+        paddle2.position.x = state.x;
+      } else {
+        console.error('Invalid paddle state received:', state);
+      }
+    }
+  };
 
-		const ball = createBall();
-		scene.add(ball);
+  function render() {
+    requestAnimationFrame(render);
+    renderer.render(scene, camera);
+  }
+  render();
+}
 
-		let ballSpeed = { x: 0.05, z: 0.05 };
+function main() {
+  const scene = createScene();
+  const camera = createCamera();
+  const renderer = createRenderer();
+  createLights(scene);
+  createTable(scene);
 
-		window.addEventListener('keydown', (event) => handlePaddleMovement(event, paddle1, paddle2, ballSpeed));
+  const paddle1 = createPaddle(0x0000ff, 0, -9);
+  const paddle2 = createPaddle(0x0000ff, 0, 9);
+  scene.add(paddle1);
+  scene.add(paddle2);
 
-		animate(renderer, scene, camera, ball, ballSpeed, paddle1, paddle2);
-	}
+  const ball = createBall();
+  scene.add(ball);
 
-	main();
+  window.addEventListener('keydown', (event) => handlePaddleMovement(event, paddle1, paddle2));
+
+  animate(renderer, scene, camera, ball, paddle1, paddle2);
+}
+
+main();
