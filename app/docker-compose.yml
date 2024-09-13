@@ -11,7 +11,7 @@ services:
     volumes:
       - ./DB:/var/lib/postgresql/data
     networks:
-      - django_network
+      - db_network
 
   main_service:
     build:
@@ -43,9 +43,28 @@ services:
       - postgres
     networks:
       - django_network
+      - db_network
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+
+  stat_service:
+    build:
+      context: ./django_service/stat_service
+      dockerfile: Dockerfile
+    container_name: stat_service
+    command: python manage.py grpcrunserver --dev
+    volumes:
+      - ./django_service/stat_service:/usr/src/app
+    depends_on:
+      - postgres
+    networks:
+      - django_network
+      - db_network
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
 
 networks:
   django_network:
+  db_network:

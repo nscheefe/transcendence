@@ -41,7 +41,7 @@ INSTALLED_APPS = [
 ]
 
 GRAPHENE = {
-    'SCHEMA': 'main_service.api.schema.userSchema.schema'
+    'SCHEMA': 'main_service.api.schema.Schema.schema',
 }
 
 MIDDLEWARE = [

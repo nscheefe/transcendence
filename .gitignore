@@ -1,3 +1,5 @@
 .idea
 ./app/DB/*
 !./app/DB/
+app/django_service/venv
+**/__pycache__/
