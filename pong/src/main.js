@@ -35,15 +35,16 @@ function main() {
     player2TextMesh = createTextMesh('Player 2: 0', 1, 0xffffff, { x: -5, y: 1, z: 9 });
     scene.add(player1TextMesh);
     scene.add(player2TextMesh);
-  });
 
-//  window.addEventListener('keydown', (event) => handlePaddleMovement(event, paddle1, paddle2));
-  window.addEventListener('keydown', handleKeyState);
-  window.addEventListener('keyup', handleKeyState);
+	console.log("Player 1 Text Mesh " + player1TextMesh);
+	//  window.addEventListener('keydown', (event) => handlePaddleMovement(event, paddle1, paddle2));
+	window.addEventListener('keydown', handleKeyState);
+	window.addEventListener('keyup', handleKeyState);
 
-  createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMesh);
+	createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMesh);
 
-  animate(renderer, scene, camera, ball, paddle1, paddle2);
+	animate(renderer, scene, camera, ball, paddle1, paddle2);
+	});
 }
 
 export { socket, font };

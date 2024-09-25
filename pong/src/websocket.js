@@ -16,7 +16,7 @@ export function createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2
 		if (state.type === 'updateState') {
 		  updatePaddlePositionFromServer(paddle1, paddle2, state);
 		  if (state.ball !== undefined) {
-			ball.position.set(state.ball.x, state.ball.y, state.ball.z);
+			ball.position.set(state.ball.x, 0, state.ball.z);
 		  }
 		  if (state.points !== undefined) {
 			updateTextMesh(player1TextMesh, `Player 1: ${state.points.player1}`);

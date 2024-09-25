@@ -14,14 +14,22 @@ const gameState = {
 };
 
 function resetBall() {
-  gameState.ball = { x: 0, y: 0, z: 0 };
-  const randomAngle = Math.random() * Math.PI * 2;
-  const speed = 0.1; // Initial speed
-  gameState.ballSpeed = {
-    x: speed * Math.cos(randomAngle),
-    z: speed * Math.sin(randomAngle)
-  };
-}
+	// Randomize ball position within a range
+	const randomX = (Math.random() - 0.5) * 9; // Random value between -4.5 and 4.5
+	const randomZ = 0; // Start in the middle of the field
+
+	gameState.ball = { x: randomX, y: 0.5, z: randomZ };
+
+	// Randomize ball direction with a maximum of 25 degrees variation towards paddles
+	const maxAngleVariation = 25 * (Math.PI / 180); // Convert 25 degrees to radians
+	const baseAngle = Math.random() < 0.5 ? Math.PI / 2 : -Math.PI / 2; // Either 90 degrees (towards player 2) or -90 degrees (towards player 1)
+	const randomAngle = baseAngle + (Math.random() * 2 - 1) * maxAngleVariation; // Random angle within ±25 degrees of baseAngle
+	const speed = 0.1; // Initial speed
+	gameState.ballSpeed = {
+	  x: speed * Math.cos(randomAngle),
+	  z: speed * Math.sin(randomAngle)
+	};
+  }
 
 function checkWinner() {
   // Implement winner check logic here
@@ -78,7 +86,13 @@ function gameLoop() {
     checkWinner();
   }
 
-  broadcast({ type: 'updateState', ...gameState });
+  broadcast({
+    type: 'updateState',
+    ball: { x: gameState.ball.x, z: gameState.ball.z },
+    paddle1: { x: gameState.paddle1.x },
+    paddle2: { x: gameState.paddle2.x },
+    points: gameState.points
+  });
 }
 
 function startGame() {

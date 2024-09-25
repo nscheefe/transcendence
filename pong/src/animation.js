@@ -35,12 +35,12 @@ export function animate(renderer, scene, camera, paddle1, paddle2) {
 
 export function updatePaddlePositionFromServer(paddle1, paddle2, state) {
 	if (state.paddle1 !== undefined) {
-	  paddle1.position.set(state.paddle1.x, state.paddle1.y, state.paddle1.z);
+	  paddle1.position.x = state.paddle1.x;
 	}
 	if (state.paddle2 !== undefined) {
-	  paddle2.position.set(state.paddle2.x, state.paddle2.y, state.paddle2.z);
+	  paddle2.position.x = state.paddle2.x;
 	}
-}
+  }
 
 function sendPaddlePosition(player, x) {
   if (socket.readyState === WebSocket.OPEN) {

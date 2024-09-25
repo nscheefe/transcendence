@@ -37,8 +37,10 @@ export function createTable(scene) {
 }
 
 export function updateTextMesh(mesh, text) {
-	if (!mesh)
-	  return;
+	if (!mesh){
+		console.log("text mesh is null");
+		return;
+	}
 	const loader = new THREE.FontLoader();
 	loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', (font) => {
 	  const geometry = new THREE.TextGeometry(text, {
