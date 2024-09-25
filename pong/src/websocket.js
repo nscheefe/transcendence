@@ -25,7 +25,7 @@ export function createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2
 		}
 		if (state.type === 'gameOver') {
 		  console.log('Game Over');
-		  scene.add(gameOver(state.winner));
+		  scene.add(gameOver(state.winner, camera));
 		}
 	  };
 

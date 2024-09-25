@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { font } from './main';
+import { damp } from 'three/src/math/MathUtils.js';
 
 export function createScene() {
   const scene = new THREE.Scene();
@@ -8,7 +9,7 @@ export function createScene() {
 
 export function createCamera() {
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(0, 15, 10);
+  camera.position.set(10, 20, 0);
   camera.lookAt(0, 0, 0);
   return camera;
 }
@@ -30,48 +31,39 @@ export function createLights(scene) {
 
 export function createTable() {
   const tableGeometry = new THREE.PlaneGeometry(10, 20, 1, 2);
-  const tableMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+  const tableMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
   const table = new THREE.Mesh(tableGeometry, tableMaterial);
   table.rotation.x = -Math.PI / 2;  // Make it horizontal
   return table;
   scene.add(table);
 }
 
-export function createTextOnTable(font ,scene, text, offsetY, table) {
-    const geometry = new THREE.TextGeometry(text, {
+export function createTextOnTable(font, scene, text, offsetY, table) {
+  const geometry = new THREE.TextGeometry(text, {
     font: font,
     size: 1,
     height: 0.1,
-    });
-    const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-    const mesh = new THREE.Mesh(geometry, material);
-    //mesh.rotation.x = -Math.PI / 2;  // Make it horizontal
+  });
+  const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const mesh = new THREE.Mesh(geometry, material);
 
-    geometry.computeBoundingBox();
-    const boundingBox = geometry.boundingBox;
-    const textWidth = boundingBox.max.x - boundingBox.min.x;
+  geometry.computeBoundingBox();
+  const boundingBox = geometry.boundingBox;
+  const textWidth = boundingBox.max.x - boundingBox.min.x;
 
-    mesh.position.set(-textWidth / 2, 0.1, offsetY);  // Position it slightly above the table
-    return mesh;
-  }
+  mesh.position.set(-textWidth / 2, offsetY, 0);  // Position it slightly above the table
+
+  // Add the text mesh as a child of the table mesh
+  table.add(mesh);
+
+  return mesh;
+}
 
 export function updateTextMeshOrientation(textMesh, camera) {
   if (textMesh) {
-    // Get the camera position
-    const cameraPosition = new THREE.Vector3();
-    camera.getWorldPosition(cameraPosition);
-
-    // Calculate the direction vector from the text to the camera on the horizontal plane
-    const direction = new THREE.Vector3();
-    direction.subVectors(cameraPosition, textMesh.position);
-    direction.y = 0; // Ignore the vertical component
-    direction.normalize();
-
-    // Calculate the angle around the Y-axis
-    const angle = Math.atan2(direction.x, direction.z);
-
-    // Set the rotation of the text mesh
-    textMesh.rotation.set(-Math.PI / 2, angle, 0);  // Keep the text flat on the table and upright
+	const cameraDirection = new THREE.Vector3();
+	camera.getWorldDirection(cameraDirection);
+	textMesh.rotation.z = camera.rotation.z;
   }
 }
 

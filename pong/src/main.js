@@ -36,10 +36,10 @@ function main() {
     //player2TextMesh = createTextMesh('Player 2: 0', 1, 0xffffff, { x: -5, y: 1, z: 9 });
 	player1TextMesh = createTextOnTable(font, scene, 'Player 1: 0', -6, table);
 	player2TextMesh = createTextOnTable(font, scene, 'Player 2: 0', 6, table);
-    scene.add(player1TextMesh);
-    scene.add(player2TextMesh);
-	updateTextMeshOrientation(player1TextMesh, camera);
-	updateTextMeshOrientation(player2TextMesh, camera);
+    //scene.add(player1TextMesh);
+    //scene.add(player2TextMesh);
+	//updateTextMeshOrientation(player1TextMesh, camera);
+	//updateTextMeshOrientation(player2TextMesh, camera);
 
 
 	console.log("Player 1 Text Mesh " + player1TextMesh);

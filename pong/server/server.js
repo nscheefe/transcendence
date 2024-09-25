@@ -2,7 +2,7 @@ const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({ port: 4000 });
 
-const WINNING_POINTS = 3;
+const WINNING_POINTS = 10;
 
 let gameStarted = false;
 let gameLoopInterval;
