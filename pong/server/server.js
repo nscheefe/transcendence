@@ -1,78 +1,21 @@
-const express = require('express');
-const http = require('http');
 const WebSocket = require('ws');
-
-const app = express();
-const server = http.createServer(app);
 
 const wss = new WebSocket.Server({ port: 4000 });
 
-const WINNING_POINTS = 10;
-let clients = [];
 let gameStarted = false;
-
-let gameState = {
+let gameLoopInterval;
+const gameState = {
   ball: { x: 0, y: 0, z: 0 },
+  ballSpeed: { x: 0.1 , z: 0.1 },
   paddle1: { x: 0, y: 0, z: -9 },
   paddle2: { x: 0, y: 0, z: 9 },
-  ballSpeed: { x: 0.1, z: 0.1 },
   points: { player1: 0, player2: 0 },
-  winner: null
+  keyState: {}
 };
 
-wss.on('connection', (ws) => {
-  console.log('New client connected');
-  clients.push(ws);
-
-  if (clients.length === 2) {
-    startGame();
-  }
-
-  ws.on('message', (message) => {
-    const data = JSON.parse(message);
-    if (data.type === 'movePaddle') {
-      if (data.player === 1) {
-        gameState.paddle1.x = data.x;
-      } else {
-        gameState.paddle2.x = data.x;
-      }
-      broadcast({ type: 'movePaddle', player: data.player, x: data.x });
-    }
-  });
-
-  ws.on('close', () => {
-    console.log('Client disconnected');
-    clients = clients.filter(client => client !== ws);
-  });
-});
-
-function broadcast(data) {
-  wss.clients.forEach((client) => {
-    if (client.readyState === WebSocket.OPEN) {
-      client.send(JSON.stringify(data));
-    }
-  });
-}
-
-function checkWinner() {
-  if (gameState.points.player1 >= WINNING_POINTS) {
-    gameState.winner = 'Player 1';
-  } else if (gameState.points.player2 >= WINNING_POINTS) {
-    gameState.winner = 'Player 2';
-  }
-}
-
 function resetBall() {
-  // Randomize ball position within a range
-  const randomX = (Math.random() - 0.5) * 9; // Random value between -4.5 and 4.5
-  const randomZ = 0; // Start in the middle of the field
-
-  gameState.ball = { x: randomX, y: 0.5, z: randomZ };
-
-  // Randomize ball direction with a maximum of 25 degrees variation towards paddles
-  const maxAngleVariation = 25 * (Math.PI / 180); // Convert 25 degrees to radians
-  const baseAngle = Math.random() < 0.5 ? Math.PI / 2 : -Math.PI / 2; // Either 90 degrees (towards player 2) or -90 degrees (towards player 1)
-  const randomAngle = baseAngle + (Math.random() * 2 - 1) * maxAngleVariation; // Random angle within ±25 degrees of baseAngle
+  gameState.ball = { x: 0, y: 0, z: 0 };
+  const randomAngle = Math.random() * Math.PI * 2;
   const speed = 0.1; // Initial speed
   gameState.ballSpeed = {
     x: speed * Math.cos(randomAngle),
@@ -80,8 +23,29 @@ function resetBall() {
   };
 }
 
+function checkWinner() {
+  // Implement winner check logic here
+}
+
+function updatePaddlePositions() {
+  if (gameState.keyState['ArrowLeft'] && gameState.paddle1.x > -4.5) {
+    gameState.paddle1.x -= 0.1;
+  }
+  if (gameState.keyState['ArrowRight'] && gameState.paddle1.x < 4.5) {
+    gameState.paddle1.x += 0.1;
+  }
+  if (gameState.keyState['a'] && gameState.paddle2.x > -4.5) {
+    gameState.paddle2.x -= 0.1;
+  }
+  if (gameState.keyState['d'] && gameState.paddle2.x < 4.5) {
+    gameState.paddle2.x += 0.1;
+  }
+}
+
 function gameLoop() {
   if (!gameStarted) return;
+
+  updatePaddlePositions();
 
   gameState.ball.x += gameState.ballSpeed.x;
   gameState.ball.z += gameState.ballSpeed.z;
@@ -114,16 +78,39 @@ function gameLoop() {
     checkWinner();
   }
 
-//  broadcast({ type: 'updateBall', ...gameState.ball });
   broadcast({ type: 'updateState', ...gameState });
 }
 
 function startGame() {
-	if (gameStarted) return;
-	gameStarted = true;
-	setInterval(gameLoop, 1000 / 60); // 60 times per second
+  gameStarted = true;
+  gameLoopInterval = setInterval(gameLoop, 1000 / 60); // 60 times per second
 }
 
-server.listen(3000, () => {
-  console.log('Server is listening on port 3000');
+function broadcast(message) {
+  wss.clients.forEach((client) => {
+    if (client.readyState === WebSocket.OPEN) {
+      client.send(JSON.stringify(message));
+    }
+  });
+}
+
+wss.on('connection', (ws) => {
+  console.log('Client connected');
+
+  ws.on('message', (message) => {
+    const data = JSON.parse(message);
+    if (data.type === 'keyState') {
+      gameState.keyState[data.key] = data.state;
+    }
+  });
+
+  ws.on('close', () => {
+    console.log('Client disconnected');
+  });
+
+  if (!gameStarted) {
+    startGame();
+  }
 });
+
+console.log('WebSocket server is running on ws://localhost:4000');
