@@ -2,6 +2,8 @@ const WebSocket = require('ws');
 
 const wss = new WebSocket.Server({ port: 4000 });
 
+const WINNING_POINTS = 3;
+
 let gameStarted = false;
 let gameLoopInterval;
 const gameState = {
@@ -32,7 +34,13 @@ function resetBall() {
   }
 
 function checkWinner() {
-  // Implement winner check logic here
+  if (gameState.points.player1 >= WINNING_POINTS || gameState.points.player2 >= WINNING_POINTS) {
+	gameStarted = false;
+	clearInterval(gameLoopInterval);
+	broadcast({ type: 'gameOver', winner: gameState.points.player1 >= WINNING_POINTS ? 1 : 2 });
+	gameState.points.player1 = 0;
+	gameState.points.player2 = 0;
+  }
 }
 
 function updatePaddlePositions() {

@@ -3,7 +3,7 @@ import { socket } from './websocket';
 
 let isAnimating = false;
 
-export function animate(renderer, scene, camera, paddle1, paddle2) {
+export function animate(renderer, scene, camera) {
   if (isAnimating) return; // Prevent multiple animation loops
   isAnimating = true;
 
