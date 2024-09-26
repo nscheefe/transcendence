@@ -9,7 +9,7 @@ export function createScene() {
 
 export function createCamera() {
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  camera.position.set(10, 20, 0);
+  camera.position.set(0, 20, 0);
   camera.lookAt(0, 0, 0);
   return camera;
 }
@@ -22,16 +22,25 @@ export function createRenderer() {
 }
 
 export function createLights(scene) {
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-  scene.add(ambientLight);
-  const pointLight = new THREE.PointLight(0xffffff, 0.5);
-  pointLight.position.set(0, 50, 50);
-  scene.add(pointLight);
+	const ambientLight = new THREE.AmbientLight("#ffffff", 200);
+	  scene.add(ambientLight);
+
+	  const spotlight = new THREE.SpotLight("#d53c3d", 20, 500, Math.PI * 0.1, 5);
+	spotlight.position.set(10, 15, 2.2);
+	spotlight.target.position.set(-5, 5, 5);
+	  scene.add(spotlight);
+	  scene.add(spotlight.target);
+
+	  const spotlight2 = new THREE.SpotLight("#d53c3d", 20, 500, Math.PI * 0.1, 5);
+	  spotlight2.position.set(-10, 15, 2.2);
+	  spotlight2.target.position.set(5, 5, 5);
+	  scene.add(spotlight2);
+	  scene.add(spotlight2.target);
 }
 
 export function createTable() {
   const tableGeometry = new THREE.PlaneGeometry(10, 20, 1, 2);
-  const tableMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, transparent: true, opacity: 0.5 });
+  const tableMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00, transparent: true, opacity: 0 });
   const table = new THREE.Mesh(tableGeometry, tableMaterial);
   table.rotation.x = -Math.PI / 2;  // Make it horizontal
   return table;
@@ -51,11 +60,10 @@ export function createTextOnTable(font, scene, text, offsetY, table) {
   const boundingBox = geometry.boundingBox;
   const textWidth = boundingBox.max.x - boundingBox.min.x;
 
-  mesh.position.set(-textWidth / 2, offsetY, 0);  // Position it slightly above the table
+  mesh.position.set(-(textWidth / 2) , offsetY, 0);
 
   // Add the text mesh as a child of the table mesh
   table.add(mesh);
-
   return mesh;
 }
 
@@ -84,7 +92,7 @@ export function updateTextMeshOrientation(textMesh, camera) {
 	  const textWidth = boundingBox.max.x - boundingBox.min.x;
 	  mesh.geometry.dispose();
 	  mesh.geometry = geometry;
-	  mesh.position.x = -textWidth / 2;  // Center the text horizontally
+	//  mesh.position.x = -textWidth / 2;  // Center the text horizontally
 	  updateTextMeshOrientation(mesh, camera);
 	});
   }

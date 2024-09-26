@@ -8,11 +8,12 @@ let gameStarted = false;
 let gameLoopInterval;
 const gameState = {
   ball: { x: 0, y: 0, z: 0 },
-  ballSpeed: { x: 0.1 , z: 0.1 },
+  ballSpeed: { x: 0.15 , z: 0.15 },
   paddle1: { x: 0, y: 0, z: -9 },
   paddle2: { x: 0, y: 0, z: 9 },
   points: { player1: 0, player2: 0 },
-  keyState: {}
+  keyState: {},
+  direction: 1
 };
 
 function resetBall() {
@@ -26,11 +27,12 @@ function resetBall() {
 	const maxAngleVariation = 25 * (Math.PI / 180); // Convert 25 degrees to radians
 	const baseAngle = Math.random() < 0.5 ? Math.PI / 2 : -Math.PI / 2; // Either 90 degrees (towards player 2) or -90 degrees (towards player 1)
 	const randomAngle = baseAngle + (Math.random() * 2 - 1) * maxAngleVariation; // Random angle within ±25 degrees of baseAngle
-	const speed = 0.1; // Initial speed
+	const speed = 0.15; // Initial speed
 	gameState.ballSpeed = {
 	  x: speed * Math.cos(randomAngle),
 	  z: speed * Math.sin(randomAngle)
 	};
+	gameState.direction = gameState.ballSpeed.z > 0 ? 1 : -1;
   }
 
 function checkWinner() {
@@ -76,11 +78,13 @@ function gameLoop() {
     gameState.ballSpeed.z = -gameState.ballSpeed.z;
     const impactPoint = gameState.ball.x - gameState.paddle1.x;
     gameState.ballSpeed.x += impactPoint * 0.05;
+	gameState.direction = gameState.ballSpeed.z > 0 ? 1 : -1;
   }
   if (gameState.ball.z >= 8.5 && gameState.ball.z <= 9 && gameState.ball.x >= gameState.paddle2.x - 1 && gameState.ball.x <= gameState.paddle2.x + 1) {
     gameState.ballSpeed.z = -gameState.ballSpeed.z;
     const impactPoint = gameState.ball.x - gameState.paddle2.x;
     gameState.ballSpeed.x += impactPoint * 0.05;
+	gameState.direction = gameState.ballSpeed.z > 0 ? 1 : -1;
   }
 
   // Ball out of bounds (reset position and update points)
@@ -99,7 +103,8 @@ function gameLoop() {
     ball: { x: gameState.ball.x, z: gameState.ball.z },
     paddle1: { x: gameState.paddle1.x },
     paddle2: { x: gameState.paddle2.x },
-    points: gameState.points
+    points: gameState.points,
+	direction: gameState.direction
   });
 }
 

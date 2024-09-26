@@ -8,7 +8,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     clean: true, // Clean the output directory before emit
   },
-  mode: 'production',
+  mode: 'development', // Use development mode
   plugins: [
     new HtmlWebpackPlugin({
       template: './src/index.html',
@@ -21,8 +21,15 @@ module.exports = {
     compress: true,
     port: 9000,
     open: true, // Automatically open the browser
+    hot: true, // Enable Hot Module Replacement
+  },
+  resolve: {
+    alias: {
+      three: path.resolve('./node_modules/three'),
+    },
   },
   performance: {
-	hints: false, // Disable performance hints
+    hints: false, // Disable performance hints
   },
+  cache: false, // Disable caching
 };

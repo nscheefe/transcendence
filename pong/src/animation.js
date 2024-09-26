@@ -1,13 +1,30 @@
+import * as THREE from 'three';
 import { keyState } from './input';
-import { socket } from './websocket';
+import { socket, direction } from './websocket';
+import { vaporPlane, vaporPlane2, vaporPlane3, effectComposer } from './vaporwave.js';
 
 let isAnimating = false;
 
+//  // Controls
+//  controls = new OrbitControls(camera, canvas);
+//  controls.enableDamping = true;
+
 export function animate(renderer, scene, camera) {
   if (isAnimating) return; // Prevent multiple animation loops
+  const clock = new THREE.Clock();
   isAnimating = true;
+  let timer = 0;
 
   function render() {
+	//vaporwave
+    const elapsedTime = clock.getDelta();
+	console.log("elapsedTime: " + elapsedTime);
+	timer += (direction * elapsedTime);
+	vaporPlane.position.z = (timer * 3) % 40;
+    vaporPlane2.position.z = ((timer * 3) % 40) - 40;
+	vaporPlane3.position.z = ((timer * 3) % 40) + 40;
+
+    effectComposer.render();
     renderer.render(scene, camera);
     requestAnimationFrame(render);
   }
