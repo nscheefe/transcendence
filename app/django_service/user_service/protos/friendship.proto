@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package models;
+
+import "google/protobuf/timestamp.proto";
+
+message Friendship {
+  int32 id = 1;
+  int32 user_id = 2;
+  int32 friend_id = 3;
+  google.protobuf.Timestamp established_at = 4;
+  bool accepted = 5;
+}
+
+service FriendshipService {
+  rpc CreateFriendship (CreateFriendshipRequest) returns (Friendship);
+  rpc GetFriendshipById (GetFriendshipByIdRequest) returns (Friendship);
+  rpc GetFriendshipsByUserId (GetFriendshipsByUserIdRequest) returns (FriendshipsResponse);
+  rpc GetFriendshipsByFriendId (GetFriendshipsByFriendIdRequest) returns (FriendshipsResponse);
+}
+
+message CreateFriendshipRequest {
+  int32 user_id = 1;
+  int32 friend_id = 2;
+  google.protobuf.Timestamp established_at = 3;
+  bool accepted = 4;
+}
+
+message GetFriendshipByIdRequest {
+  int32 id = 1;
+}
+
+message GetFriendshipsByUserIdRequest {
+  int32 user_id = 1;
+}
+
+message GetFriendshipsByFriendIdRequest {
+  int32 friend_id = 1;
+}
+
+message FriendshipsResponse {
+  repeated Friendship friendships = 1;
+}

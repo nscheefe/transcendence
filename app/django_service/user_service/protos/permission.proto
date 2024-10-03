@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package models;
+
+message Permission {
+  int32 id = 1;
+  string name = 2;
+  string description = 3;
+}
+
+service PermissionService {
+  rpc CreatePermission (CreatePermissionRequest) returns (Permission);
+  rpc GetPermissionById (GetPermissionByIdRequest) returns (Permission);
+}
+
+message CreatePermissionRequest {
+  string name = 1;
+  string description = 2;
+}
+
+message GetPermissionByIdRequest {
+  int32 id = 1;
+}

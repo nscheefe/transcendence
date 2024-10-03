@@ -1,47 +1,47 @@
 syntax = "proto3";
 
-package user;
+package models;
 
-service UserService {
-  rpc GetUsers (Empty) returns (UserList);
-  rpc GetUser (GetUserRequest) returns (User);
-  rpc CreateUser (CreateUserRequest) returns (User);  // Added CreateUser RPC
-}
+import "google/protobuf/timestamp.proto";
 
 message User {
   int32 id = 1;
   string name = 2;
-  string secret = 3;
-  repeated Permission permissions = 4;
-  bool isAuth = 5;
-  bool blocked = 6;
-}
-
-message UserList {
-  repeated User users = 1;
-}
-
-message Empty {}
-
-enum PermissionType {
-  ADMIN = 0;
-  USER = 1;
-}
-
-message Permission {
-  int32 id = 1;
-  PermissionType type = 2;
-}
-
-// Added CreateUserRequest message
-message CreateUserRequest {
-  string name = 1;
-  string secret = 2;
-  repeated Permission permissions = 3;
+  string mail = 3;
   bool isAuth = 4;
   bool blocked = 5;
+  google.protobuf.Timestamp created_at = 6;
+  google.protobuf.Timestamp updated_at = 7;
+  int32 role_id = 8;
+  google.protobuf.Timestamp last_login = 9;
+  string last_login_ip = 10;
+}
+
+service UserService {
+  rpc CreateUser (CreateUserRequest) returns (User);
+  rpc GetUser (GetUserRequest) returns (User);
+    rpc GetUsersByRoleId (GetUsersByRoleIdRequest) returns (UsersResponse); // Added service method
+
+  // Add more service methods as needed
+}
+
+message CreateUserRequest {
+  string name = 1;
+  string mail = 2;
+  bool isAuth = 3;
+  bool blocked = 4;
+  int32 role_id = 5;
+  string last_login_ip = 6;
 }
 
 message GetUserRequest {
   int32 id = 1;
+}
+
+message GetUsersByRoleIdRequest {
+  int32 role_id = 1;
+}
+
+message UsersResponse {
+  repeated User users = 1;
 }

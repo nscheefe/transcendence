@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from . import user_pb2 as user__pb2
+from . import userAchievement_pb2 as userAchievement__pb2
 
 GRPC_GENERATED_VERSION = '1.66.2'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in user_pb2_grpc.py depends on'
+        + f' but the generated code in userAchievement_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class UserServiceStub(object):
+class UserAchievementServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,76 +34,75 @@ class UserServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.CreateUser = channel.unary_unary(
-                '/models.UserService/CreateUser',
-                request_serializer=user__pb2.CreateUserRequest.SerializeToString,
-                response_deserializer=user__pb2.User.FromString,
+        self.GetUserAchievementById = channel.unary_unary(
+                '/models.UserAchievementService/GetUserAchievementById',
+                request_serializer=userAchievement__pb2.GetUserAchievementByIdRequest.SerializeToString,
+                response_deserializer=userAchievement__pb2.UserAchievement.FromString,
                 _registered_method=True)
-        self.GetUser = channel.unary_unary(
-                '/models.UserService/GetUser',
-                request_serializer=user__pb2.GetUserRequest.SerializeToString,
-                response_deserializer=user__pb2.User.FromString,
+        self.GetUserAchievementsByUserId = channel.unary_unary(
+                '/models.UserAchievementService/GetUserAchievementsByUserId',
+                request_serializer=userAchievement__pb2.GetUserAchievementsByUserIdRequest.SerializeToString,
+                response_deserializer=userAchievement__pb2.UserAchievementsResponse.FromString,
                 _registered_method=True)
-        self.GetUsersByRoleId = channel.unary_unary(
-                '/models.UserService/GetUsersByRoleId',
-                request_serializer=user__pb2.GetUsersByRoleIdRequest.SerializeToString,
-                response_deserializer=user__pb2.UsersResponse.FromString,
+        self.CreateUserAchievement = channel.unary_unary(
+                '/models.UserAchievementService/CreateUserAchievement',
+                request_serializer=userAchievement__pb2.CreateUserAchievementRequest.SerializeToString,
+                response_deserializer=userAchievement__pb2.UserAchievement.FromString,
                 _registered_method=True)
 
 
-class UserServiceServicer(object):
+class UserAchievementServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def CreateUser(self, request, context):
+    def GetUserAchievementById(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetUser(self, request, context):
+    def GetUserAchievementsByUserId(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetUsersByRoleId(self, request, context):
-        """Added service method
-        """
+    def CreateUserAchievement(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_UserServiceServicer_to_server(servicer, server):
+def add_UserAchievementServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'CreateUser': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateUser,
-                    request_deserializer=user__pb2.CreateUserRequest.FromString,
-                    response_serializer=user__pb2.User.SerializeToString,
+            'GetUserAchievementById': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUserAchievementById,
+                    request_deserializer=userAchievement__pb2.GetUserAchievementByIdRequest.FromString,
+                    response_serializer=userAchievement__pb2.UserAchievement.SerializeToString,
             ),
-            'GetUser': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetUser,
-                    request_deserializer=user__pb2.GetUserRequest.FromString,
-                    response_serializer=user__pb2.User.SerializeToString,
+            'GetUserAchievementsByUserId': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUserAchievementsByUserId,
+                    request_deserializer=userAchievement__pb2.GetUserAchievementsByUserIdRequest.FromString,
+                    response_serializer=userAchievement__pb2.UserAchievementsResponse.SerializeToString,
             ),
-            'GetUsersByRoleId': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetUsersByRoleId,
-                    request_deserializer=user__pb2.GetUsersByRoleIdRequest.FromString,
-                    response_serializer=user__pb2.UsersResponse.SerializeToString,
+            'CreateUserAchievement': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateUserAchievement,
+                    request_deserializer=userAchievement__pb2.CreateUserAchievementRequest.FromString,
+                    response_serializer=userAchievement__pb2.UserAchievement.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'models.UserService', rpc_method_handlers)
+            'models.UserAchievementService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('models.UserService', rpc_method_handlers)
+    server.add_registered_method_handlers('models.UserAchievementService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class UserService(object):
+class UserAchievementService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def CreateUser(request,
+    def GetUserAchievementById(request,
             target,
             options=(),
             channel_credentials=None,
@@ -116,9 +115,9 @@ class UserService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/models.UserService/CreateUser',
-            user__pb2.CreateUserRequest.SerializeToString,
-            user__pb2.User.FromString,
+            '/models.UserAchievementService/GetUserAchievementById',
+            userAchievement__pb2.GetUserAchievementByIdRequest.SerializeToString,
+            userAchievement__pb2.UserAchievement.FromString,
             options,
             channel_credentials,
             insecure,
@@ -130,7 +129,7 @@ class UserService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetUser(request,
+    def GetUserAchievementsByUserId(request,
             target,
             options=(),
             channel_credentials=None,
@@ -143,9 +142,9 @@ class UserService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/models.UserService/GetUser',
-            user__pb2.GetUserRequest.SerializeToString,
-            user__pb2.User.FromString,
+            '/models.UserAchievementService/GetUserAchievementsByUserId',
+            userAchievement__pb2.GetUserAchievementsByUserIdRequest.SerializeToString,
+            userAchievement__pb2.UserAchievementsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -157,7 +156,7 @@ class UserService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetUsersByRoleId(request,
+    def CreateUserAchievement(request,
             target,
             options=(),
             channel_credentials=None,
@@ -170,9 +169,9 @@ class UserService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/models.UserService/GetUsersByRoleId',
-            user__pb2.GetUsersByRoleIdRequest.SerializeToString,
-            user__pb2.UsersResponse.FromString,
+            '/models.UserAchievementService/CreateUserAchievement',
+            userAchievement__pb2.CreateUserAchievementRequest.SerializeToString,
+            userAchievement__pb2.UserAchievement.FromString,
             options,
             channel_credentials,
             insecure,
