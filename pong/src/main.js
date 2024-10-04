@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { createTextMeshRelativeToCamera, createScene, createCamera, createRenderer, createLights, createTable,createTextMesh, createTextOnTable, updateTextMeshOrientation } from './scene';
+import { createScene, createCamera, createRenderer, createLights, createTable,createTextMesh, createTextOnTable, updateTextMeshOrientation } from './scene';
 import { createPaddle } from './paddle';
 import { createBall } from './ball';
 import { createWebSocket, socket } from './websocket';

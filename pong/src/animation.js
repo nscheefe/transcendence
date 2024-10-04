@@ -10,25 +10,25 @@ let isAnimating = false;
 //  controls.enableDamping = true;
 
 export function animate(renderer, scene, camera) {
-  if (isAnimating) return; // Prevent multiple animation loops
-  const clock = new THREE.Clock();
-  isAnimating = true;
-  let timer = 0;
+	if (isAnimating) return; // Prevent multiple animation loops
+	const clock = new THREE.Clock();
+	isAnimating = true;
+	let timer = 0;
 
-  function render() {
-	//vaporwave
-    const elapsedTime = clock.getDelta();
-	console.log("elapsedTime: " + elapsedTime);
-	timer += (direction * elapsedTime);
-	vaporPlane.position.z = (timer * 3) % 40;
-    vaporPlane2.position.z = ((timer * 3) % 40) - 40;
-	vaporPlane3.position.z = ((timer * 3) % 40) + 40;
+	function render() {
+		//vaporwave
+		const elapsedTime = clock.getDelta();
+		console.log("elapsedTime: " + elapsedTime);
+		timer += (direction * elapsedTime);
+		vaporPlane.position.z = (timer * 3) % 40;
+		vaporPlane2.position.z = ((timer * 3) % 40) - 40;
+		vaporPlane3.position.z = ((timer * 3) % 40) + 40;
 
-    effectComposer.render();
-    renderer.render(scene, camera);
-    requestAnimationFrame(render);
-  }
-  render();
+		effectComposer.render();
+		renderer.render(scene, camera);
+		requestAnimationFrame(render);
+	}
+	render();
 }
 
 //function updatePaddlePosition(paddle1, paddle2) { //  For Local later
@@ -52,12 +52,12 @@ export function animate(renderer, scene, camera) {
 
 export function updatePaddlePositionFromServer(paddle1, paddle2, state) {
 	if (state.paddle1 !== undefined) {
-	  paddle1.position.x = state.paddle1.x;
+		paddle1.position.x = state.paddle1.x;
 	}
 	if (state.paddle2 !== undefined) {
-	  paddle2.position.x = state.paddle2.x;
+		paddle2.position.x = state.paddle2.x;
 	}
-  }
+}
 
 function sendPaddlePosition(player, x) {
   if (socket.readyState === WebSocket.OPEN) {
