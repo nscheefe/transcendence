@@ -87,7 +87,7 @@ class Query(graphene.ObjectType):
     user_achievement = graphene.Field(UserAchievementType, id=graphene.Int(required=True))
 
     def resolve_user(self, info, id):
-        channel = grpc.insecure_channel(settings.USER_SERVICE_URL)
+        channel = grpc.insecure_channel('user_service:50051')
         client = UserServiceStub(channel)
         request = GetUserRequest(id=id)
         response = client.GetUser(request)
@@ -105,56 +105,56 @@ class Query(graphene.ObjectType):
         )
 
     def resolve_friendship(self, info, id):
-        channel = grpc.insecure_channel(settings.FRIENDSHIP_SERVICE_URL)
+        channel = grpc.insecure_channel('user_service:50051')
         client = FriendshipServiceStub(channel)
         request = GetFriendshipByIdRequest(id=id)
         response = client.GetFriendshipById(request)
         return FriendshipType(id=response.id, user_id=response.user_id, friend_id=response.friend_id, status=response.status)
 
     def resolve_notification(self, info, id):
-        channel = grpc.insecure_channel(settings.NOTIFICATION_SERVICE_URL)
+        channel = grpc.insecure_channel('user_service:50051')
         client = NotificationServiceStub(channel)
         request = GetNotificationByIdRequest(id=id)
         response = client.GetNotificationById(request)
         return NotificationType(id=response.id, user_id=response.user_id, message=response.message, seen=response.seen)
 
     def resolve_permission(self, info, id):
-        channel = grpc.insecure_channel(settings.PERMISSION_SERVICE_URL)
+        channel = grpc.insecure_channel('user_service:50051')
         client = PermissionServiceStub(channel)
         request = GetPermissionByIdRequest(id=id)
         response = client.GetPermissionById(request)
         return PermissionType(id=response.id, name=response.name, description=response.description)
 
     def resolve_profile(self, info, id):
-        channel = grpc.insecure_channel(settings.PROFILE_SERVICE_URL)
+        channel = grpc.insecure_channel('user_service:50051')
         client = ProfileServiceStub(channel)
         request = GetProfileByIdRequest(id=id)
         response = client.GetProfileById(request)
         return ProfileType(id=response.id, user_id=response.user_id, bio=response.bio, image=response.image)
 
     def resolve_role(self, info, id):
-        channel = grpc.insecure_channel(settings.ROLE_SERVICE_URL)
+        channel = grpc.insecure_channel('user_service:50051')
         client = RoleServiceStub(channel)
         request = GetRoleByIdRequest(id=id)
         response = client.GetRoleById(request)
         return RoleType(id=response.id, name=response.name)
 
     def resolve_role_permission(self, info, id):
-        channel = grpc.insecure_channel(settings.ROLE_PERMISSION_SERVICE_URL)
+        channel = grpc.insecure_channel('user_service:50051')
         client = RolePermissionServiceStub(channel)
         request = GetRolePermissionsByRoleIdRequest(id=id)
         response = client.GetRolePermissionsByRoleId(request)
         return RolePermissionType(id=response.id, role_id=response.role_id, permission_id=response.permission_id)
 
     def resolve_setting(self, info, id):
-        channel = grpc.insecure_channel(settings.SETTING_SERVICE_URL)
+        channel = grpc.insecure_channel('user_service:50051')
         client = SettingServiceStub(channel)
         request = GetSettingsByUserIdRequest(id=id)
         response = client.GetSettingsByUserId(request)
         return SettingType(id=response.id, user_id=response.user_id, key=response.key, value=response.value)
 
     def resolve_user_achievement(self, info, id):
-        channel = grpc.insecure_channel(settings.USER_ACHIEVEMENT_SERVICE_URL)
+        channel = grpc.insecure_channel('user_service:50051')
         client = UserAchievementServiceStub(channel)
         request = GetUserAchievementsByUserIdRequest(id=id)
         response = client.GetUserAchievementsByUserId(request)
@@ -312,7 +312,8 @@ class CreateSetting(graphene.Mutation):
     @staticmethod
     def mutate(root, info, input=None):
         # Implement the logic to create a setting
-        return CreateSetting(setting=SettingType(user_id=1, **input))
+        # Assuming input already contains 'user_id', pass **input directly
+        return CreateSetting(setting=SettingType(**input))
 
 # Mutation for creating a user achievement
 class CreateUserAchievement(graphene.Mutation):
