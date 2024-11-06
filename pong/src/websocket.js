@@ -6,6 +6,7 @@ let socket;
 let direction = 1;
 export function createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMesh, scene, camera) {
 	if (!socket || socket.readyState === WebSocket.CLOSED) {
+		console.log('Connecting to the server');
 		socket = new WebSocket('ws://localhost:4000');
 
 		socket.onopen = () => {

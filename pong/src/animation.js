@@ -18,7 +18,7 @@ export function animate(renderer, scene, camera) {
 	function render() {
 		//vaporwave
 		const elapsedTime = clock.getDelta();
-		console.log("elapsedTime: " + elapsedTime);
+		//console.log("elapsedTime: " + elapsedTime);
 		timer += (direction * elapsedTime);
 		vaporPlane.position.z = (timer * 3) % 40;
 		vaporPlane2.position.z = ((timer * 3) % 40) - 40;
