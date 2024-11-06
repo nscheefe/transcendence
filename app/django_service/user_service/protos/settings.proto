@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package models;
+
+message Setting {
+  int32 id = 1;
+  string name = 2;
+  string data = 3; // JSON data serialized as a string
+  int32 user_id = 4;
+}
+
+service SettingService {
+  rpc CreateSetting (CreateSettingRequest) returns (Setting);
+  rpc GetSettingById (GetSettingByIdRequest) returns (Setting);
+  rpc GetSettingsByUserId (GetSettingsByUserIdRequest) returns (SettingsResponse);
+}
+
+message CreateSettingRequest {
+  string name = 1;
+  string data = 2; // JSON data serialized as a string
+  int32 user_id = 3;
+}
+
+message GetSettingByIdRequest {
+  int32 id = 1;
+}
+
+message GetSettingsByUserIdRequest {
+  int32 user_id = 1;
+}
+
+message SettingsResponse {
+  repeated Setting settings = 1;
+}

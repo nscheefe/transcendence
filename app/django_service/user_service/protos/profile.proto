@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package models;
+
+message Profile {
+  int32 id = 1;
+  int32 user_id = 2;
+  string avatar_url = 3;
+  string nickname = 4;
+  string bio = 5;
+  string additional_info = 6; // Assuming JSON serialized as string
+}
+
+service ProfileService {
+  rpc CreateProfile (CreateProfileRequest) returns (Profile);
+  rpc UpdateProfile (UpdateProfileRequest) returns (Profile);
+  rpc GetProfileById (GetProfileByIdRequest) returns (Profile);
+  rpc GetProfileByUserId (GetProfileByUserIdRequest) returns (Profile);
+}
+
+message CreateProfileRequest {
+  int32 user_id = 1;
+  string avatar_url = 2;
+  string nickname = 3;
+  string bio = 4;
+  string additional_info = 5; // JSON serialized as string
+}
+
+message UpdateProfileRequest {
+  int32 id = 1;
+  int32 user_id = 2;
+  string avatar_url = 3;
+  string nickname = 4;
+  string bio = 5;
+  string additional_info = 6; // JSON serialized as string
+}
+
+message GetProfileByIdRequest {
+  int32 id = 1;
+}
+
+message GetProfileByUserIdRequest {
+  int32 user_id = 1;
+}
