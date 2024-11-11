@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 
 let keyState = {};
 import { socket } from './websocket';

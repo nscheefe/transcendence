@@ -1,5 +1,4 @@
 import * as THREE from 'three';
-import { keyState } from './input';
 import { socket, direction } from './websocket';
 import { vaporPlane, vaporPlane2, vaporPlane3, effectComposer } from './vaporwave.js';
 
