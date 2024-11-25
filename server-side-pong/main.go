@@ -12,7 +12,7 @@ import (
 const (
     port           = ":4000"
     winningPoints  = 10
-    initialBallSpeed = 0.15
+    initialBallSpeed float32 = 0.15
     maxAngleVariation = 25 * (math.Pi / 180) // 25 degrees in radians
 )
 
@@ -43,14 +43,14 @@ type Client struct {
 }
 
 type Position struct {
-    X float64 `json:"x"`
-    Y float64 `json:"y"`
-    Z float64 `json:"z"`
+    X float32 `json:"x"`
+    Y float32 `json:"y"`
+    Z float32 `json:"z"`
 }
 
 type Speed struct {
-    X float64 `json:"x"`
-    Z float64 `json:"z"`
+    X float32 `json:"x"`
+    Z float32 `json:"z"`
 }
 
 type Points struct {

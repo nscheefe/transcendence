@@ -7,8 +7,8 @@ import (
 )
 
 func resetBall() {
- randomX := (rand.Float64() - 0.5) * 9
- randomZ := 0.0
+ randomX := (rand.Float32() - 0.5) * 9
+ var randomZ float32 = 0.0
 
  gameState.Ball = Position{X: randomX, Y: 0.5, Z: randomZ}
 
@@ -18,8 +18,8 @@ func resetBall() {
  }
  randomAngle := baseAngle + (rand.Float64()*2-1)*maxAngleVariation
  gameState.BallSpeed = Speed{
-     X: initialBallSpeed * math.Cos(randomAngle),
-     Z: initialBallSpeed * math.Sin(randomAngle),
+	X: initialBallSpeed * float32(math.Cos(randomAngle)),
+	Z: initialBallSpeed * float32(math.Sin(randomAngle)),
  }
  gameState.Direction = 1
  if gameState.BallSpeed.Z < 0 {

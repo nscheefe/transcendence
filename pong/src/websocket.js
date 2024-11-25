@@ -20,12 +20,22 @@ export function createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2
     isConnecting = true;
     socket = new WebSocket('ws://localhost:4000');
 
-    socket.onopen = () => {
-        console.log('Connected to the server');
-        isConnecting = false;
-    };
+    socket.onopen = () => handleOpen();
+    socket.onmessage = handleMessage(ball, paddle1, paddle2, player1TextMesh, player2TextMesh, scene, camera);
+    socket.onclose = handleClose(ball, paddle1, paddle2, player1TextMesh, player2TextMesh, scene, camera);
+    socket.onerror = handleError;
+}
 
-    socket.onmessage = (event) => {
+function handleOpen() {
+    console.log('Connected to the server');
+    isConnecting = false;
+    // Send handshake message with a placeholder client ID
+    const clientId = 'placeholder-client-id';
+    socket.send(JSON.stringify({ type: 'handshake', clientId }));
+}
+
+function handleMessage(ball, paddle1, paddle2, player1TextMesh, player2TextMesh, scene, camera) {
+    return (event) => {
         const state = JSON.parse(event.data);
         console.log('Received state:', state);
         if (state.type === 'updateState') {
@@ -46,18 +56,20 @@ export function createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2
             scene.add(gameOver(state.winner, camera));
         }
     };
+}
 
-    socket.onclose = (event) => {
+function handleClose(ball, paddle1, paddle2, player1TextMesh, player2TextMesh, scene, camera) {
+    return (event) => {
         console.log('Disconnected from the server', event);
         isConnecting = false;
         // Optionally, implement reconnection logic
         setTimeout(() => createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMesh, scene, camera), 1000); // Attempt to reconnect after 1 second
     };
+}
 
-    socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
-        isConnecting = false;
-    };
+function handleError(error) {
+    console.error('WebSocket error:', error);
+    isConnecting = false;
 }
 
 export {

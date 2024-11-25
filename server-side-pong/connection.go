@@ -29,6 +29,20 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
     clientIP := r.RemoteAddr
     fmt.Printf("Client connected from %s\n", clientIP)
 
+    // Read the initial handshake message
+    var handshakeMessage map[string]interface{}
+    if err := ws.ReadJSON(&handshakeMessage); err != nil {
+        fmt.Println("Failed to read handshake message:", err)
+        return
+    }
+
+    clientId, ok := handshakeMessage["clientId"].(string)
+    if !ok {
+        fmt.Println("Invalid handshake message: clientId missing or invalid")
+        return
+    }
+	fmt.Println("Client ID:", clientId)
+
     mu.Lock()
     for _, client := range clients {
         if client.conn.RemoteAddr().String() == clientIP {
@@ -55,6 +69,12 @@ func handleConnections(w http.ResponseWriter, r *http.Request) {
     mu.Unlock()
 
     fmt.Printf("Client connected as %s\n", role)
+
+    // Send handshake response with the assigned role
+    ws.WriteJSON(map[string]interface{}{
+        "type": "handshakeResponse",
+        "role": role,
+    })
 
     if len(clients) == 2 && !gameStarted {
         startGame()
