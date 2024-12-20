@@ -1,0 +1,12 @@
+{
+    "name": "Python 3.8",
+    "build": {
+        "dockerfile": "Dockerfile",
+        "context": ".."
+    },
+    "mounts": [
+        "source=${localEnv:HOME}/.ssh,target=/root/.ssh,type=bind,consistency=cached"
+    ],
+    "postCreateCommand": ". venv/bin/activate && pip install -r requirements.txt",
+    "remoteUser": "root"
+} 
