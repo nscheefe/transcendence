@@ -3,7 +3,7 @@ import grpc
 
 # Import the protobuf service stubs and request classes for each model
 from main_service.protos.user_pb2_grpc import UserServiceStub
-from  main_service.protos.user_pb2 import GetUserRequest
+from  main_service.protos.user_pb2 import GetUserRequest, CreateUserRequest
 from main_service.protos.friendship_pb2_grpc import FriendshipServiceStub
 from main_service.protos.friendship_pb2 import GetFriendshipByIdRequest
 from main_service.protos.notification_pb2_grpc import NotificationServiceStub
@@ -97,10 +97,10 @@ class Query(graphene.ObjectType):
             mail=response.mail,
             isAuth=response.isAuth,
             blocked=response.blocked,
-            created_at=response.created_at,
-            updated_at=response.updated_at,
+            created_at=datetime.fromtimestamp(response.created_at.seconds),
+            updated_at=datetime.fromtimestamp(response.updated_at.seconds),
             role_id=response.role_id,
-            last_login=response.last_login,
+            last_login=datetime.fromtimestamp(response.last_login.seconds),
             last_login_ip=response.last_login_ip
         )
 
@@ -226,9 +226,41 @@ class CreateUser(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, input=None):
-        # Here you would implement the logic to create a user in your database
-        # For demonstration, returning a mock object
-        return CreateUser(user=UserType(id=1, **input))
+
+        grpc_host = "user_service"
+        grpc_port = 50051
+        service_endpoint = f"{grpc_host}:{grpc_port}"
+
+        try:
+            with grpc.insecure_channel(service_endpoint) as channel:
+                stub = UserServiceStub(channel)
+                grpc_request = CreateUserRequest(
+                    name=input.name,
+                    mail=input.mail,
+                    isAuth=input.isAuth,
+                    blocked=input.blocked,
+                    role_id=input.role_id,
+                    last_login_ip=input.last_login_ip or ""
+                )
+                grpc_response = stub.CreateUser(grpc_request)
+                user_data = UserType(
+                    id=grpc_response.id,
+                    name=grpc_response.name,
+                    mail=grpc_response.mail,
+                    isAuth=grpc_response.isAuth,
+                    blocked=grpc_response.blocked,
+                    role_id=grpc_response.role_id,
+                    last_login_ip=grpc_response.last_login_ip,
+                    created_at=datetime.fromtimestamp(grpc_response.created_at.seconds)
+                    if grpc_response.HasField("created_at") else None,
+                    updated_at=datetime.fromtimestamp(grpc_response.updated_at.seconds)
+                    if grpc_response.HasField("updated_at") else None,
+                )
+                return CreateUser(user=user_data)
+        except grpc.RpcError as e:
+            raise Exception(f"gRPC error: {e.details()} (Code: {e.code()})")
+        except Exception as ex:
+            raise Exception(f"Error occurred while creating user: {str(ex)}")
 
 # Mutation for creating a friendship
 class CreateFriendship(graphene.Mutation):
