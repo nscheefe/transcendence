@@ -29,6 +29,16 @@ class NotificationServiceStub(object):
                 request_serializer=notification__pb2.GetNotificationsByUserIdRequest.SerializeToString,
                 response_deserializer=notification__pb2.NotificationsResponse.FromString,
                 )
+        self.UpdateNotification = channel.unary_unary(
+                '/models.NotificationService/UpdateNotification',
+                request_serializer=notification__pb2.UpdateNotificationRequest.SerializeToString,
+                response_deserializer=notification__pb2.Notification.FromString,
+                )
+        self.DeleteNotification = channel.unary_unary(
+                '/models.NotificationService/DeleteNotification',
+                request_serializer=notification__pb2.DeleteNotificationRequest.SerializeToString,
+                response_deserializer=notification__pb2.DeleteNotificationResponse.FromString,
+                )
 
 
 class NotificationServiceServicer(object):
@@ -52,6 +62,18 @@ class NotificationServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def UpdateNotification(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteNotification(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NotificationServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -69,6 +91,16 @@ def add_NotificationServiceServicer_to_server(servicer, server):
                     servicer.GetNotificationsByUserId,
                     request_deserializer=notification__pb2.GetNotificationsByUserIdRequest.FromString,
                     response_serializer=notification__pb2.NotificationsResponse.SerializeToString,
+            ),
+            'UpdateNotification': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateNotification,
+                    request_deserializer=notification__pb2.UpdateNotificationRequest.FromString,
+                    response_serializer=notification__pb2.Notification.SerializeToString,
+            ),
+            'DeleteNotification': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteNotification,
+                    request_deserializer=notification__pb2.DeleteNotificationRequest.FromString,
+                    response_serializer=notification__pb2.DeleteNotificationResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -128,5 +160,39 @@ class NotificationService(object):
         return grpc.experimental.unary_unary(request, target, '/models.NotificationService/GetNotificationsByUserId',
             notification__pb2.GetNotificationsByUserIdRequest.SerializeToString,
             notification__pb2.NotificationsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def UpdateNotification(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/models.NotificationService/UpdateNotification',
+            notification__pb2.UpdateNotificationRequest.SerializeToString,
+            notification__pb2.Notification.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DeleteNotification(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/models.NotificationService/DeleteNotification',
+            notification__pb2.DeleteNotificationRequest.SerializeToString,
+            notification__pb2.DeleteNotificationResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -13,6 +13,13 @@ service SettingService {
   rpc CreateSetting (CreateSettingRequest) returns (Setting);
   rpc GetSettingById (GetSettingByIdRequest) returns (Setting);
   rpc GetSettingsByUserId (GetSettingsByUserIdRequest) returns (SettingsResponse);
+  rpc UpdateSetting (UpdateSettingRequest) returns (Setting); // New update method
+}
+
+message UpdateSettingRequest {
+  int32 id = 1;
+  string name = 2;
+  string data = 3;
 }
 
 message CreateSettingRequest {

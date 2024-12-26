@@ -7,21 +7,21 @@ import grpc
 from main_service.protos.user_pb2_grpc import UserServiceStub
 from  main_service.protos.user_pb2 import GetUserRequest, CreateUserRequest
 from main_service.protos.friendship_pb2_grpc import FriendshipServiceStub
-from main_service.protos.friendship_pb2 import GetFriendshipByIdRequest, GetFriendshipsByUserIdRequest
+from main_service.protos.friendship_pb2 import GetFriendshipByIdRequest, GetFriendshipsByUserIdRequest, CreateFriendshipRequest, UpdateFriendshipRequest, DeleteFriendshipRequest
 from main_service.protos.notification_pb2_grpc import NotificationServiceStub
-from main_service.protos.notification_pb2 import GetNotificationByIdRequest, GetNotificationsByUserIdRequest
+from main_service.protos.notification_pb2 import GetNotificationByIdRequest, GetNotificationsByUserIdRequest, CreateNotificationRequest, DeleteNotificationRequest, UpdateNotificationRequest
 from main_service.protos.permission_pb2_grpc import PermissionServiceStub
 from main_service.protos.permission_pb2 import GetPermissionByIdRequest
 from main_service.protos.profile_pb2_grpc import ProfileServiceStub
-from main_service.protos.profile_pb2 import GetProfileByIdRequest, GetProfileByUserIdRequest
+from main_service.protos.profile_pb2 import GetProfileByIdRequest, GetProfileByUserIdRequest, CreateProfileRequest, UpdateProfileRequest
 from main_service.protos.role_pb2_grpc import RoleServiceStub
 from main_service.protos.role_pb2 import GetRoleByIdRequest
 from main_service.protos.rolePermission_pb2_grpc import RolePermissionServiceStub
 from main_service.protos.rolePermission_pb2 import GetRolePermissionsByRoleIdRequest
 from main_service.protos.settings_pb2_grpc import SettingServiceStub
-from main_service.protos.settings_pb2 import GetSettingsByUserIdRequest
+from main_service.protos.settings_pb2 import GetSettingsByUserIdRequest, CreateSettingRequest, UpdateSettingRequest
 from main_service.protos.userAchievement_pb2_grpc import UserAchievementServiceStub
-from main_service.protos.userAchievement_pb2 import GetUserAchievementsByUserIdRequest
+from main_service.protos.userAchievement_pb2 import GetUserAchievementsByUserIdRequest, CreateUserAchievementRequest, UpdateUserAchievementRequest
 
 # Define the GraphQL types for each model
 class UserType(graphene.ObjectType):
@@ -262,11 +262,317 @@ class Query(graphene.ObjectType):
             last_login_ip=response.last_login_ip
         )
 
-    # Similar resolver functions need to be defined for other types like FriendshipType, NotificationType, etc.
-# Define input classes for each type
-class UserInput(graphene.InputObjectType):
+##############################################################################################
+
+
+class FriendshipFields(graphene.InputObjectType):
+    friend_id = graphene.Int()
+    established_at = graphene.DateTime()
+    accepted = graphene.Boolean()
+
+
+class FriendshipDeleteInput(graphene.InputObjectType):
+    id = graphene.Int(required=True)
+
+
+class FriendshipInput(graphene.InputObjectType):
+    create = graphene.Field(FriendshipFields)
+    update = graphene.Field(FriendshipFields)
+    delete = graphene.Field(FriendshipDeleteInput)
+
+class FriendshipMutation(graphene.Mutation):
+    class Arguments:
+        friendship_data = FriendshipInput(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, friendship_data):
+        user_id = info.context.user_id
+
+        if not user_id:
+            raise Exception("Authentication required: user_id is missing")
+
+        try:
+            channel = grpc.insecure_channel("user_service:50051")
+            friendship_stub = FriendshipServiceStub(channel)
+            notification_stub = NotificationServiceStub(channel)
+
+            if friendship_data.create:
+                create_request = CreateFriendshipRequest(
+                    user_id=user_id,
+                    friend_id=friendship_data.create.friend_id,
+                    established_at=friendship_data.create.established_at,
+                    accepted=friendship_data.create.accepted,
+                )
+
+                response = friendship_stub.CreateFriendship(create_request)
+
+                if not response.id:
+                    raise Exception("Failed to create friendship.")
+                notification_request = CreateNotificationRequest(
+                    user_id=friendship_data.create.friend_id,
+                    message=f"User {user_id} sent you a friend request.",
+                    read=False,
+                    sent_at=datetime.utcnow()
+                )
+                notification_stub.CreateNotification(notification_request)
+            if friendship_data.update:
+                update_request = UpdateFriendshipRequest(
+                    user_id=user_id,
+                    friend_id=friendship_data.update.friend_id,
+                    accepted=friendship_data.update.accepted,
+                )
+                friendship_stub.UpdateFriendship(update_request)
+            if friendship_data.delete:
+                delete_request = DeleteFriendshipRequest(
+                    id=friendship_data.delete.id
+                )
+                delete_response = friendship_stub.DeleteFriendship(delete_request)
+
+                if not delete_response.success:
+                    raise Exception("Failed to delete friendship.")
+
+            return FriendshipMutation(
+                success=True, message="Friendship (and optionally notifications) completed successfully."
+            )
+
+        except grpc.RpcError as e:
+            return FriendshipMutation(success=False, message=f"gRPC error: {e.details()} (Code: {e.code()})")
+        except Exception as e:
+            return FriendshipMutation(success=False, message=f"Unexpected error: {str(e)}")
+
+
+########################################################################################################################
+class NotificationFields(graphene.InputObjectType):
+    message = graphene.String()
+    read = graphene.Boolean()
+    sent_at = graphene.DateTime()
+
+
+class NotificationDeleteInput(graphene.InputObjectType):
+    id = graphene.Int(required=True)
+
+class NotificationInput(graphene.InputObjectType):
+    create = graphene.Field(NotificationFields)
+    update = graphene.Field(NotificationFields)
+    delete = graphene.Field(NotificationDeleteInput)
+
+class NotificationMutation(graphene.Mutation):
+    class Arguments:
+        notification_data = NotificationInput(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, notification_data):
+        user_id = info.context.user_id
+
+        if not user_id:
+            raise Exception("Authentication required: user_id is missing")
+
+        try:
+            channel = grpc.insecure_channel("user_service:50051")
+            notification_stub = NotificationServiceStub(channel)
+
+            if notification_data.create:
+                create_request = CreateNotificationRequest(
+                    user_id=user_id,
+                    message=notification_data.create.message,
+                    read=notification_data.create.read,
+                    sent_at=notification_data.create.sent_at,
+                )
+                notification_stub.CreateNotification(create_request)
+            if notification_data.update:
+                update_request = UpdateNotificationRequest(
+                    user_id=user_id,
+                    message=notification_data.update.message,
+                    read=notification_data.update.read,
+                )
+                notification_stub.UpdateNotification(update_request)
+            if notification_data.delete:
+                delete_request = DeleteNotificationRequest(
+                    id=notification_data.delete.id
+                )
+                delete_response = notification_stub.DeleteNotification(delete_request)
+
+                if not delete_response.success:
+                    raise Exception("Failed to delete notification.")
+
+            return NotificationMutation(
+                success=True, message="Notification operations completed successfully."
+            )
+
+        except grpc.RpcError as e:
+            return NotificationMutation(success=False, message=f"gRPC error: {e.details()} (Code: {e.code()})")
+        except Exception as e:
+            return NotificationMutation(success=False, message=f"Unexpected error: {str(e)}")
+
+########################################################################################################################
+
+class SettingFields(graphene.InputObjectType):
     name = graphene.String()
-    mail = graphene.String()
+    data = graphene.String()
+
+
+class SettingInput(graphene.InputObjectType):
+    create = graphene.Field(SettingFields)
+    update = graphene.Field(SettingFields)
+class SettingMutation(graphene.Mutation):
+    class Arguments:
+        setting_data = SettingInput(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, setting_data):
+        user_id = info.context.user_id
+
+        if not user_id:
+            raise Exception("Authentication required: user_id is missing")
+
+        try:
+            channel = grpc.insecure_channel("user_service:50051")
+            setting_stub = SettingServiceStub(channel)
+
+            if setting_data.create:
+                create_request = CreateSettingRequest(
+                    user_id=user_id,
+                    name=setting_data.create.name,
+                    data=setting_data.create.data,
+                )
+                setting_stub.CreateSetting(create_request)
+
+            # Handle Update Setting
+            if setting_data.update:
+                update_request = UpdateSettingRequest(
+                    user_id=user_id,
+                    name=setting_data.update.name,
+                    data=setting_data.update.data,
+                )
+                setting_stub.UpdateSetting(update_request)
+
+            return SettingMutation(success=True, message="Setting operations completed successfully.")
+
+        except grpc.RpcError as e:
+            return SettingMutation(success=False, message=f"gRPC error: {e.details()} (Code: {e.code()})")
+        except Exception as e:
+            return SettingMutation(success=False, message=f"Unexpected error: {str(e)}")
+
+########################################################################################################################
+
+class UserAchievementFields(graphene.InputObjectType):
+    achievement_id = graphene.Int()
+    unlocked_at = graphene.DateTime()
+
+
+class UserAchievementInput(graphene.InputObjectType):
+    create = graphene.Field(UserAchievementFields)
+    update = graphene.Field(UserAchievementFields)
+
+class UserAchievementMutation(graphene.Mutation):
+    class Arguments:
+        achievement_data = UserAchievementInput(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, achievement_data):
+        user_id = info.context.user_id
+
+        if not user_id:
+            raise Exception("Authentication required: user_id is missing")
+
+        try:
+            channel = grpc.insecure_channel("user_service:50051")
+            achievement_stub = UserAchievementServiceStub(channel)
+            if achievement_data.create:
+                create_request = CreateUserAchievementRequest(
+                    user_id=user_id,
+                    achievement_id=achievement_data.create.achievement_id,
+                    unlocked_at=achievement_data.create.unlocked_at,
+                )
+                achievement_stub.CreateUserAchievement(create_request)
+            if achievement_data.update:
+                update_request = UpdateUserAchievementRequest(
+                    user_id=user_id,
+                    achievement_id=achievement_data.update.achievement_id,
+                    unlocked_at=achievement_data.update.unlocked_at,
+                )
+                achievement_stub.UpdateUserAchievement(update_request)
+
+            return UserAchievementMutation(success=True, message="User Achievement operations completed successfully.")
+
+        except grpc.RpcError as e:
+            return UserAchievementMutation(success=False, message=f"gRPC error: {e.details()} (Code: {e.code()})")
+        except Exception as e:
+            return UserAchievementMutation(success=False, message=f"Unexpected error: {str(e)}")
+
+
+########################################################################################################################
+
+class ProfileFields(graphene.InputObjectType):
+    avatar_url = graphene.String()
+    nickname = graphene.String()
+    bio = graphene.String()
+    additional_info = graphene.String()
+
+
+class ProfileInput(graphene.InputObjectType):
+    create = graphene.Field(ProfileFields)
+    update = graphene.Field(ProfileFields)
+
+
+class ProfileMutation(graphene.Mutation):
+    class Arguments:
+        profile_data = ProfileInput(required=True)
+
+    success = graphene.Boolean()
+    message = graphene.String()
+
+    @staticmethod
+    def mutate(root, info, profile_data):
+        user_id = info.context.user_id
+
+        if not user_id:
+            raise Exception("Authentication required: user_id is missing")
+        try:
+            channel = grpc.insecure_channel("user_service:50051")
+            profile_stub = ProfileServiceStub(channel)
+            if profile_data.create:
+                create_request = CreateProfileRequest(
+                    user_id=user_id,
+                    avatar_url=profile_data.create.avatar_url,
+                    nickname=profile_data.create.nickname,
+                    bio=profile_data.create.bio,
+                    additional_info=profile_data.create.additional_info
+                )
+                profile_stub.CreateProfile(create_request)
+
+            if profile_data.update:
+                update_request = UpdateProfileRequest(
+                    user_id=user_id,
+                    avatar_url=profile_data.update.avatar_url,
+                    nickname=profile_data.update.nickname,
+                    bio=profile_data.update.bio,
+                    additional_info=profile_data.update.additional_info
+                )
+                profile_stub.UpdateProfile(update_request)
+            return ProfileMutation(success=True, message="Profile operations completed successfully.")
+
+        except grpc.RpcError as e:
+            return ProfileMutation(success=False, message=f"gRPC Profile error: {e.details()} (Code: {e.code()})")
+        except Exception as e:
+            return ProfileMutation(success=False, message=f"Unexpected error during profile operations: {str(e)}")
+
+########################################################################################################################
+class UserInput(graphene.InputObjectType):
+    name = graphene.String(required=True)
+    mail = graphene.String(required=True)
     isAuth = graphene.Boolean()
     blocked = graphene.Boolean()
     created_at = graphene.DateTime()
@@ -275,51 +581,9 @@ class UserInput(graphene.InputObjectType):
     last_login = graphene.DateTime()
     last_login_ip = graphene.String()
 
-class FriendshipInput(graphene.InputObjectType):
-    user_id = graphene.Int()
-    friend_id = graphene.Int()
-    established_at = graphene.DateTime()
-    accepted = graphene.Boolean()
-
-class NotificationInput(graphene.InputObjectType):
-    user_id = graphene.Int()
-    message = graphene.String()
-    read = graphene.Boolean()
-    sent_at = graphene.DateTime()
-
-class PermissionInput(graphene.InputObjectType):
-    name = graphene.String()
-    description = graphene.String()
-
-class ProfileInput(graphene.InputObjectType):
-    user_id = graphene.Int()
-    avatar_url = graphene.String()
-    nickname = graphene.String()
-    bio = graphene.String()
-    additional_info = graphene.String()
-
-class RoleInput(graphene.InputObjectType):
-    name = graphene.String()
-
-class RolePermissionInput(graphene.InputObjectType):
-    role_id = graphene.Int()
-    permission_id = graphene.Int()
-
-class SettingInput(graphene.InputObjectType):
-    user_id = graphene.Int()
-    name = graphene.String()
-    data = graphene.String()
-
-class UserAchievementInput(graphene.InputObjectType):
-    user_id = graphene.Int()
-    achievement_id = graphene.Int()
-    unlocked_at = graphene.DateTime()
 
 
 
-# Add create functions and mutations for each input class
-
-# Mutation for creating a user
 class CreateUser(graphene.Mutation):
     class Arguments:
         input = UserInput(required=True)
@@ -364,114 +628,14 @@ class CreateUser(graphene.Mutation):
         except Exception as ex:
             raise Exception(f"Error occurred while creating user: {str(ex)}")
 
-# Mutation for creating a friendship
-class CreateFriendship(graphene.Mutation):
-    class Arguments:
-        input = FriendshipInput(required=True)
+########################################################################################################################
 
-    friendship = graphene.Field(FriendshipType)
-
-    @staticmethod
-    def mutate(root, info, input=None):
-        # Implement the logic to create a friendship
-        return CreateFriendship(friendship=FriendshipType(user_id=1, friend_id=2, **input))
-
-# Mutation for creating a notification
-class CreateNotification(graphene.Mutation):
-    class Arguments:
-        input = NotificationInput(required=True)
-
-    notification = graphene.Field(NotificationType)
-
-    @staticmethod
-    def mutate(root, info, input=None):
-        # Implement the logic to create a notification
-        return CreateNotification(notification=NotificationType(user_id=1, **input))
-
-# Mutation for creating a permission
-class CreatePermission(graphene.Mutation):
-    class Arguments:
-        input = PermissionInput(required=True)
-
-    permission = graphene.Field(PermissionType)
-
-    @staticmethod
-    def mutate(root, info, input=None):
-        # Implement the logic to create a permission
-        return CreatePermission(permission=PermissionType(name=input.name, description=input.description))
-
-# Mutation for creating a profile
-class CreateProfile(graphene.Mutation):
-    class Arguments:
-        input = ProfileInput(required=True)
-
-    profile = graphene.Field(ProfileType)
-
-    @staticmethod
-    def mutate(root, info, input=None):
-        # Implement the logic to create a profile
-        return CreateProfile(profile=ProfileType(user_id=1, **input))
-
-# Mutation for creating a role
-class CreateRole(graphene.Mutation):
-    class Arguments:
-        input = RoleInput(required=True)
-
-    role = graphene.Field(RoleType)
-
-    @staticmethod
-    def mutate(root, info, input=None):
-        # Implement the logic to create a role
-        return CreateRole(role=RoleType(name=input.name))
-
-# Mutation for creating a role permission
-class CreateRolePermission(graphene.Mutation):
-    class Arguments:
-        input = RolePermissionInput(required=True)
-
-    role_permission = graphene.Field(RolePermissionType)
-
-    @staticmethod
-    def mutate(root, info, input=None):
-        # Implement the logic to create a role permission
-        return CreateRolePermission(role_permission=RolePermissionType(role_id=input.role_id, permission_id=input.permission_id))
-
-# Mutation for creating a setting
-class CreateSetting(graphene.Mutation):
-    class Arguments:
-        input = SettingInput(required=True)
-
-    setting = graphene.Field(SettingType)
-
-    @staticmethod
-    def mutate(root, info, input=None):
-        # Implement the logic to create a setting
-        # Assuming input already contains 'user_id', pass **input directly
-        return CreateSetting(setting=SettingType(**input))
-
-# Mutation for creating a user achievement
-class CreateUserAchievement(graphene.Mutation):
-    class Arguments:
-        input = UserAchievementInput(required=True)
-
-    user_achievement = graphene.Field(UserAchievementType)
-
-    @staticmethod
-    def mutate(root, info, input=None):
-        # Implement the logic to create a user achievement
-        return CreateUserAchievement(user_achievement=UserAchievementType(user_id=1, achievement_id=2, **input))
-
-# Add all mutations to the Mutation class
 class Mutation(graphene.ObjectType):
     create_user = CreateUser.Field()
-    create_friendship = CreateFriendship.Field()
-    create_notification = CreateNotification.Field()
-    create_permission = CreatePermission.Field()
-    create_profile = CreateProfile.Field()
-    create_role = CreateRole.Field()
-    create_role_permission = CreateRolePermission.Field()
-    create_setting = CreateSetting.Field()
-    create_user_achievement = CreateUserAchievement.Field()
+    manage_profile = ProfileMutation.Field()
+    manage_friendship = FriendshipMutation.Field()
+    manage_notification = NotificationMutation.Field()
+    manage_setting = SettingMutation.Field()
+    manage_user_achievement = UserAchievementMutation.Field()
 
-# Update the schema to include mutations
 schema = graphene.Schema(query=Query, mutation=Mutation)
