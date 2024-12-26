@@ -13,7 +13,7 @@ from main_service.protos.notification_pb2 import GetNotificationByIdRequest, Get
 from main_service.protos.permission_pb2_grpc import PermissionServiceStub
 from main_service.protos.permission_pb2 import GetPermissionByIdRequest
 from main_service.protos.profile_pb2_grpc import ProfileServiceStub
-from main_service.protos.profile_pb2 import GetProfileByIdRequest, GetProfileByUserIdRequest, CreateProfileRequest, UpdateProfileRequest
+from main_service.protos.profile_pb2 import GetProfileByIdRequest, GetProfileByUserIdRequest, CreateProfileRequest, UpdateProfileRequest, GetAllProfilesRequest
 from main_service.protos.role_pb2_grpc import RoleServiceStub
 from main_service.protos.role_pb2 import GetRoleByIdRequest
 from main_service.protos.rolePermission_pb2_grpc import RolePermissionServiceStub
@@ -58,6 +58,10 @@ class ProfileType(graphene.ObjectType):
     nickname = graphene.String()
     bio = graphene.String()
     additional_info = graphene.String()
+
+class GetAllProfilesResponseType(graphene.ObjectType):
+    profiles = graphene.List(ProfileType)
+    total_count = graphene.Int()
 
 class RoleType(graphene.ObjectType):
     name = graphene.String()
@@ -261,6 +265,54 @@ class Query(graphene.ObjectType):
             last_login=datetime.fromtimestamp(response.last_login.seconds),
             last_login_ip=response.last_login_ip
         )
+
+    get_all_profiles = graphene.Field(
+        GetAllProfilesResponseType,
+        limit=graphene.Int(required=True),
+        offset=graphene.Int(required=True),
+    )
+
+    @staticmethod
+    def resolve_get_all_profiles(self, info, limit, offset):
+        grpc_host = "user_service"
+        grpc_port = 50051
+        service_endpoint = f"{grpc_host}:{grpc_port}"
+
+        try:
+            with grpc.insecure_channel(service_endpoint) as channel:
+                # Create gRPC stub
+                stub = ProfileServiceStub(channel)
+
+                # Prepare the request
+                grpc_request = GetAllProfilesRequest(
+                    limit=limit,
+                    offset=offset,
+                )
+
+                # Call the gRPC method
+                grpc_response = stub.GetAllProfiles(grpc_request)
+
+                # Parse response to match GraphQL format
+                profiles = [
+                    ProfileType(
+                        user_id=profile.user_id,
+                        avatar_url=profile.avatar_url,
+                        nickname=profile.nickname,
+                        bio=profile.bio,
+                        additional_info=profile.additional_info,
+                    )
+                    for profile in grpc_response.profiles
+                ]
+
+                return GetAllProfilesResponseType(
+                    profiles=profiles,
+                    total_count=grpc_response.total_count,
+                )
+
+        except grpc.RpcError as e:
+            raise Exception(f"gRPC error: {e.details()} (Code: {e.code()})")
+        except Exception as ex:
+            raise Exception(f"Error occurred while fetching profiles: {str(ex)}")
 
 ##############################################################################################
 

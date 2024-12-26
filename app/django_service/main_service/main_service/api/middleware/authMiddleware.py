@@ -7,4 +7,4 @@ class AuthMiddleware(MiddlewareMixin):
     """
 
     def process_request(self, request):
-        request.user_id = 113
+        request.user_id = 1

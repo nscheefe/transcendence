@@ -162,7 +162,7 @@ class ProfileServiceHandler(profile_pb2_grpc.ProfileServiceServicer):
 
             return profile_pb2.GetAllProfilesResponse(
                 profiles=profiles,
-                total_count=total_count
+                total_count=total_count - 1
             )
         except Exception as e:
             context.set_code(grpc.StatusCode.INTERNAL)
