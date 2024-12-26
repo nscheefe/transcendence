@@ -55,6 +55,79 @@ class NotificationServiceHandler(notification_pb2_grpc.NotificationServiceServic
             context.set_details(f'Failed to create notification: {str(e)}')
             return notification_pb2.Notification()
 
+    def DeleteNotification(self, request, context):
+        """
+        Delete a Notification by its ID.
+        """
+        try:
+            # Retrieve the notification from the database
+            notification = Notification.objects.get(id=request.id)
+
+            # Delete the notification
+            notification.delete()
+
+            # Return a success response
+            return notification_pb2.DeleteNotificationResponse(success=True)
+
+        except Notification.DoesNotExist:
+            # Notification not found error
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details('Notification not found')
+            return notification_pb2.DeleteNotificationResponse(success=False)
+        except Exception as e:
+            # Handle unexpected errors
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f'Failed to delete notification: {str(e)}')
+            return notification_pb2.DeleteNotificationResponse(success=False)
+
+    def UpdateNotification(self, request, context):
+        """
+        Update an existing Notification by its ID.
+        """
+        try:
+            # Retrieve the notification from the database
+            notification = Notification.objects.get(id=request.id)
+
+            # Update the notification attributes
+            if request.message:
+                notification.message = request.message
+            if request.HasField('read'):
+                notification.read = request.read
+            if request.HasField('sent_at'):
+                notification.sent_at = request.sent_at.ToDatetime()  # Convert protobuf Timestamp to Python datetime
+
+            # Save the updated notification
+            notification.save()
+
+            # Convert Python datetime to protobuf Timestamp
+            sent_at_proto = Timestamp()
+            sent_at_proto.FromDatetime(notification.sent_at)
+
+            # Return the updated notification as a protobuf message
+            return notification_pb2.Notification(
+                id=notification.id,
+                user_id=notification.user.id,
+                message=notification.message,
+                read=notification.read,
+                sent_at=sent_at_proto
+            )
+
+        except Notification.DoesNotExist:
+            # Notification not found error
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details('Notification not found')
+            return notification_pb2.Notification()
+        except IntegrityError as e:
+            # Handle data integrity issues
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details(f'Data integrity error: {str(e)}')
+            return notification_pb2.Notification()
+        except Exception as e:
+            # Handle unexpected errors
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f'Failed to update notification: {str(e)}')
+            return notification_pb2.Notification()
+
     def GetNotificationById(self, request, context):
         """
         Retrieve a Notification by its ID.

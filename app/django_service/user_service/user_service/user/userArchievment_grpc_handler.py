@@ -94,6 +94,50 @@ class UserAchievementServiceHandler(userAchievement_pb2_grpc.UserAchievementServ
             # Return an empty response in case of failure
             return userAchievement_pb2.UserAchievementsResponse(userAchievements=[])
 
+    def UpdateUserAchievement(self, request, context):
+        """
+        Update an existing UserAchievement by its ID.
+        """
+        try:
+            # Fetch the UserAchievement by its ID
+            user_achievement = UserAchievement.objects.get(id=request.id)
+
+            # Update the fields if they are provided in the request
+            if request.HasField("achievement_id"):
+                user_achievement.achievement_id = request.achievement_id
+            if request.HasField("unlocked_at"):
+                user_achievement.unlocked_at = request.unlocked_at.ToDatetime()  # Convert protobuf Timestamp to Python datetime
+
+            # Save the changes
+            user_achievement.save()
+
+            # Convert the updated unlocked_at to a protobuf Timestamp
+            unlocked_at_proto = Timestamp()
+            unlocked_at_proto.FromDatetime(user_achievement.unlocked_at)
+
+            # Return the updated UserAchievement as a protobuf message
+            return userAchievement_pb2.UserAchievement(
+                id=user_achievement.id,
+                user_id=user_achievement.user.id,
+                achievement_id=user_achievement.achievement.id,
+                unlocked_at=unlocked_at_proto
+            )
+        except UserAchievement.DoesNotExist:
+            # Handle the case where the UserAchievement does not exist
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("UserAchievement with the given ID does not exist")
+            return userAchievement_pb2.UserAchievement()
+        except IntegrityError as e:
+            # Handle data integrity issues (e.g., conflicting fields)
+            context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+            context.set_details(f"Data integrity error: {str(e)}")
+            return userAchievement_pb2.UserAchievement()
+        except Exception as e:
+            # Handle unexpected errors
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Failed to update UserAchievement: {str(e)}")
+            return userAchievement_pb2.UserAchievement()
+
     def CreateUserAchievement(self, request, context):
         """
         Create a new UserAchievement.

@@ -35,6 +35,44 @@ class SettingServiceHandler(settings_pb2_grpc.SettingServiceServicer):
             context.set_details(f"Failed to create or update setting: {str(e)}")
             return settings_pb2.Setting()
 
+    def UpdateSetting(self, request, context):
+        """
+        Update a Setting by its ID.
+        """
+        try:
+            # Fetch the setting object by its ID
+            setting = Setting.objects.get(id=request.id)
+
+            # Update the setting fields based on the request
+            if request.name:
+                setting.name = request.name
+            if request.data:
+                setting.data = json.dumps(request.data)  # Serialize JSON data
+            if request.HasField("user_id"):  # Optional: Only update if user_id is provided
+                setting.user_id = request.user_id
+
+            # Save the updated setting
+            setting.save()
+
+            # Return the updated setting
+            return settings_pb2.Setting(
+                id=setting.id,
+                name=setting.name,
+                data=setting.data,  # Return stored data as-is
+                user_id=setting.user_id,
+            )
+
+        except Setting.DoesNotExist:
+            # Handle the case where the setting does not exist
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("Setting with the given ID does not exist")
+            return settings_pb2.Setting()
+        except Exception as e:
+            # Handle unexpected errors
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Failed to update setting: {str(e)}")
+            return settings_pb2.Setting()
+
     def GetSettingById(self, request, context):
         """
         Retrieve a specific Setting by its ID.
