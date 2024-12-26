@@ -237,13 +237,17 @@ class UserType(graphene.ObjectType):
 
 # Define the GraphQL query type
 class Query(graphene.ObjectType):
-    user = graphene.Field(UserType, id=graphene.Int(required=True))
+    user = graphene.Field(UserType)
 
 
-    def resolve_user(self, info, id):
+    def resolve_user(self, info):
+        user_id = info.context.user_id
+        if not user_id:
+            raise Exception("Authentication required: user_id is missing")
+
         channel = grpc.insecure_channel('user_service:50051')
         client = UserServiceStub(channel)
-        request = GetUserRequest(id=id)
+        request = GetUserRequest(id=user_id)
         response = client.GetUser(request)
         return UserType(
             id=response.id,

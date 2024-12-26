@@ -45,6 +45,7 @@ GRAPHENE = {
 }
 
 MIDDLEWARE = [
+    'main_service.api.middleware.authMiddleware.AuthMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
