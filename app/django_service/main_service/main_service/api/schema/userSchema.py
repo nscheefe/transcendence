@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import graphene
 import grpc
 
@@ -5,13 +7,13 @@ import grpc
 from main_service.protos.user_pb2_grpc import UserServiceStub
 from  main_service.protos.user_pb2 import GetUserRequest, CreateUserRequest
 from main_service.protos.friendship_pb2_grpc import FriendshipServiceStub
-from main_service.protos.friendship_pb2 import GetFriendshipByIdRequest
+from main_service.protos.friendship_pb2 import GetFriendshipByIdRequest, GetFriendshipsByUserIdRequest
 from main_service.protos.notification_pb2_grpc import NotificationServiceStub
-from main_service.protos.notification_pb2 import GetNotificationByIdRequest
+from main_service.protos.notification_pb2 import GetNotificationByIdRequest, GetNotificationsByUserIdRequest
 from main_service.protos.permission_pb2_grpc import PermissionServiceStub
 from main_service.protos.permission_pb2 import GetPermissionByIdRequest
 from main_service.protos.profile_pb2_grpc import ProfileServiceStub
-from main_service.protos.profile_pb2 import GetProfileByIdRequest
+from main_service.protos.profile_pb2 import GetProfileByIdRequest, GetProfileByUserIdRequest
 from main_service.protos.role_pb2_grpc import RoleServiceStub
 from main_service.protos.role_pb2 import GetRoleByIdRequest
 from main_service.protos.rolePermission_pb2_grpc import RolePermissionServiceStub
@@ -59,10 +61,39 @@ class ProfileType(graphene.ObjectType):
 
 class RoleType(graphene.ObjectType):
     name = graphene.String()
+    role_permissions = graphene.List(lambda: RolePermissionType)  # Nested Role Permissions
+    def resolve_role_permissions(self, info):
+        """Resolver fetching RolePermission details for the Role"""
+        channel = grpc.insecure_channel('user_service:50051')
+        client = RolePermissionServiceStub(channel)
+        request = GetRolePermissionsByRoleIdRequest(role_id=self.id)
+        response = client.GetRolePermissionsByRoleId(request)
+
+        return [
+            RolePermissionType(
+                role_id=record.role_id,
+                permission_id=record.permission_id
+            )
+            for record in response.role_permissions
+        ]
+
 
 class RolePermissionType(graphene.ObjectType):
     role_id = graphene.Int()
     permission_id = graphene.Int()
+    permission = graphene.Field(lambda: PermissionType)  # Nested PermissionType
+    def resolve_permission(self, info):
+        """Resolver for nested Permission inside RolePermissionType"""
+        channel = grpc.insecure_channel("user_service:50051")
+        client = PermissionServiceStub(channel)
+        request = GetPermissionByIdRequest(id=self.permission_id)
+        response = client.GetPermissionById(request)
+
+        return PermissionType(
+            name=response.name,
+            description=response.description
+        )
+
 
 class SettingType(graphene.ObjectType):
     user_id = graphene.Int()
@@ -74,17 +105,140 @@ class UserAchievementType(graphene.ObjectType):
     achievement_id = graphene.Int()
     unlocked_at = graphene.DateTime()
 
+class UserType(graphene.ObjectType):
+        id = graphene.Int()
+        name = graphene.String()
+        mail = graphene.String()
+        isAuth = graphene.Boolean()
+        blocked = graphene.Boolean()
+        created_at = graphene.DateTime()
+        updated_at = graphene.DateTime()
+        role_id = graphene.Int()
+        last_login = graphene.DateTime()
+        last_login_ip = graphene.String()
+
+        # Nested types
+        profile = graphene.Field(lambda: ProfileType)  # User's Profile
+        friendships = graphene.List(lambda: FriendshipType)  # User's Friendships
+        notifications = graphene.List(lambda: NotificationType)  # User's Notifications
+        settings = graphene.List(lambda: SettingType)  # User's Settings
+        achievements = graphene.List(lambda: UserAchievementType)  # User's Achievements
+        role = graphene.Field(lambda: RoleType)  # User's Role (with permissions)
+
+        ### Resolvers ###
+        def resolve_profile(self, info):
+            """Fetch the user's profile."""
+            try:
+                channel = grpc.insecure_channel("user_service:50051")
+                client = ProfileServiceStub(channel)
+                request = GetProfileByUserIdRequest(user_id=self.id)
+                response = client.GetProfileByUserId(request)
+
+                return ProfileType(
+                    user_id=response.user_id,
+                    avatar_url=response.avatar_url,
+                    nickname=response.nickname,
+                    bio=response.bio,
+                    additional_info=response.additional_info,
+                )
+
+            except grpc.RpcError as e:
+                if e.code() == grpc.StatusCode.NOT_FOUND:
+                    # Return None or raise a custom GraphQL error
+                    return None  # Or handle in a more user-specific way
+                else:
+                    # Raise other unexpected errors as-is
+                    raise e
+
+        def resolve_friendships(self, info):
+            """Fetch friendships for the user."""
+            channel = grpc.insecure_channel("user_service:50051")
+            client = FriendshipServiceStub(channel)
+            request = GetFriendshipsByUserIdRequest(user_id=self.id)
+            response = client.GetFriendshipsByUserId(request)
+
+            return [
+                FriendshipType(
+                    user_id=record.user_id,
+                    friend_id=record.friend_id,
+                    established_at=datetime.fromtimestamp(record.established_at.seconds),
+                    accepted=record.accepted
+                )
+                for record in response.friendships
+            ]
+
+        def resolve_notifications(self, info):
+            """Fetch notifications for the user."""
+            channel = grpc.insecure_channel("user_service:50051")
+            client = NotificationServiceStub(channel)
+            request = GetNotificationsByUserIdRequest(user_id=self.id)
+            response = client.GetNotificationsByUserId(request)
+
+            return [
+                NotificationType(
+                    user_id=record.user_id,
+                    message=record.message,
+                    read=record.read,
+                    sent_at=datetime.fromtimestamp(record.sent_at.seconds),
+                )
+                for record in response.notifications
+            ]
+
+        def resolve_settings(self, info):
+            """Fetch settings for the user."""
+            channel = grpc.insecure_channel("user_service:50051")
+            client = SettingServiceStub(channel)
+            request = GetSettingsByUserIdRequest(user_id=self.id)
+            response = client.GetSettingsByUserId(request)
+
+            return [
+                SettingType(
+                    user_id=record.user_id,
+                    name=record.name,
+                    data=record.data
+                )
+                for record in response.settings
+            ]
+
+        def resolve_achievements(self, info):
+            """Fetch achievements for the user."""
+            channel = grpc.insecure_channel("user_service:50051")
+            client = UserAchievementServiceStub(channel)
+
+            # gRPC request
+            request = GetUserAchievementsByUserIdRequest(user_id=self.id)
+            response = client.GetUserAchievementsByUserId(request)
+
+            # Check if achievements exist, otherwise return an empty list
+            if not response.userAchievements:
+                return []  # Explicitly return an empty list if no achievements exist
+
+            # Map achievements to the required type
+            return [
+                UserAchievementType(
+                    user_id=record.user_id,
+                    achievement_id=record.achievement_id,
+                    unlocked_at=datetime.fromtimestamp(record.unlocked_at.seconds)
+                )
+                for record in response.userAchievements
+            ]
+
+        def resolve_role(self, info):
+            """Fetch the user's role."""
+            channel = grpc.insecure_channel("user_service:50051")
+            client = RoleServiceStub(channel)
+            request = GetRoleByIdRequest(id=self.role_id)
+            response = client.GetRoleById(request)
+
+            return RoleType(
+                name=response.name,
+            )
+
+
 # Define the GraphQL query type
 class Query(graphene.ObjectType):
     user = graphene.Field(UserType, id=graphene.Int(required=True))
-    friendship = graphene.Field(FriendshipType, id=graphene.Int(required=True))
-    notification = graphene.Field(NotificationType, id=graphene.Int(required=True))
-    permission = graphene.Field(PermissionType, id=graphene.Int(required=True))
-    profile = graphene.Field(ProfileType, id=graphene.Int(required=True))
-    role = graphene.Field(RoleType, id=graphene.Int(required=True))
-    role_permission = graphene.Field(RolePermissionType, id=graphene.Int(required=True))
-    setting = graphene.Field(SettingType, id=graphene.Int(required=True))
-    user_achievement = graphene.Field(UserAchievementType, id=graphene.Int(required=True))
+
 
     def resolve_user(self, info, id):
         channel = grpc.insecure_channel('user_service:50051')
@@ -103,62 +257,6 @@ class Query(graphene.ObjectType):
             last_login=datetime.fromtimestamp(response.last_login.seconds),
             last_login_ip=response.last_login_ip
         )
-
-    def resolve_friendship(self, info, id):
-        channel = grpc.insecure_channel('user_service:50051')
-        client = FriendshipServiceStub(channel)
-        request = GetFriendshipByIdRequest(id=id)
-        response = client.GetFriendshipById(request)
-        return FriendshipType(id=response.id, user_id=response.user_id, friend_id=response.friend_id, status=response.status)
-
-    def resolve_notification(self, info, id):
-        channel = grpc.insecure_channel('user_service:50051')
-        client = NotificationServiceStub(channel)
-        request = GetNotificationByIdRequest(id=id)
-        response = client.GetNotificationById(request)
-        return NotificationType(id=response.id, user_id=response.user_id, message=response.message, seen=response.seen)
-
-    def resolve_permission(self, info, id):
-        channel = grpc.insecure_channel('user_service:50051')
-        client = PermissionServiceStub(channel)
-        request = GetPermissionByIdRequest(id=id)
-        response = client.GetPermissionById(request)
-        return PermissionType(id=response.id, name=response.name, description=response.description)
-
-    def resolve_profile(self, info, id):
-        channel = grpc.insecure_channel('user_service:50051')
-        client = ProfileServiceStub(channel)
-        request = GetProfileByIdRequest(id=id)
-        response = client.GetProfileById(request)
-        return ProfileType(id=response.id, user_id=response.user_id, bio=response.bio, image=response.image)
-
-    def resolve_role(self, info, id):
-        channel = grpc.insecure_channel('user_service:50051')
-        client = RoleServiceStub(channel)
-        request = GetRoleByIdRequest(id=id)
-        response = client.GetRoleById(request)
-        return RoleType(id=response.id, name=response.name)
-
-    def resolve_role_permission(self, info, id):
-        channel = grpc.insecure_channel('user_service:50051')
-        client = RolePermissionServiceStub(channel)
-        request = GetRolePermissionsByRoleIdRequest(id=id)
-        response = client.GetRolePermissionsByRoleId(request)
-        return RolePermissionType(id=response.id, role_id=response.role_id, permission_id=response.permission_id)
-
-    def resolve_setting(self, info, id):
-        channel = grpc.insecure_channel('user_service:50051')
-        client = SettingServiceStub(channel)
-        request = GetSettingsByUserIdRequest(id=id)
-        response = client.GetSettingsByUserId(request)
-        return SettingType(id=response.id, user_id=response.user_id, key=response.key, value=response.value)
-
-    def resolve_user_achievement(self, info, id):
-        channel = grpc.insecure_channel('user_service:50051')
-        client = UserAchievementServiceStub(channel)
-        request = GetUserAchievementsByUserIdRequest(id=id)
-        response = client.GetUserAchievementsByUserId(request)
-        return UserAchievementType(id=response.id, user_id=response.user_id, achievement_id=response.achievement_id, date_achieved=response.date_achieved)
 
     # Similar resolver functions need to be defined for other types like FriendshipType, NotificationType, etc.
 # Define input classes for each type
