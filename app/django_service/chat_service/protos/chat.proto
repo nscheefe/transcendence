@@ -2,26 +2,53 @@ syntax = "proto3";
 
 package chat;
 
-service ChatService {
-  rpc GetChat (GetChatRequest) returns (Chat);
-  rpc CreateChat (CreateChatRequest) returns (Chat);
-  rpc GetChats (Empty) returns (ChatList);
+import "google/protobuf/timestamp.proto";
+
+// Define the ChatRoom message
+message ChatRoom {
+    int32 id = 1;                             // Primary key
+    string name = 2;                          // Chat room name
+    google.protobuf.Timestamp created_at = 3; // Creation timestamp (from DB)
+    int32 game_id = 4;                        // Foreign key to a game
 }
 
-message Chat {
-  int32 id = 1;
+// Service for ChatRoom-specific operations
+service ChatRoomService {
+    // Get a chat room by ID
+    rpc GetChatRoomById(GetChatRoomRequest) returns (ChatRoom);
+
+    // List all chat rooms
+    rpc ListChatRooms(Empty) returns (ListChatRoomsResponse);
+
+    // Create a new chat room
+    rpc CreateChatRoom(CreateChatRoomRequest) returns (ChatRoom);
+
+    // Delete a chat room
+    rpc DeleteChatRoom(DeleteChatRoomRequest) returns (Empty);
+
+    // Get the chat rooms a user belongs to
+    rpc GetChatRoomsByUserId(GetChatRoomsByUserIdRequest) returns (ListChatRoomsResponse);
 }
 
-message GetChatRequest {
-  int32 id = 1;
+// Request and Response messages for ChatRoom
+message GetChatRoomRequest {
+    int32 id = 1; // Chat room ID
 }
 
-message CreateChatRequest {
-  int32 id = 1;
+message CreateChatRoomRequest {
+    string name = 1;   // Chat room name
+    int32 game_id = 2; // Foreign key to a game
 }
 
-message ChatList {
-  repeated Chat chats = 1;
+message GetChatRoomsByUserIdRequest {
+    int32 user_id = 1; // User ID
 }
 
+message DeleteChatRoomRequest {
+    int32 id = 1; // Chat room ID to delete
+}
+
+message ListChatRoomsResponse {
+    repeated ChatRoom chat_rooms = 1; // List of chat rooms
+}
 message Empty {}

@@ -23,7 +23,10 @@ from main_service.protos.settings_pb2 import GetSettingsByUserIdRequest, CreateS
 from main_service.protos.userAchievement_pb2_grpc import UserAchievementServiceStub
 from main_service.protos.userAchievement_pb2 import GetUserAchievementsByUserIdRequest, CreateUserAchievementRequest, UpdateUserAchievementRequest
 
-# Define the GraphQL types for each model
+GRPC_HOST = "user_service"
+GRPC_PORT = "50051"
+GRPC_TARGET = f"{GRPC_HOST}:{GRPC_PORT}"
+
 class UserType(graphene.ObjectType):
     id = graphene.Int()
     name = graphene.String()
@@ -68,7 +71,7 @@ class RoleType(graphene.ObjectType):
     role_permissions = graphene.List(lambda: RolePermissionType)  # Nested Role Permissions
     def resolve_role_permissions(self, info):
         """Resolver fetching RolePermission details for the Role"""
-        channel = grpc.insecure_channel('user_service:50051')
+        channel = grpc.insecure_channel(GRPC_TARGET)
         client = RolePermissionServiceStub(channel)
         request = GetRolePermissionsByRoleIdRequest(role_id=self.id)
         response = client.GetRolePermissionsByRoleId(request)
@@ -88,7 +91,7 @@ class RolePermissionType(graphene.ObjectType):
     permission = graphene.Field(lambda: PermissionType)  # Nested PermissionType
     def resolve_permission(self, info):
         """Resolver for nested Permission inside RolePermissionType"""
-        channel = grpc.insecure_channel("user_service:50051")
+        channel = grpc.insecure_channel(GRPC_TARGET)
         client = PermissionServiceStub(channel)
         request = GetPermissionByIdRequest(id=self.permission_id)
         response = client.GetPermissionById(request)
@@ -133,7 +136,7 @@ class UserType(graphene.ObjectType):
         def resolve_profile(self, info):
             """Fetch the user's profile."""
             try:
-                channel = grpc.insecure_channel("user_service:50051")
+                channel = grpc.insecure_channel(GRPC_TARGET)
                 client = ProfileServiceStub(channel)
                 request = GetProfileByUserIdRequest(user_id=self.id)
                 response = client.GetProfileByUserId(request)
@@ -149,14 +152,14 @@ class UserType(graphene.ObjectType):
             except grpc.RpcError as e:
                 if e.code() == grpc.StatusCode.NOT_FOUND:
                     # Return None or raise a custom GraphQL error
-                    return None  # Or handle in a more user-specific way
+                    return None
                 else:
                     # Raise other unexpected errors as-is
                     raise e
 
         def resolve_friendships(self, info):
             """Fetch friendships for the user."""
-            channel = grpc.insecure_channel("user_service:50051")
+            channel = grpc.insecure_channel(GRPC_TARGET)
             client = FriendshipServiceStub(channel)
             request = GetFriendshipsByUserIdRequest(user_id=self.id)
             response = client.GetFriendshipsByUserId(request)
@@ -173,7 +176,7 @@ class UserType(graphene.ObjectType):
 
         def resolve_notifications(self, info):
             """Fetch notifications for the user."""
-            channel = grpc.insecure_channel("user_service:50051")
+            channel = grpc.insecure_channel(GRPC_TARGET)
             client = NotificationServiceStub(channel)
             request = GetNotificationsByUserIdRequest(user_id=self.id)
             response = client.GetNotificationsByUserId(request)
@@ -190,7 +193,7 @@ class UserType(graphene.ObjectType):
 
         def resolve_settings(self, info):
             """Fetch settings for the user."""
-            channel = grpc.insecure_channel("user_service:50051")
+            channel = grpc.insecure_channel(GRPC_TARGET)
             client = SettingServiceStub(channel)
             request = GetSettingsByUserIdRequest(user_id=self.id)
             response = client.GetSettingsByUserId(request)
@@ -206,7 +209,7 @@ class UserType(graphene.ObjectType):
 
         def resolve_achievements(self, info):
             """Fetch achievements for the user."""
-            channel = grpc.insecure_channel("user_service:50051")
+            channel = grpc.insecure_channel(GRPC_TARGET)
             client = UserAchievementServiceStub(channel)
 
             # gRPC request
@@ -229,7 +232,7 @@ class UserType(graphene.ObjectType):
 
         def resolve_role(self, info):
             """Fetch the user's role."""
-            channel = grpc.insecure_channel("user_service:50051")
+            channel = grpc.insecure_channel(GRPC_TARGET)
             client = RoleServiceStub(channel)
             request = GetRoleByIdRequest(id=self.role_id)
             response = client.GetRoleById(request)
@@ -249,7 +252,7 @@ class Query(graphene.ObjectType):
         if not user_id:
             raise Exception("Authentication required: user_id is missing")
 
-        channel = grpc.insecure_channel('user_service:50051')
+        channel = grpc.insecure_channel(GRPC_TARGET)
         client = UserServiceStub(channel)
         request = GetUserRequest(id=user_id)
         response = client.GetUser(request)
@@ -274,9 +277,8 @@ class Query(graphene.ObjectType):
 
     @staticmethod
     def resolve_get_all_profiles(self, info, limit, offset):
-        grpc_host = "user_service"
-        grpc_port = 50051
-        service_endpoint = f"{grpc_host}:{grpc_port}"
+
+        service_endpoint = GRPC_TARGET
 
         try:
             with grpc.insecure_channel(service_endpoint) as channel:
@@ -292,7 +294,6 @@ class Query(graphene.ObjectType):
                 # Call the gRPC method
                 grpc_response = stub.GetAllProfiles(grpc_request)
 
-                # Parse response to match GraphQL format
                 profiles = [
                     ProfileType(
                         user_id=profile.user_id,
@@ -347,7 +348,7 @@ class FriendshipMutation(graphene.Mutation):
             raise Exception("Authentication required: user_id is missing")
 
         try:
-            channel = grpc.insecure_channel("user_service:50051")
+            channel = grpc.insecure_channel(GRPC_TARGET)
             friendship_stub = FriendshipServiceStub(channel)
             notification_stub = NotificationServiceStub(channel)
 
@@ -426,7 +427,7 @@ class NotificationMutation(graphene.Mutation):
             raise Exception("Authentication required: user_id is missing")
 
         try:
-            channel = grpc.insecure_channel("user_service:50051")
+            channel = grpc.insecure_channel(GRPC_TARGET)
             notification_stub = NotificationServiceStub(channel)
 
             if notification_data.create:
@@ -487,7 +488,7 @@ class SettingMutation(graphene.Mutation):
             raise Exception("Authentication required: user_id is missing")
 
         try:
-            channel = grpc.insecure_channel("user_service:50051")
+            channel = grpc.insecure_channel(GRPC_TARGET)
             setting_stub = SettingServiceStub(channel)
 
             if setting_data.create:
@@ -540,7 +541,7 @@ class UserAchievementMutation(graphene.Mutation):
             raise Exception("Authentication required: user_id is missing")
 
         try:
-            channel = grpc.insecure_channel("user_service:50051")
+            channel = grpc.insecure_channel(GRPC_TARGET)
             achievement_stub = UserAchievementServiceStub(channel)
             if achievement_data.create:
                 create_request = CreateUserAchievementRequest(
@@ -593,7 +594,7 @@ class ProfileMutation(graphene.Mutation):
         if not user_id:
             raise Exception("Authentication required: user_id is missing")
         try:
-            channel = grpc.insecure_channel("user_service:50051")
+            channel = grpc.insecure_channel(GRPC_TARGET)
             profile_stub = ProfileServiceStub(channel)
             if profile_data.create:
                 create_request = CreateProfileRequest(
@@ -644,10 +645,7 @@ class CreateUser(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, input=None):
-
-        grpc_host = "user_service"
-        grpc_port = 50051
-        service_endpoint = f"{grpc_host}:{grpc_port}"
+        service_endpoint = GRPC_TARGET
 
         try:
             with grpc.insecure_channel(service_endpoint) as channel:

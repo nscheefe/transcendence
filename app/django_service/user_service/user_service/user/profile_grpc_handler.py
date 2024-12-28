@@ -1,3 +1,5 @@
+import logging
+
 import grpc
 import json
 from django.db import IntegrityError
@@ -26,7 +28,6 @@ class ProfileServiceHandler(profile_pb2_grpc.ProfileServiceServicer):
             context.set_details('Profile not found')
             return profile_pb2.Profile()
 
-    # Fetch profile by user ID
     def GetProfileByUserId(self, request, context):
         try:
             profile = Profile.objects.get(user_id=request.user_id)
@@ -91,18 +92,35 @@ class ProfileServiceHandler(profile_pb2_grpc.ProfileServiceServicer):
         try:
             # Ensure the profile exists
             try:
-                profile = Profile.objects.get(id=request.id)
+                logging.debug("Fetching profile for user_id: %s", request.user_id)  # Debug log for fetching profile
+                profile = Profile.objects.get(user=request.user_id)
             except Profile.DoesNotExist:
+                logging.error("Profile with user_id %s not found.",
+                              request.user_id)  # Log error when profile does not exist
                 context.set_code(grpc.StatusCode.NOT_FOUND)
-                context.set_details('Profile not found')
+                context.set_details("Profile not found for user_id: {}".format(request.user_id))  # Detailed debug info
                 return profile_pb2.Profile()
 
             # Update the profile fields
             profile.avatar_url = request.avatar_url
             profile.nickname = request.nickname
             profile.bio = request.bio
-            profile.additional_info = json.dumps(json.loads(request.additional_info))  # Handle JSON string
+
+            # Safely handle JSON for `additional_info`
+            try:
+                if request.additional_info:  # Ensure additional_info is not empty
+                    profile.additional_info = json.dumps(json.loads(request.additional_info))
+                else:
+                    logging.warning("Empty additional_info for user_id: %s", request.user_id)
+                    profile.additional_info = "{}"  # Fallback to empty JSON object
+            except json.JSONDecodeError as e:
+                logging.error("Invalid JSON in additional_info for user_id %s: %s", request.user_id, str(e))
+                context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+                context.set_details("Invalid JSON in additional_info field: {}".format(str(e)))
+                return profile_pb2.Profile()
+
             profile.save()
+            logging.info("Successfully updated profile for user_id: %s", request.user_id)  # Log successful update
 
             return profile_pb2.Profile(
                 id=profile.id,
@@ -110,11 +128,13 @@ class ProfileServiceHandler(profile_pb2_grpc.ProfileServiceServicer):
                 avatar_url=profile.avatar_url,
                 nickname=profile.nickname,
                 bio=profile.bio,
-                additional_info=json.dumps(profile.additional_info),
+                additional_info=profile.additional_info,
             )
         except Exception as e:
+            logging.exception("Unexpected error while updating profile for user_id: %s",
+                              request.user_id)  # Log unexpected error
             context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details('Failed to update profile: ' + str(e))
+            context.set_details("Failed to update profile: " + str(e))
             return profile_pb2.Profile()
 
     # Delete an existing profile by user ID
