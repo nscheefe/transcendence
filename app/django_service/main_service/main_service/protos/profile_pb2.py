@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rprofile.proto\x12\x06models\"r\n\x07Profile\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07user_id\x18\x02 \x01(\x05\x12\x12\n\navatar_url\x18\x03 \x01(\t\x12\x10\n\x08nickname\x18\x04 \x01(\t\x12\x0b\n\x03\x62io\x18\x05 \x01(\t\x12\x17\n\x0f\x61\x64\x64itional_info\x18\x06 \x01(\t\"s\n\x14\x43reateProfileRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x12\n\navatar_url\x18\x02 \x01(\t\x12\x10\n\x08nickname\x18\x03 \x01(\t\x12\x0b\n\x03\x62io\x18\x04 \x01(\t\x12\x17\n\x0f\x61\x64\x64itional_info\x18\x05 \x01(\t\"\x7f\n\x14UpdateProfileRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07user_id\x18\x02 \x01(\x05\x12\x12\n\navatar_url\x18\x03 \x01(\t\x12\x10\n\x08nickname\x18\x04 \x01(\t\x12\x0b\n\x03\x62io\x18\x05 \x01(\t\x12\x17\n\x0f\x61\x64\x64itional_info\x18\x06 \x01(\t\"#\n\x15GetProfileByIdRequest\x12\n\n\x02id\x18\x01 \x01(\x05\",\n\x19GetProfileByUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x32\x9c\x02\n\x0eProfileService\x12>\n\rCreateProfile\x12\x1c.models.CreateProfileRequest\x1a\x0f.models.Profile\x12>\n\rUpdateProfile\x12\x1c.models.UpdateProfileRequest\x1a\x0f.models.Profile\x12@\n\x0eGetProfileById\x12\x1d.models.GetProfileByIdRequest\x1a\x0f.models.Profile\x12H\n\x12GetProfileByUserId\x12!.models.GetProfileByUserIdRequest\x1a\x0f.models.Profileb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\rprofile.proto\x12\x06models\"r\n\x07Profile\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07user_id\x18\x02 \x01(\x05\x12\x12\n\navatar_url\x18\x03 \x01(\t\x12\x10\n\x08nickname\x18\x04 \x01(\t\x12\x0b\n\x03\x62io\x18\x05 \x01(\t\x12\x17\n\x0f\x61\x64\x64itional_info\x18\x06 \x01(\t\"s\n\x14\x43reateProfileRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x12\n\navatar_url\x18\x02 \x01(\t\x12\x10\n\x08nickname\x18\x03 \x01(\t\x12\x0b\n\x03\x62io\x18\x04 \x01(\t\x12\x17\n\x0f\x61\x64\x64itional_info\x18\x05 \x01(\t\"\x7f\n\x14UpdateProfileRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07user_id\x18\x02 \x01(\x05\x12\x12\n\navatar_url\x18\x03 \x01(\t\x12\x10\n\x08nickname\x18\x04 \x01(\t\x12\x0b\n\x03\x62io\x18\x05 \x01(\t\x12\x17\n\x0f\x61\x64\x64itional_info\x18\x06 \x01(\t\"#\n\x15GetProfileByIdRequest\x12\n\n\x02id\x18\x01 \x01(\x05\",\n\x19GetProfileByUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"6\n\x15GetAllProfilesRequest\x12\r\n\x05limit\x18\x01 \x01(\x05\x12\x0e\n\x06offset\x18\x02 \x01(\x05\"P\n\x16GetAllProfilesResponse\x12!\n\x08profiles\x18\x01 \x03(\x0b\x32\x0f.models.Profile\x12\x13\n\x0btotal_count\x18\x02 \x01(\x05\x32\xed\x02\n\x0eProfileService\x12>\n\rCreateProfile\x12\x1c.models.CreateProfileRequest\x1a\x0f.models.Profile\x12>\n\rUpdateProfile\x12\x1c.models.UpdateProfileRequest\x1a\x0f.models.Profile\x12@\n\x0eGetProfileById\x12\x1d.models.GetProfileByIdRequest\x1a\x0f.models.Profile\x12H\n\x12GetProfileByUserId\x12!.models.GetProfileByUserIdRequest\x1a\x0f.models.Profile\x12O\n\x0eGetAllProfiles\x12\x1d.models.GetAllProfilesRequest\x1a\x1e.models.GetAllProfilesResponseb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'profile_pb2', globals())
@@ -30,6 +30,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GETPROFILEBYIDREQUEST._serialized_end=422
   _GETPROFILEBYUSERIDREQUEST._serialized_start=424
   _GETPROFILEBYUSERIDREQUEST._serialized_end=468
-  _PROFILESERVICE._serialized_start=471
-  _PROFILESERVICE._serialized_end=755
+  _GETALLPROFILESREQUEST._serialized_start=470
+  _GETALLPROFILESREQUEST._serialized_end=524
+  _GETALLPROFILESRESPONSE._serialized_start=526
+  _GETALLPROFILESRESPONSE._serialized_end=606
+  _PROFILESERVICE._serialized_start=609
+  _PROFILESERVICE._serialized_end=974
 # @@protoc_insertion_point(module_scope)

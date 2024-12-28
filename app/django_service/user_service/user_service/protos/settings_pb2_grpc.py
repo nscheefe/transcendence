@@ -29,6 +29,11 @@ class SettingServiceStub(object):
                 request_serializer=settings__pb2.GetSettingsByUserIdRequest.SerializeToString,
                 response_deserializer=settings__pb2.SettingsResponse.FromString,
                 )
+        self.UpdateSetting = channel.unary_unary(
+                '/models.SettingService/UpdateSetting',
+                request_serializer=settings__pb2.UpdateSettingRequest.SerializeToString,
+                response_deserializer=settings__pb2.Setting.FromString,
+                )
 
 
 class SettingServiceServicer(object):
@@ -52,6 +57,13 @@ class SettingServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def UpdateSetting(self, request, context):
+        """New update method
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_SettingServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -69,6 +81,11 @@ def add_SettingServiceServicer_to_server(servicer, server):
                     servicer.GetSettingsByUserId,
                     request_deserializer=settings__pb2.GetSettingsByUserIdRequest.FromString,
                     response_serializer=settings__pb2.SettingsResponse.SerializeToString,
+            ),
+            'UpdateSetting': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateSetting,
+                    request_deserializer=settings__pb2.UpdateSettingRequest.FromString,
+                    response_serializer=settings__pb2.Setting.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -128,5 +145,22 @@ class SettingService(object):
         return grpc.experimental.unary_unary(request, target, '/models.SettingService/GetSettingsByUserId',
             settings__pb2.GetSettingsByUserIdRequest.SerializeToString,
             settings__pb2.SettingsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def UpdateSetting(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/models.SettingService/UpdateSetting',
+            settings__pb2.UpdateSettingRequest.SerializeToString,
+            settings__pb2.Setting.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

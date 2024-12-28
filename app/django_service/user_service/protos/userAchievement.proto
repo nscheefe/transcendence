@@ -15,8 +15,16 @@ service UserAchievementService {
   rpc GetUserAchievementById(GetUserAchievementByIdRequest) returns (UserAchievement);
   rpc GetUserAchievementsByUserId(GetUserAchievementsByUserIdRequest) returns (UserAchievementsResponse);
   rpc CreateUserAchievement(CreateUserAchievementRequest) returns (UserAchievement);
+  rpc UpdateUserAchievement(UpdateUserAchievementRequest) returns (UserAchievement);
+
 }
 
+message UpdateUserAchievementRequest {
+  int32 id = 1;
+  int32 user_id = 2;
+  int32 achievement_id = 3;
+  google.protobuf.Timestamp unlocked_at = 4;
+}
 message GetUserAchievementByIdRequest {
   int32 id = 1;
 }

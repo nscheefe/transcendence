@@ -34,6 +34,16 @@ class FriendshipServiceStub(object):
                 request_serializer=friendship__pb2.GetFriendshipsByFriendIdRequest.SerializeToString,
                 response_deserializer=friendship__pb2.FriendshipsResponse.FromString,
                 )
+        self.UpdateFriendship = channel.unary_unary(
+                '/models.FriendshipService/UpdateFriendship',
+                request_serializer=friendship__pb2.UpdateFriendshipRequest.SerializeToString,
+                response_deserializer=friendship__pb2.Friendship.FromString,
+                )
+        self.DeleteFriendship = channel.unary_unary(
+                '/models.FriendshipService/DeleteFriendship',
+                request_serializer=friendship__pb2.DeleteFriendshipRequest.SerializeToString,
+                response_deserializer=friendship__pb2.DeleteFriendshipResponse.FromString,
+                )
 
 
 class FriendshipServiceServicer(object):
@@ -63,6 +73,20 @@ class FriendshipServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def UpdateFriendship(self, request, context):
+        """New update method
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def DeleteFriendship(self, request, context):
+        """New delete method
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_FriendshipServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -85,6 +109,16 @@ def add_FriendshipServiceServicer_to_server(servicer, server):
                     servicer.GetFriendshipsByFriendId,
                     request_deserializer=friendship__pb2.GetFriendshipsByFriendIdRequest.FromString,
                     response_serializer=friendship__pb2.FriendshipsResponse.SerializeToString,
+            ),
+            'UpdateFriendship': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateFriendship,
+                    request_deserializer=friendship__pb2.UpdateFriendshipRequest.FromString,
+                    response_serializer=friendship__pb2.Friendship.SerializeToString,
+            ),
+            'DeleteFriendship': grpc.unary_unary_rpc_method_handler(
+                    servicer.DeleteFriendship,
+                    request_deserializer=friendship__pb2.DeleteFriendshipRequest.FromString,
+                    response_serializer=friendship__pb2.DeleteFriendshipResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -161,5 +195,39 @@ class FriendshipService(object):
         return grpc.experimental.unary_unary(request, target, '/models.FriendshipService/GetFriendshipsByFriendId',
             friendship__pb2.GetFriendshipsByFriendIdRequest.SerializeToString,
             friendship__pb2.FriendshipsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def UpdateFriendship(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/models.FriendshipService/UpdateFriendship',
+            friendship__pb2.UpdateFriendshipRequest.SerializeToString,
+            friendship__pb2.Friendship.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def DeleteFriendship(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/models.FriendshipService/DeleteFriendship',
+            friendship__pb2.DeleteFriendshipRequest.SerializeToString,
+            friendship__pb2.DeleteFriendshipResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
