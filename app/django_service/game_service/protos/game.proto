@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package game;
+
+service GameService {
+  rpc GetGame (GetGameRequest) returns (Game);
+  rpc CreateGame (CreateGameRequest) returns (Game);
+  rpc GetGames (Empty) returns (GameList);
+}
+
+message Game {
+  int32 id = 1;
+}
+
+message GetGameRequest {
+  int32 id = 1;
+}
+
+message CreateGameRequest {
+  int32 id = 1;
+}
+
+message GameList {
+  repeated Game games = 1;
+}
+
+message Empty {}

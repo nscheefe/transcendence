@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package chat;
+
+import "google/protobuf/timestamp.proto";
+
+// Define the ChatRoomUser message
+message ChatRoomUser {
+    int32 id = 1;                             // Primary key
+    int32 user_id = 2;                        // Foreign key to User
+    int32 chat_room_id = 3;                   // Foreign key to ChatRoom
+    google.protobuf.Timestamp joined_at = 4; // Join timestamp (from DB)
+}
+
+// Service for ChatRoomUser-specific operations
+service ChatRoomUserService {
+    // Get users in a chat room
+    rpc GetUsersByChatRoomId(GetUsersByChatRoomIdRequest) returns (ListChatRoomUsersResponse);
+
+    // Add a user to a chat room
+    rpc AddUserToChatRoom(AddUserToChatRoomRequest) returns (ChatRoomUser);
+}
+
+// Request and Response messages for ChatRoomUser
+message GetUsersByChatRoomIdRequest {
+    int32 chat_room_id = 1; // Chat room ID
+}
+
+message AddUserToChatRoomRequest {
+    int32 user_id = 1;      // User ID
+    int32 chat_room_id = 2; // Chat room ID
+}
+
+message ListChatRoomUsersResponse {
+    repeated ChatRoomUser users = 1; // List of users in a chat room
+}
+

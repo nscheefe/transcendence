@@ -1,0 +1,15 @@
+aniso8601
+asgiref
+Django
+graphene
+graphene-django
+graphql-core
+graphql-relay
+grpcio
+grpcio-tools
+promise
+protobuf
+six
+sqlparse
+text-unidecode
+gunicorn
