@@ -1,6 +1,15 @@
+# OS
 .DS_Store
+
+# IDE
 .idea
+.vscode
+
+# DB
 app/DB/*
+# Python
 app/django_service/venv
 **/__pycache__/
+
+# Node
 node_modules/
