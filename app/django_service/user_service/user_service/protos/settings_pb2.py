@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0esettings.proto\x12\x06models\"B\n\x07Setting\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t\x12\x0f\n\x07user_id\x18\x04 \x01(\x05\"C\n\x14\x43reateSettingRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\x12\x0f\n\x07user_id\x18\x03 \x01(\x05\"#\n\x15GetSettingByIdRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"-\n\x1aGetSettingsByUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"5\n\x10SettingsResponse\x12!\n\x08settings\x18\x01 \x03(\x0b\x32\x0f.models.Setting2\xe7\x01\n\x0eSettingService\x12>\n\rCreateSetting\x12\x1c.models.CreateSettingRequest\x1a\x0f.models.Setting\x12@\n\x0eGetSettingById\x12\x1d.models.GetSettingByIdRequest\x1a\x0f.models.Setting\x12S\n\x13GetSettingsByUserId\x12\".models.GetSettingsByUserIdRequest\x1a\x18.models.SettingsResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0esettings.proto\x12\x06models\"B\n\x07Setting\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t\x12\x0f\n\x07user_id\x18\x04 \x01(\x05\">\n\x14UpdateSettingRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0c\n\x04name\x18\x02 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x03 \x01(\t\"C\n\x14\x43reateSettingRequest\x12\x0c\n\x04name\x18\x01 \x01(\t\x12\x0c\n\x04\x64\x61ta\x18\x02 \x01(\t\x12\x0f\n\x07user_id\x18\x03 \x01(\x05\"#\n\x15GetSettingByIdRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"-\n\x1aGetSettingsByUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"5\n\x10SettingsResponse\x12!\n\x08settings\x18\x01 \x03(\x0b\x32\x0f.models.Setting2\xa7\x02\n\x0eSettingService\x12>\n\rCreateSetting\x12\x1c.models.CreateSettingRequest\x1a\x0f.models.Setting\x12@\n\x0eGetSettingById\x12\x1d.models.GetSettingByIdRequest\x1a\x0f.models.Setting\x12S\n\x13GetSettingsByUserId\x12\".models.GetSettingsByUserIdRequest\x1a\x18.models.SettingsResponse\x12>\n\rUpdateSetting\x12\x1c.models.UpdateSettingRequest\x1a\x0f.models.Settingb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'settings_pb2', globals())
@@ -22,14 +22,16 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   _SETTING._serialized_start=26
   _SETTING._serialized_end=92
-  _CREATESETTINGREQUEST._serialized_start=94
-  _CREATESETTINGREQUEST._serialized_end=161
-  _GETSETTINGBYIDREQUEST._serialized_start=163
-  _GETSETTINGBYIDREQUEST._serialized_end=198
-  _GETSETTINGSBYUSERIDREQUEST._serialized_start=200
-  _GETSETTINGSBYUSERIDREQUEST._serialized_end=245
-  _SETTINGSRESPONSE._serialized_start=247
-  _SETTINGSRESPONSE._serialized_end=300
-  _SETTINGSERVICE._serialized_start=303
-  _SETTINGSERVICE._serialized_end=534
+  _UPDATESETTINGREQUEST._serialized_start=94
+  _UPDATESETTINGREQUEST._serialized_end=156
+  _CREATESETTINGREQUEST._serialized_start=158
+  _CREATESETTINGREQUEST._serialized_end=225
+  _GETSETTINGBYIDREQUEST._serialized_start=227
+  _GETSETTINGBYIDREQUEST._serialized_end=262
+  _GETSETTINGSBYUSERIDREQUEST._serialized_start=264
+  _GETSETTINGSBYUSERIDREQUEST._serialized_end=309
+  _SETTINGSRESPONSE._serialized_start=311
+  _SETTINGSRESPONSE._serialized_end=364
+  _SETTINGSERVICE._serialized_start=367
+  _SETTINGSERVICE._serialized_end=662
 # @@protoc_insertion_point(module_scope)

@@ -16,6 +16,23 @@ service NotificationService {
   rpc CreateNotification (CreateNotificationRequest) returns (Notification);
   rpc GetNotificationById (GetNotificationByIdRequest) returns (Notification);
   rpc GetNotificationsByUserId (GetNotificationsByUserIdRequest) returns (NotificationsResponse);
+  rpc UpdateNotification (UpdateNotificationRequest) returns (Notification);
+  rpc DeleteNotification (DeleteNotificationRequest) returns (DeleteNotificationResponse);
+}
+
+message UpdateNotificationRequest {
+  int32 id = 1;
+  string message = 2;
+  bool read = 3;
+  google.protobuf.Timestamp sent_at = 4;
+}
+
+message DeleteNotificationRequest {
+  int32 id = 1;
+}
+
+message DeleteNotificationResponse {
+  bool success = 1;
 }
 
 message CreateNotificationRequest {
