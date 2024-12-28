@@ -2,53 +2,37 @@ syntax = "proto3";
 
 package chat;
 
+// Import Timestamp from Protobuf for timestamps
 import "google/protobuf/timestamp.proto";
 
-// Define the ChatRoom message
+message ChatMessage {
+  int32 id = 1;
+  string content = 2;
+  int32 sender_id = 3;
+  int32 chat_room_id = 4;
+  google.protobuf.Timestamp timestamp = 5;
+}
+
 message ChatRoom {
-    int32 id = 1;                             // Primary key
-    string name = 2;                          // Chat room name
-    google.protobuf.Timestamp created_at = 3; // Creation timestamp (from DB)
-    int32 game_id = 4;                        // Foreign key to a game
-}
-
-// Service for ChatRoom-specific operations
-service ChatRoomService {
-    // Get a chat room by ID
-    rpc GetChatRoomById(GetChatRoomRequest) returns (ChatRoom);
-
-    // List all chat rooms
-    rpc ListChatRooms(Empty) returns (ListChatRoomsResponse);
-
-    // Create a new chat room
-    rpc CreateChatRoom(CreateChatRoomRequest) returns (ChatRoom);
-
-    // Delete a chat room
-    rpc DeleteChatRoom(DeleteChatRoomRequest) returns (Empty);
-
-    // Get the chat rooms a user belongs to
-    rpc GetChatRoomsByUserId(GetChatRoomsByUserIdRequest) returns (ListChatRoomsResponse);
-}
-
-// Request and Response messages for ChatRoom
-message GetChatRoomRequest {
-    int32 id = 1; // Chat room ID
+  int32 id = 1;
+  string name = 2;
+  google.protobuf.Timestamp created_at = 3;
+  int32 game_id = 4;
 }
 
 message CreateChatRoomRequest {
-    string name = 1;   // Chat room name
-    int32 game_id = 2; // Foreign key to a game
+  string name = 1;
+  int32 game_id = 2;
 }
 
-message GetChatRoomsByUserIdRequest {
-    int32 user_id = 1; // User ID
+message GetChatRoomRequest {
+  int32 id = 1;
 }
 
-message DeleteChatRoomRequest {
-    int32 id = 1; // Chat room ID to delete
-}
-
-message ListChatRoomsResponse {
-    repeated ChatRoom chat_rooms = 1; // List of chat rooms
-}
 message Empty {}
+
+service ChatService {
+  rpc CreateChatRoom(CreateChatRoomRequest) returns (ChatRoom);
+  rpc GetChatRoomById(GetChatRoomRequest) returns (ChatRoom);
+  rpc ListChatRooms(Empty) returns (stream ChatRoom);
+}
