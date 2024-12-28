@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package stat;
+
+service StatService {
+  rpc GetStats (Empty) returns (StatList);
+  rpc GetStat (GetStatRequest) returns (Stat);
+  rpc CreateStat (CreateStatRequest) returns (Stat);
+}
+
+message Stat {
+  int32 id = 1;
+}
+
+message StatList {
+  repeated Stat Stats = 1;
+}
+
+message Empty {}
+
+message CreateStatRequest {
+  int32 id = 1;
+}
+
+message GetStatRequest {
+  int32 id = 1;
+}

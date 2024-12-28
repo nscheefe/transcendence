@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package models;
+
+import "google/protobuf/timestamp.proto";
+
+message UserAchievement {
+  int32 id = 1;
+  int32 user_id = 2;
+  int32 achievement_id = 3;
+  google.protobuf.Timestamp unlocked_at = 4;
+}
+
+service UserAchievementService {
+  rpc GetUserAchievementById(GetUserAchievementByIdRequest) returns (UserAchievement);
+  rpc GetUserAchievementsByUserId(GetUserAchievementsByUserIdRequest) returns (UserAchievementsResponse);
+  rpc CreateUserAchievement(CreateUserAchievementRequest) returns (UserAchievement);
+  rpc UpdateUserAchievement(UpdateUserAchievementRequest) returns (UserAchievement);
+
+}
+
+message UpdateUserAchievementRequest {
+  int32 id = 1;
+  int32 user_id = 2;
+  int32 achievement_id = 3;
+  google.protobuf.Timestamp unlocked_at = 4;
+}
+message GetUserAchievementByIdRequest {
+  int32 id = 1;
+}
+
+message GetUserAchievementsByUserIdRequest {
+  int32 user_id = 1;
+}
+
+message CreateUserAchievementRequest {
+  int32 user_id = 1;
+  int32 achievement_id = 2;
+  google.protobuf.Timestamp unlocked_at = 3;
+}
+
+message UserAchievementsResponse {
+  repeated UserAchievement userAchievements = 1;
+}

@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package models;
+
+import "google/protobuf/timestamp.proto";
+
+message Notification {
+  int32 id = 1;
+  int32 user_id = 2;
+  string message = 3;
+  bool read = 4;
+  google.protobuf.Timestamp sent_at = 5;
+}
+
+service NotificationService {
+  rpc CreateNotification (CreateNotificationRequest) returns (Notification);
+  rpc GetNotificationById (GetNotificationByIdRequest) returns (Notification);
+  rpc GetNotificationsByUserId (GetNotificationsByUserIdRequest) returns (NotificationsResponse);
+  rpc UpdateNotification (UpdateNotificationRequest) returns (Notification);
+  rpc DeleteNotification (DeleteNotificationRequest) returns (DeleteNotificationResponse);
+}
+
+message UpdateNotificationRequest {
+  int32 id = 1;
+  string message = 2;
+  bool read = 3;
+  google.protobuf.Timestamp sent_at = 4;
+}
+
+message DeleteNotificationRequest {
+  int32 id = 1;
+}
+
+message DeleteNotificationResponse {
+  bool success = 1;
+}
+
+message CreateNotificationRequest {
+  int32 user_id = 1;
+  string message = 2;
+  bool read = 3;
+  google.protobuf.Timestamp sent_at = 4;
+}
+
+message GetNotificationByIdRequest {
+  int32 id = 1;
+}
+
+message GetNotificationsByUserIdRequest {
+  int32 user_id = 1;
+}
+
+message NotificationsResponse {
+  repeated Notification notifications = 1;
+}

@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package auth;
+
+service AuthService {
+  rpc GetAuth (GetAuthRequest) returns (Auth);
+  rpc CreateAuth (CreateAuthRequest) returns (Auth);
+  rpc GetAuths (Empty) returns (AuthList);
+}
+
+message Auth {
+  int32 id = 1;
+}
+
+message GetAuthRequest {
+  int32 id = 1;
+}
+
+message CreateAuthRequest {
+  int32 id = 1;
+}
+
+message AuthList {
+  repeated Auth auths = 1;
+}
+
+message Empty {}
