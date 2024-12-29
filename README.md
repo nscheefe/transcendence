@@ -147,7 +147,7 @@ erDiagram
         int id PK
         int user_id FK
         int stat_id FK
-        datetime stat_date
+        bool did_win
     }
 
     ChatRoom {
