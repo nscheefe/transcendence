@@ -147,8 +147,6 @@ erDiagram
         int id PK
         int user_id FK
         int stat_id FK
-        int previous_user_stat_id FK
-        int next_user_stat_id FK
         datetime stat_date
     }
 
@@ -259,8 +257,6 @@ erDiagram
     Stat }o--|| User : loser
     UserStat }o--|| User : belongs_to
     UserStat }o--|| Stat : belongs_to
-    UserStat }o--|{ UserStat : previous_user_stat
-    UserStat }o--|{ UserStat : next_user_stat
     ChatRoomMessage }o--|| ChatRoom : belongs_to
     ChatRoomMessage }o--|| User : sender
     ChatRoomUser }o--|| ChatRoom : belongs_to
