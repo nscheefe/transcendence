@@ -77,7 +77,7 @@ flowchart LR
 erDiagram
     User {
         int id PK
-        string name
+        string name %%intra_name
         string mail
         bool isAuth
         bool blocked
