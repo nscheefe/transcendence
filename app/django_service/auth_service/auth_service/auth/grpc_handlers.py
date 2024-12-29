@@ -25,22 +25,21 @@ class AuthServiceHandler(auth_pb2_grpc.AuthServiceServicer):
         if not check_and_delete_code(request.state):
             context.set_code(grpc.StatusCode.UNAUTHENTICATED)
             context.set_details('Invalid state code')
-            return auth_pb2.TokenResponse()
+            return auth_pb2.ExchangeCodeResponse()
 
         token_data = exchange_code_for_token(request.code, request.state)
         access_token = token_data.get('access_token')
         if not access_token:
             context.set_code(grpc.StatusCode.UNAUTHENTICATED)
             context.set_details('Invalid authorization code')
-            return auth_pb2.TokenResponse()
-        
+            return auth_pb2.ExchangeCodeResponse()
+
         user_info = get_user_info(access_token)
-        # TODO: Create user with grpc via user_service
         insert_auth_record(access_token, user_info.get('id'))
 
-        jwt_token = jwt.encode({'user_id': 1, 'exp': datetime.now(timezone.utc) + timedelta(seconds=7200)}, settings.JWT_SECRET, algorithm='HS256')
+        jwt_token = jwt.encode({'user_id': user_info.get('id'), 'exp': datetime.now(timezone.utc) + timedelta(seconds=7200)}, settings.JWT_SECRET, algorithm='HS256')
 
-        return auth_pb2.TokenResponse(jwt_token=jwt_token)
+        return auth_pb2.ExchangeCodeResponse(jwt_token=jwt_token, name=user_info.get('login'), mail=user_info.get('email'), user_id=user_info.get('id'))
     
     def GetUserIDFromJwtToken(self, request, context):
         try:
@@ -61,7 +60,7 @@ class AuthServiceHandler(auth_pb2_grpc.AuthServiceServicer):
             context.set_details('User ID not found')
             return auth_pb2.GetUserIDFromJwtTokenResponse()
 
-        return auth_pb2.GetUserIDFromJwtTokenResponse(user_id=str(user_id))
+        return auth_pb2.GetUserIDFromJwtTokenResponse(user_id=user_id)
 
     @classmethod
     def as_servicer(cls):

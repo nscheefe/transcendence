@@ -4,7 +4,7 @@ package auth;
 
 service AuthService {
   rpc GetRedirectUri (Empty) returns (RedirectUriResponse);
-  rpc ExchangeCodeForToken (ExchangeCodeRequest) returns (TokenResponse);
+  rpc ExchangeCodeForToken (ExchangeCodeRequest) returns (ExchangeCodeResponse);
   rpc GetUserIDFromJwtToken (GetUserIDFromJwtTokenRequest) returns (GetUserIDFromJwtTokenResponse);
 }
 
@@ -19,8 +19,11 @@ message ExchangeCodeRequest {
   string state = 2;
 }
 
-message TokenResponse {
-  string jwt_token = 1;
+message ExchangeCodeResponse {
+  int32 user_id = 1;
+  string jwt_token = 2;
+  string name = 3;
+  string mail = 4;
 }
 
 message GetUserIDFromJwtTokenRequest {
@@ -28,5 +31,5 @@ message GetUserIDFromJwtTokenRequest {
 }
 
 message GetUserIDFromJwtTokenResponse {
-  string user_id = 1;
+  int32 user_id = 1;
 }

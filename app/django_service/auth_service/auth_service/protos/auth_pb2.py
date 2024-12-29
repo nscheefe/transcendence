@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nauth.proto\x12\x04\x61uth\"\x07\n\x05\x45mpty\"+\n\x13RedirectUriResponse\x12\x14\n\x0credirect_uri\x18\x01 \x01(\t\"2\n\x13\x45xchangeCodeRequest\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\r\n\x05state\x18\x02 \x01(\t\"\"\n\rTokenResponse\x12\x11\n\tjwt_token\x18\x01 \x01(\t\"1\n\x1cGetUserIDFromJwtTokenRequest\x12\x11\n\tjwt_token\x18\x01 \x01(\t\"0\n\x1dGetUserIDFromJwtTokenResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\t2\xf1\x01\n\x0b\x41uthService\x12\x38\n\x0eGetRedirectUri\x12\x0b.auth.Empty\x1a\x19.auth.RedirectUriResponse\x12\x46\n\x14\x45xchangeCodeForToken\x12\x19.auth.ExchangeCodeRequest\x1a\x13.auth.TokenResponse\x12`\n\x15GetUserIDFromJwtToken\x12\".auth.GetUserIDFromJwtTokenRequest\x1a#.auth.GetUserIDFromJwtTokenResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nauth.proto\x12\x04\x61uth\"\x07\n\x05\x45mpty\"+\n\x13RedirectUriResponse\x12\x14\n\x0credirect_uri\x18\x01 \x01(\t\"2\n\x13\x45xchangeCodeRequest\x12\x0c\n\x04\x63ode\x18\x01 \x01(\t\x12\r\n\x05state\x18\x02 \x01(\t\"V\n\x14\x45xchangeCodeResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\tjwt_token\x18\x02 \x01(\t\x12\x0c\n\x04name\x18\x03 \x01(\t\x12\x0c\n\x04mail\x18\x04 \x01(\t\"1\n\x1cGetUserIDFromJwtTokenRequest\x12\x11\n\tjwt_token\x18\x01 \x01(\t\"0\n\x1dGetUserIDFromJwtTokenResponse\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x32\xf8\x01\n\x0b\x41uthService\x12\x38\n\x0eGetRedirectUri\x12\x0b.auth.Empty\x1a\x19.auth.RedirectUriResponse\x12M\n\x14\x45xchangeCodeForToken\x12\x19.auth.ExchangeCodeRequest\x1a\x1a.auth.ExchangeCodeResponse\x12`\n\x15GetUserIDFromJwtToken\x12\".auth.GetUserIDFromJwtTokenRequest\x1a#.auth.GetUserIDFromJwtTokenResponseb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'auth_pb2', globals())
@@ -26,12 +26,12 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _REDIRECTURIRESPONSE._serialized_end=72
   _EXCHANGECODEREQUEST._serialized_start=74
   _EXCHANGECODEREQUEST._serialized_end=124
-  _TOKENRESPONSE._serialized_start=126
-  _TOKENRESPONSE._serialized_end=160
-  _GETUSERIDFROMJWTTOKENREQUEST._serialized_start=162
-  _GETUSERIDFROMJWTTOKENREQUEST._serialized_end=211
-  _GETUSERIDFROMJWTTOKENRESPONSE._serialized_start=213
-  _GETUSERIDFROMJWTTOKENRESPONSE._serialized_end=261
-  _AUTHSERVICE._serialized_start=264
-  _AUTHSERVICE._serialized_end=505
+  _EXCHANGECODERESPONSE._serialized_start=126
+  _EXCHANGECODERESPONSE._serialized_end=212
+  _GETUSERIDFROMJWTTOKENREQUEST._serialized_start=214
+  _GETUSERIDFROMJWTTOKENREQUEST._serialized_end=263
+  _GETUSERIDFROMJWTTOKENRESPONSE._serialized_start=265
+  _GETUSERIDFROMJWTTOKENRESPONSE._serialized_end=313
+  _AUTHSERVICE._serialized_start=316
+  _AUTHSERVICE._serialized_end=564
 # @@protoc_insertion_point(module_scope)

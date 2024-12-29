@@ -22,7 +22,7 @@ class AuthServiceStub(object):
         self.ExchangeCodeForToken = channel.unary_unary(
                 '/auth.AuthService/ExchangeCodeForToken',
                 request_serializer=auth__pb2.ExchangeCodeRequest.SerializeToString,
-                response_deserializer=auth__pb2.TokenResponse.FromString,
+                response_deserializer=auth__pb2.ExchangeCodeResponse.FromString,
                 )
         self.GetUserIDFromJwtToken = channel.unary_unary(
                 '/auth.AuthService/GetUserIDFromJwtToken',
@@ -63,7 +63,7 @@ def add_AuthServiceServicer_to_server(servicer, server):
             'ExchangeCodeForToken': grpc.unary_unary_rpc_method_handler(
                     servicer.ExchangeCodeForToken,
                     request_deserializer=auth__pb2.ExchangeCodeRequest.FromString,
-                    response_serializer=auth__pb2.TokenResponse.SerializeToString,
+                    response_serializer=auth__pb2.ExchangeCodeResponse.SerializeToString,
             ),
             'GetUserIDFromJwtToken': grpc.unary_unary_rpc_method_handler(
                     servicer.GetUserIDFromJwtToken,
@@ -110,7 +110,7 @@ class AuthService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/auth.AuthService/ExchangeCodeForToken',
             auth__pb2.ExchangeCodeRequest.SerializeToString,
-            auth__pb2.TokenResponse.FromString,
+            auth__pb2.ExchangeCodeResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
