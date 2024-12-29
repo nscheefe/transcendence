@@ -12,6 +12,8 @@ services:
       - ./DB:/var/lib/postgresql/data
     networks:
       - db_network
+    ports:
+      - 5432:5432
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "django_db", "-U", "django_user" ]
       interval: 5s
@@ -120,6 +122,8 @@ services:
     networks:
       - django_network
       - db_network
+    # ports:
+    #   - 50051:50051
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db

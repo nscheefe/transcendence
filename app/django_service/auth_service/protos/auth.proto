@@ -3,25 +3,30 @@ syntax = "proto3";
 package auth;
 
 service AuthService {
-  rpc GetAuth (GetAuthRequest) returns (Auth);
-  rpc CreateAuth (CreateAuthRequest) returns (Auth);
-  rpc GetAuths (Empty) returns (AuthList);
-}
-
-message Auth {
-  int32 id = 1;
-}
-
-message GetAuthRequest {
-  int32 id = 1;
-}
-
-message CreateAuthRequest {
-  int32 id = 1;
-}
-
-message AuthList {
-  repeated Auth auths = 1;
+  rpc GetRedirectUri (Empty) returns (RedirectUriResponse);
+  rpc ExchangeCodeForToken (ExchangeCodeRequest) returns (TokenResponse);
+  rpc GetUserIDFromJwtToken (GetUserIDFromJwtTokenRequest) returns (GetUserIDFromJwtTokenResponse);
 }
 
 message Empty {}
+
+message RedirectUriResponse {
+  string redirect_uri = 1;
+}
+
+message ExchangeCodeRequest {
+  string code = 1;
+  string state = 2;
+}
+
+message TokenResponse {
+  string jwt_token = 1;
+}
+
+message GetUserIDFromJwtTokenRequest {
+  string jwt_token = 1;
+}
+
+message GetUserIDFromJwtTokenResponse {
+  string user_id = 1;
+}
