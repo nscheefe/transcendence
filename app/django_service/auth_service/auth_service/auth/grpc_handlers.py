@@ -55,8 +55,8 @@ class AuthServiceHandler(auth_pb2_grpc.AuthServiceServicer):
             context.set_details('Invalid token')
             return auth_pb2.GetUserIDFromJwtTokenResponse()
 
-        user_exists = user_exists(user_id)
-        if not user_exists:
+        valid_user = user_exists(user_id)
+        if not valid_user:
             context.set_code(grpc.StatusCode.UNAUTHENTICATED)
             context.set_details('User ID not found')
             return auth_pb2.GetUserIDFromJwtTokenResponse()
