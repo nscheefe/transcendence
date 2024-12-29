@@ -3,4 +3,6 @@ app/DB/*
 !./app/DB/
 app/django_service/venv
 **/__pycache__/
+venv/
+.env
 node_modules/
