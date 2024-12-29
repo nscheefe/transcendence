@@ -4,3 +4,4 @@
 app/django_service/venv
 **/__pycache__/
 venv/
+.env

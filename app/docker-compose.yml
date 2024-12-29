@@ -125,6 +125,10 @@ services:
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+      - CLIENT_ID=asd
+      - CLIENT_SECRET=asd
+      - REDIRECT_URI=asd
+      - JWT_SECRET=asd
 
   admin_service:
     build:

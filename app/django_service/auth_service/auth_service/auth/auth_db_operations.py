@@ -9,8 +9,11 @@ def insert_auth_record(token, user_id):
         print(f"Error inserting auth record: {e}")
         return None
 
-def get_auth_records_by_user_id(user_id):
-    return Auth.objects.filter(user_id=user_id)
+def get_token(user_id):
+    return Auth.objects.get(user_id=user_id).token
+
+def user_exists(user_id):
+    return Auth.objects.filter(user_id=user_id).exists()
 
 
 def insert_code_record(code):
