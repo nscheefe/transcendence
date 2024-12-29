@@ -29,6 +29,11 @@ class UserAchievementServiceStub(object):
                 request_serializer=userAchievement__pb2.CreateUserAchievementRequest.SerializeToString,
                 response_deserializer=userAchievement__pb2.UserAchievement.FromString,
                 )
+        self.UpdateUserAchievement = channel.unary_unary(
+                '/models.UserAchievementService/UpdateUserAchievement',
+                request_serializer=userAchievement__pb2.UpdateUserAchievementRequest.SerializeToString,
+                response_deserializer=userAchievement__pb2.UserAchievement.FromString,
+                )
 
 
 class UserAchievementServiceServicer(object):
@@ -52,6 +57,12 @@ class UserAchievementServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def UpdateUserAchievement(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_UserAchievementServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -68,6 +79,11 @@ def add_UserAchievementServiceServicer_to_server(servicer, server):
             'CreateUserAchievement': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateUserAchievement,
                     request_deserializer=userAchievement__pb2.CreateUserAchievementRequest.FromString,
+                    response_serializer=userAchievement__pb2.UserAchievement.SerializeToString,
+            ),
+            'UpdateUserAchievement': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateUserAchievement,
+                    request_deserializer=userAchievement__pb2.UpdateUserAchievementRequest.FromString,
                     response_serializer=userAchievement__pb2.UserAchievement.SerializeToString,
             ),
     }
@@ -127,6 +143,23 @@ class UserAchievementService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/models.UserAchievementService/CreateUserAchievement',
             userAchievement__pb2.CreateUserAchievementRequest.SerializeToString,
+            userAchievement__pb2.UserAchievement.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def UpdateUserAchievement(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/models.UserAchievementService/UpdateUserAchievement',
+            userAchievement__pb2.UpdateUserAchievementRequest.SerializeToString,
             userAchievement__pb2.UserAchievement.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

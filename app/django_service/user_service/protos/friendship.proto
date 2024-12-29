@@ -17,6 +17,20 @@ service FriendshipService {
   rpc GetFriendshipById (GetFriendshipByIdRequest) returns (Friendship);
   rpc GetFriendshipsByUserId (GetFriendshipsByUserIdRequest) returns (FriendshipsResponse);
   rpc GetFriendshipsByFriendId (GetFriendshipsByFriendIdRequest) returns (FriendshipsResponse);
+  rpc UpdateFriendship (UpdateFriendshipRequest) returns (Friendship); // New update method
+  rpc DeleteFriendship (DeleteFriendshipRequest) returns (DeleteFriendshipResponse); // New delete method
+}
+message DeleteFriendshipRequest {
+  int32 id = 1;
+}
+
+message DeleteFriendshipResponse {
+  bool success = 1;
+}
+message UpdateFriendshipRequest {
+  int32 id = 1;
+  bool accepted = 2;
+  google.protobuf.Timestamp established_at = 3;
 }
 
 message CreateFriendshipRequest {
