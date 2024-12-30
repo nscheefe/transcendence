@@ -785,7 +785,7 @@ blockquote {
   text-align: center;
   align-items: center;
   padding: 23px 20px;
-  font-family: Lato, sans-serif;
+  font-family: sans-serif;
   font-size: 20px;
   font-weight: 700;
   display: block;
@@ -801,8 +801,9 @@ blockquote {
   font-size: 20px;
 }
 
+  
 .nav-link:hover {
-  color: #9f9f9f;
+	color: var(--neon-pink);
 }
 
 .nav-link.w--current {
@@ -960,7 +961,7 @@ blockquote {
 }
 
 .close {
-  font-family: Lato, sans-serif;
+  font-family: sans-serif;
   font-size: 18px;
   font-weight: 900;
 }
@@ -1499,6 +1500,14 @@ blockquote {
 @font-face {
   font-family: 'Fontawesome webfont';
   src: url('../fonts/fontawesome-webfont.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: auto;
+}
+
+@font-face {
+  font-family: 'Audiowide';
+  src: url("{% static 'font/Audiowide-Regular.ttf' %}") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: auto;
