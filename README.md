@@ -281,8 +281,6 @@ sequenceDiagram
     participant "42 API"
 
     Client->>Client: Generate state key
-    Client->>Backend: Request client ID
-    Backend-->>Client: Send client ID
     Client->>+"42 API": Redirect to authorization endpoint with client ID and state key
     "42 API"->>Client: Redirect back with code and state parameter
     Client->>Backend: Send code and state parameter

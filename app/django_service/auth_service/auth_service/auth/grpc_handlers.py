@@ -14,19 +14,7 @@ class AuthServiceHandler(auth_pb2_grpc.AuthServiceServicer):
     def __init__(self):
         pass
 
-    def GetRedirectUri(self, request, context):
-        state = generate_random_string()
-        insert_state_record(state)
-        
-        redirect_uri = f"https://api.intra.42.fr/oauth/authorize?client_id={settings.CLIENT_ID}&redirect_uri={settings.REDIRECT_URI}&state={state}&response_type=code"
-        return auth_pb2.RedirectUriResponse(redirect_uri=redirect_uri)
-
     def ExchangeCodeForToken(self, request, context):
-        if not check_and_delete_state(request.state):
-            context.set_code(grpc.StatusCode.UNAUTHENTICATED)
-            context.set_details('Invalid state code')
-            return auth_pb2.ExchangeCodeResponse()
-
         token_data = exchange_code_for_token(request.code, request.state)
         access_token = token_data.get('access_token')
         if not access_token:
