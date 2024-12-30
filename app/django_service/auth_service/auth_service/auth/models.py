@@ -8,6 +8,6 @@ class Auth(models.Model):
     token = models.CharField(max_length=255)
     user_id = models.IntegerField()
 
-class Codes(models.Model):
+class State(models.Model):
     id = models.AutoField(primary_key=True)
-    code = models.CharField(max_length=255)
+    state = models.CharField(max_length=255)

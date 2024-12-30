@@ -15,14 +15,14 @@ class AuthServiceHandler(auth_pb2_grpc.AuthServiceServicer):
         pass
 
     def GetRedirectUri(self, request, context):
-        code = generate_random_string()
-        insert_code_record(code)
+        state = generate_random_string()
+        insert_state_record(state)
         
-        redirect_uri = f"https://api.intra.42.fr/oauth/authorize?client_id={settings.CLIENT_ID}&redirect_uri={settings.REDIRECT_URI}&state={code}&response_type=code"
+        redirect_uri = f"https://api.intra.42.fr/oauth/authorize?client_id={settings.CLIENT_ID}&redirect_uri={settings.REDIRECT_URI}&state={state}&response_type=code"
         return auth_pb2.RedirectUriResponse(redirect_uri=redirect_uri)
 
     def ExchangeCodeForToken(self, request, context):
-        if not check_and_delete_code(request.state):
+        if not check_and_delete_state(request.state):
             context.set_code(grpc.StatusCode.UNAUTHENTICATED)
             context.set_details('Invalid state code')
             return auth_pb2.ExchangeCodeResponse()
@@ -35,9 +35,9 @@ class AuthServiceHandler(auth_pb2_grpc.AuthServiceServicer):
             return auth_pb2.ExchangeCodeResponse()
 
         user_info = get_user_info(access_token)
-        insert_auth_record(access_token, user_info.get('id'))
+        auth_id = insert_auth_record(access_token, user_info.get('id'))
 
-        jwt_token = jwt.encode({'user_id': user_info.get('id'), 'exp': datetime.now(timezone.utc) + timedelta(seconds=7200)}, settings.JWT_SECRET, algorithm='HS256')
+        jwt_token = jwt.encode({'auth_id': auth_id, 'user_id': user_info.get('id'), 'exp': datetime.now(timezone.utc) + timedelta(seconds=7200)}, settings.JWT_SECRET, algorithm='HS256')
 
         return auth_pb2.ExchangeCodeResponse(jwt_token=jwt_token, name=user_info.get('login'), mail=user_info.get('email'), user_id=user_info.get('id'))
     
@@ -45,6 +45,7 @@ class AuthServiceHandler(auth_pb2_grpc.AuthServiceServicer):
         try:
             decoded_token = jwt.decode(request.jwt_token, settings.JWT_SECRET, algorithms=['HS256'])
             user_id = decoded_token['user_id']
+            auth_id = decoded_token['auth_id']
         except jwt.ExpiredSignatureError:
             context.set_code(grpc.StatusCode.UNAUTHENTICATED)
             context.set_details('Token has expired')
@@ -54,10 +55,10 @@ class AuthServiceHandler(auth_pb2_grpc.AuthServiceServicer):
             context.set_details('Invalid token')
             return auth_pb2.GetUserIDFromJwtTokenResponse()
 
-        valid_user = user_exists(user_id)
-        if not valid_user:
+        valid_auth = auth_id_exists(auth_id)
+        if not valid_auth:
             context.set_code(grpc.StatusCode.UNAUTHENTICATED)
-            context.set_details('User ID not found')
+            context.set_details('No auth record found')
             return auth_pb2.GetUserIDFromJwtTokenResponse()
 
         return auth_pb2.GetUserIDFromJwtTokenResponse(user_id=user_id)

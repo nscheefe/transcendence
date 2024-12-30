@@ -106,8 +106,13 @@ erDiagram
 
     Auth {
         int id PK
-        string secret
+        string token
         int user_id FK
+    }
+
+    AuthState {
+        int id PK
+        string state
     }
 
     Setting {
@@ -248,7 +253,7 @@ erDiagram
     RolePermission ||--o{ Role : grants
     RolePermission ||--o{ Permission : controls
     Staff ||--|| User : belongs_to
-    Auth ||--|| User : belongs_to
+    Auth ||--o{ User : belongs_to
     Setting }o--|| User : belongs_to
     Game }o--|| User : player_a
     Game }o--|| User : player_b
