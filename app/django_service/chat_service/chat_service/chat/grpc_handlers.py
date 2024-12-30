@@ -14,7 +14,7 @@ from chat_service.chat.chat_room_user_grpc_handler import ChatRoomUserServiceHan
 def grpc_handlers(server):
     # Register Chat Service
     chat_service_handler = ChatServiceHandler.as_servicer()
-    ChatRoom_pb2_grpc.add_ChatServiceServicer_to_server(chat_service_handler, server)
+    chat_pb2_grpc.add_ChatServiceServicer_to_server(chat_service_handler, server)
 
     # Register Chat Room Message Service
     chat_room_message_service_handler = ChatRoomMessageServiceHandler.as_servicer()
