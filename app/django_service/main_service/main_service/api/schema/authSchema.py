@@ -12,12 +12,17 @@ GRPC_TARGET = f"{GRPC_HOST}:{GRPC_PORT}"
 class Query(graphene.ObjectType):
     redirect_uri = graphene.String(required=True)
 
-    def resolve_redirect_uri(self, info):
-        with grpc.insecure_channel(GRPC_TARGET) as channel:
-            stub = AuthServiceStub(channel)
-            request = Empty()
-            response = stub.GetRedirectUri(request)
-            return response.redirect_uri
+    def resolve_redirect_uri():
+        try:
+            with grpc.insecure_channel(GRPC_TARGET) as channel:
+                stub = AuthServiceStub(channel)
+                request = Empty()
+                response = stub.GetRedirectUri(request)
+                return response.redirect_uri
+        except grpc.RpcError as e:
+            raise Exception(f"gRPC error: {e.details()} (Code: {e.code()})")
+        except Exception as ex:
+            raise Exception(f"Error occurred while getting redirect uri: {str(ex)}")
 
 class ExchangeCodeForTokenInput(graphene.InputObjectType):
     code = graphene.String(required=True)
@@ -52,7 +57,7 @@ class ExchangeCodeForTokenMutation(graphene.Mutation):
         except grpc.RpcError as e:
             raise Exception(f"gRPC error: {e.details()} (Code: {e.code()})")
         except Exception as ex:
-            raise Exception(f"Error occurred while creating user: {str(ex)}")
+            raise Exception(f"Error occurred while exchanging code for token: {str(ex)}")
 
 class Mutation(graphene.ObjectType):
     exchange_code_for_token = ExchangeCodeForTokenMutation.Field()
