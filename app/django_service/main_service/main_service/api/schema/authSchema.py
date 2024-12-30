@@ -2,6 +2,8 @@ import graphene
 import grpc
 from main_service.protos.auth_pb2_grpc import AuthServiceStub
 from main_service.protos.auth_pb2 import ExchangeCodeRequest, ExchangeCodeResponse
+from main_service.protos.user_pb2_grpc import UserServiceStub
+from main_service.protos.user_pb2 import CreateUserRequest
 
 GRPC_HOST = "auth_service"
 GRPC_PORT = "50051"
@@ -23,6 +25,16 @@ class ExchangeCodeForTokenMutation(graphene.Mutation):
                 stub = AuthServiceStub(channel)
                 request = ExchangeCodeRequest(code=input.code, state=input.state)
                 response = stub.ExchangeCodeForToken(request)
+
+                # Create user
+                with grpc.insecure_channel("user_service:50051") as channel:
+                    stub = UserServiceStub(channel)
+                    grpc_request = CreateUserRequest(
+                        id= response.user_id,
+                        name=response.name,
+                        mail=response.mail
+                    )
+                    stub.CreateUser(grpc_request)
 
             return ExchangeCodeForTokenMutation(
                 jwt_token=response.jwt_token
