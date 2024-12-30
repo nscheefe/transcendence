@@ -1444,6 +1444,15 @@ blockquote {
 .custom-button {
   background-color: var(--42-turqois);
   padding: 15px 30px;
+  transition: box-shadow 0.3s ease, transform 0.1s ease;
+}
+
+.custom-button:hover {
+  box-shadow: 0 0 15px rgba(255, 57, 87, 0.75); /* Light pink glow */
+}
+
+.custom-button:active {
+  transform: scale(0.95); /* Onclick animation */
 }
 
 .custom-button-text {
