@@ -14,3 +14,4 @@ class Mutation(UserMutation, StatMutation, gameMutation, chatMutation, authMutat
     pass
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
+schemaAuth = graphene.Schema(query=authQuery, mutation=authMutation)
