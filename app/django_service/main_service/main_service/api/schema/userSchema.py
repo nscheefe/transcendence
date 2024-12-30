@@ -31,7 +31,6 @@ class UserType(graphene.ObjectType):
     id = graphene.Int()
     name = graphene.String()
     mail = graphene.String()
-    isAuth = graphene.Boolean()
     blocked = graphene.Boolean()
     created_at = graphene.DateTime()
     updated_at = graphene.DateTime()
@@ -116,7 +115,6 @@ class UserType(graphene.ObjectType):
         id = graphene.Int()
         name = graphene.String()
         mail = graphene.String()
-        isAuth = graphene.Boolean()
         blocked = graphene.Boolean()
         created_at = graphene.DateTime()
         updated_at = graphene.DateTime()
@@ -260,7 +258,6 @@ class Query(graphene.ObjectType):
             id=response.id,
             name=response.name,
             mail=response.mail,
-            isAuth=response.isAuth,
             blocked=response.blocked,
             created_at=datetime.fromtimestamp(response.created_at.seconds),
             updated_at=datetime.fromtimestamp(response.updated_at.seconds),
@@ -624,9 +621,9 @@ class ProfileMutation(graphene.Mutation):
 
 ########################################################################################################################
 class UserInput(graphene.InputObjectType):
+    id = graphene.Int()
     name = graphene.String(required=True)
     mail = graphene.String(required=True)
-    isAuth = graphene.Boolean()
     blocked = graphene.Boolean()
     created_at = graphene.DateTime()
     updated_at = graphene.DateTime()
@@ -651,9 +648,9 @@ class CreateUser(graphene.Mutation):
             with grpc.insecure_channel(service_endpoint) as channel:
                 stub = UserServiceStub(channel)
                 grpc_request = CreateUserRequest(
+                    id= input.id,
                     name=input.name,
                     mail=input.mail,
-                    isAuth=input.isAuth,
                     blocked=input.blocked,
                     role_id=input.role_id,
                     last_login_ip=input.last_login_ip or ""
@@ -663,7 +660,6 @@ class CreateUser(graphene.Mutation):
                     id=grpc_response.id,
                     name=grpc_response.name,
                     mail=grpc_response.mail,
-                    isAuth=grpc_response.isAuth,
                     blocked=grpc_response.blocked,
                     role_id=grpc_response.role_id,
                     last_login_ip=grpc_response.last_login_ip,

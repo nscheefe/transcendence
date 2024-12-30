@@ -81,43 +81,6 @@ class ChatServiceHandler(chat_pb2_grpc.ChatServiceServicer):
             context.set_details(f"Error listing chat rooms: {str(e)}")
             context.set_code(grpc.StatusCode.INTERNAL)
 
-    def CreateChatMessage(self, request, context):
-        """
-        Stores a message within a ChatRoom.
-        """
-        try:
-            # Check if the ChatRoom exists
-            chat_room = ChatRoom.objects.get(id=request.chat_room_id)
-
-            # Save the message
-            message = ChatRoomMessage(
-                content=request.content,
-                sender_id=request.sender_id,
-                chat_room=chat_room,
-            )
-            message.save()
-
-            # Prepare timestamp from saved message
-            timestamp = google.protobuf.timestamp_pb2.Timestamp()
-            timestamp.FromDatetime(message.timestamp)
-
-            # Return the message as response
-            return chat_pb2.ChatMessage(
-                id=message.id,
-                content=message.content,
-                sender_id=message.sender_id,
-                chat_room_id=message.chat_room_id,
-                timestamp=timestamp,
-            )
-        except ChatRoom.DoesNotExist:
-            context.set_code(grpc.StatusCode.NOT_FOUND)
-            context.set_details("Chat room not found")
-            return chat_pb2.ChatMessage()
-        except Exception as e:
-            context.set_details(f"Error creating chat message: {str(e)}")
-            context.set_code(grpc.StatusCode.INTERNAL)
-            return chat_pb2.ChatMessage()
-
     @classmethod
     def as_servicer(cls):
         """
