@@ -12,7 +12,7 @@ GRPC_TARGET = f"{GRPC_HOST}:{GRPC_PORT}"
 class Query(graphene.ObjectType):
     redirect_uri = graphene.String(required=True)
 
-    def resolve_redirect_uri():
+    def resolve_redirect_uri(root, info):
         try:
             with grpc.insecure_channel(GRPC_TARGET) as channel:
                 stub = AuthServiceStub(channel)
