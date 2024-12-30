@@ -8,7 +8,7 @@ from main_service.protos.ChatRoomMessage_pb2 import GetMessagesByChatRoomIdReque
 from main_service.protos.chat_pb2 import CreateChatRoomRequest, GetChatRoomRequest
 from main_service.protos.chat_pb2_grpc import ChatServiceStub
 from main_service.protos.ChatRoomUser_pb2_grpc import ChatRoomUserServiceStub
-from main_service.protos.ChatRoomUser_pb2 import GetUsersByChatRoomIdRequest, AddUserToChatRoomRequest
+from main_service.protos.ChatRoomUser_pb2 import GetUsersByChatRoomIdRequest, AddUserToChatRoomRequest, GetChatRoomByUserIdRequest
 
 # Set up the gRPC target for Chat Service
 GRPC_CHAT_HOST = "chat_service"
@@ -92,6 +92,7 @@ class ChatRoomType(graphene.ObjectType):
 
 class Query(graphene.ObjectType):
     chat_room = graphene.Field(ChatRoomType, id=graphene.Int(required=True))
+    chat_rooms_for_user = graphene.List(ChatRoomType)
 
     @staticmethod
     def resolve_chat_room(root, info, id):
@@ -144,6 +145,33 @@ class Query(graphene.ObjectType):
             )
 
         except grpc.RpcError as e:
+            raise Exception(f"gRPC error: {e.details()} (Code: {e.code().name})")
+        except Exception as ex:
+            raise Exception(f"Unexpected error: {str(ex)}")
+
+    @staticmethod
+    def resolve_chat_rooms_for_user(self, info):
+        """
+        Fetch multiple chat rooms for a user using resolve_chat_room.
+        """
+        try:
+
+            channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
+            client = ChatRoomUserServiceStub(channel)
+
+            grpc_request = GetChatRoomByUserIdRequest(user_id=info.context.user_id)
+            chat_rooms = client.GetChatRoomByUser(grpc_request)
+
+            chat_rooms = [
+                Query.resolve_chat_room(self, info, chat_room.id)
+                for chat_room in chat_rooms
+            ]
+
+            return chat_rooms
+
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                return []  # If no chat rooms found, return empty list
             raise Exception(f"gRPC error: {e.details()} (Code: {e.code().name})")
         except Exception as ex:
             raise Exception(f"Unexpected error: {str(ex)}")
