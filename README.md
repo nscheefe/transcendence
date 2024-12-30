@@ -106,13 +106,10 @@ erDiagram
 
     Auth {
         int id PK
-        string token
         int user_id FK
-    }
-
-    AuthState {
-        int id PK
-        string state
+        string access_token
+        string refresh_token
+        datetime expires_at
     }
 
     Setting {
