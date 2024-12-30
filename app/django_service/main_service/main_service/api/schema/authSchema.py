@@ -1,13 +1,23 @@
 import graphene
 import grpc
 from main_service.protos.auth_pb2_grpc import AuthServiceStub
-from main_service.protos.auth_pb2 import ExchangeCodeRequest, ExchangeCodeResponse
+from main_service.protos.auth_pb2 import ExchangeCodeRequest, Empty
 from main_service.protos.user_pb2_grpc import UserServiceStub
 from main_service.protos.user_pb2 import CreateUserRequest
 
 GRPC_HOST = "auth_service"
 GRPC_PORT = "50051"
 GRPC_TARGET = f"{GRPC_HOST}:{GRPC_PORT}"
+
+class Query(graphene.ObjectType):
+    redirect_uri = graphene.String(required=True)
+
+    def resolve_redirect_uri(self, info):
+        with grpc.insecure_channel(GRPC_TARGET) as channel:
+            stub = AuthServiceStub(channel)
+            request = Empty()
+            response = stub.GetRedirectUri(request)
+            return response.redirect_uri
 
 class ExchangeCodeForTokenInput(graphene.InputObjectType):
     code = graphene.String(required=True)
@@ -48,4 +58,4 @@ class Mutation(graphene.ObjectType):
     exchange_code_for_token = ExchangeCodeForTokenMutation.Field()
 
 
-schema = graphene.Schema(mutation=Mutation)
+schema = graphene.Schema(query=Query, mutation=Mutation)
