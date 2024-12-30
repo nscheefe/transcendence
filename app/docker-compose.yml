@@ -125,10 +125,10 @@ services:
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
-      - CLIENT_ID=asd
-      - CLIENT_SECRET=asd
-      - REDIRECT_URI=asd
-      - JWT_SECRET=asd
+      - CLIENT_ID=u-s4t2ud-fa3ef9e8cac10a1250eb6fc207a6729789d6812b3eef3e6e652d4f812a12314d
+      - CLIENT_SECRET=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
+      - REDIRECT_URI=http://localhost:8001/home
+      - JWT_SECRET=IdontKnowWhatToWriteHere
 
   admin_service:
     build:

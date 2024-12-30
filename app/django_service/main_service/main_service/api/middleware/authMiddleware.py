@@ -11,7 +11,7 @@ GRPC_TARGET = f"{GRPC_HOST}:{GRPC_PORT}"
 class AuthMiddleware(MiddlewareMixin):
     def process_request(self, request):
         # Skip authentication for auth endpoint
-        if request.path.startswith('/auth/'):
+        if not request.path.startswith('/graphql/'):
             return None
 
         jwt_token = request.COOKIES.get('jwt_token')
