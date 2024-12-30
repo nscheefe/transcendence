@@ -5,7 +5,7 @@ import graphene
 
 from main_service.protos.ChatRoomMessage_pb2_grpc import ChatRoomMessageServiceStub
 from main_service.protos.ChatRoomMessage_pb2 import GetMessagesByChatRoomIdRequest, CreateChatRoomMessageRequest
-from main_service.protos.chat_pb2 import CreateChatRoomRequest
+from main_service.protos.chat_pb2 import CreateChatRoomRequest, GetChatRoomRequest
 from main_service.protos.chat_pb2_grpc import ChatServiceStub
 from main_service.protos.ChatRoomUser_pb2_grpc import ChatRoomUserServiceStub
 from main_service.protos.ChatRoomUser_pb2 import GetUsersByChatRoomIdRequest, AddUserToChatRoomRequest
@@ -50,7 +50,6 @@ class ChatRoomType(graphene.ObjectType):
             request = GetUsersByChatRoomIdRequest(chat_room_id=self.id)
             response = client.GetUsersByChatRoomId(request)
 
-            # Map response to GraphQL type
             return [
                 ChatRoomUserType(
                     id=user.id,
@@ -76,7 +75,6 @@ class ChatRoomType(graphene.ObjectType):
             request = GetMessagesByChatRoomIdRequest(chat_room_id=self.id)
             response = client.GetMessagesByChatRoomId(request)
 
-            # Map response to GraphQL type
             return [
                 ChatRoomMessageType(
                     id=msg.id,
@@ -89,7 +87,7 @@ class ChatRoomType(graphene.ObjectType):
             ]
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
-                return []  # Return empty list if no messages found
+                return []
             raise Exception(f"gRPC error: {e.details()} (Code: {str(e.code())})")
 
 class Query(graphene.ObjectType):
@@ -105,11 +103,13 @@ class Query(graphene.ObjectType):
             # Initialize stubs
             user_client = ChatRoomUserServiceStub(channel)
             message_client = ChatRoomMessageServiceStub(channel)
+            chat_client = ChatServiceStub(channel)
+            chat_request =  GetChatRoomRequest(id=id)
+            chat_response = chat_client.GetChatRoomById(chat_request)
 
-            # Fetch users from the chat room
             user_request = GetUsersByChatRoomIdRequest(chat_room_id=id)
             user_response = user_client.GetUsersByChatRoomId(user_request)
-
+            chat_room = ChatRoomType(id=id, name=chat_response.name, created_at=chat_response.created_at, game_id=chat_response.game_id)
             users = [
                 ChatRoomUserType(
                     id=user.id,
@@ -120,7 +120,6 @@ class Query(graphene.ObjectType):
                 for user in user_response.users
             ]
 
-            # Fetch messages from the chat room
             message_request = GetMessagesByChatRoomIdRequest(chat_room_id=id)
             message_response = message_client.GetMessagesByChatRoomId(message_request)
 
@@ -135,13 +134,11 @@ class Query(graphene.ObjectType):
                 for msg in message_response.messages
             ]
 
-            # Simulate fetching chat room details (e.g., room name or creation date)
-            # Extend this part to include details from an actual ChatRoom gRPC if necessary.
-            # Current implementation provides only ID and mock 'name'/'created_at'.
             return ChatRoomType(
-                id=id,
-                name=f"Chat Room {id}",
-                created_at=datetime.utcnow(),
+                id=chat_room.id,
+                name=chat_room.name,
+                created_at=datetime.fromtimestamp(chat_room.created_at.seconds),
+                game_id=chat_room.game_id,
                 users=users,
                 messages=messages
             )
@@ -173,13 +170,11 @@ class AddUserToChatRoomMutation(graphene.Mutation):
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
             stub = ChatRoomUserServiceStub(channel)
 
-            # Prepare the gRPC AddUserToChatRoom request
             request = AddUserToChatRoomRequest(
                 chat_room_id=input["chat_room_id"],
                 user_id=input["user_id"]
             )
 
-            # Call the AddUserToChatRoom method
             stub.AddUserToChatRoom(request)
 
             return AddUserToChatRoomMutation(
@@ -202,13 +197,12 @@ class AddUserToChatRoomMutation(graphene.Mutation):
 class CreateMessageInput(graphene.InputObjectType):
     chat_room_id = graphene.Int(required=True)
     content = graphene.String(required=True)
-    sender_id = graphene.Int(required=True)
 
 
 
 class CreateChatRoomInput(graphene.InputObjectType):
     name = graphene.String(required=True)
-    game_id = graphene.Int(required=True)
+    game_id = graphene.Int()
 
 class CreateChatRoomMessageMutation(graphene.Mutation):
     class Arguments:
@@ -228,10 +222,9 @@ class CreateChatRoomMessageMutation(graphene.Mutation):
             request = CreateChatRoomMessageRequest(
                 chat_room_id=input["chat_room_id"],
                 content=input["content"],
-                sender_id=input["sender_id"]
+                sender_id=info.context.user_id
             )
 
-            # Call the CreateChatRoomMessage method
             stub.CreateMessage(request)
 
             return CreateChatRoomMessageMutation(
@@ -256,7 +249,7 @@ class CreateChatRoomMutation(graphene.Mutation):
         input = CreateChatRoomInput(required=True)
 
     success = graphene.Boolean()
-    chat_room = graphene.Field(lambda: ChatRoomType)  # Define the return type
+    chat_room = graphene.Field(lambda: ChatRoomType)
     message = graphene.String()
 
     @staticmethod
@@ -266,16 +259,13 @@ class CreateChatRoomMutation(graphene.Mutation):
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
             stub = ChatServiceStub(channel)
 
-            # Prepare the gRPC CreateChatRoom request
             request = CreateChatRoomRequest(
                 name=input["name"],
                 game_id=input["game_id"]
             )
 
-            # Call the CreateChatRoom method
             response = stub.CreateChatRoom(request)
 
-            # Return the created chat room
             created_chat_room = ChatRoomType(
                 id=response.id,
                 name=response.name,
