@@ -7,10 +7,11 @@ from .chatSchema import Query as chatQuery, Mutation as chatMutation
 from .authSchema import Query as authQuery, Mutation as authMutation
 from .adminSchema import Query as adminQuery, Mutation as adminMutation
 
-class Query(UserQuery, StatQuery, gameQuery,chatQuery,authQuery,adminQuery, graphene.ObjectType):
+class Query(UserQuery, StatQuery, gameQuery, chatQuery, authQuery, adminQuery, graphene.ObjectType):
     pass
 
-class Mutation(UserMutation, StatMutation, gameMutation, chatMutation,authMutation,adminMutation, graphene.ObjectType):
+class Mutation(UserMutation, StatMutation, gameMutation, chatMutation, authMutation, adminMutation, graphene.ObjectType):
     pass
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
+schemaAuth = graphene.Schema(query=authQuery, mutation=authMutation)

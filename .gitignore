@@ -7,9 +7,14 @@
 
 # DB
 app/DB/*
+
 # Python
 app/django_service/venv
+venv/
 **/__pycache__/
 
 # Node
 node_modules/
+
+# Secrets
+.env

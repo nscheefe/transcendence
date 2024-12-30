@@ -130,3 +130,8 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CLIENT_ID = os.environ.get('CLIENT_ID')
+CLIENT_SECRET = os.environ.get('CLIENT_SECRET')
+REDIRECT_URI = os.environ.get('REDIRECT_URI')
+JWT_SECRET = os.environ.get('JWT_SECRET')

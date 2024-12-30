@@ -14,39 +14,39 @@ class AuthServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetAuth = channel.unary_unary(
-                '/auth.AuthService/GetAuth',
-                request_serializer=auth__pb2.GetAuthRequest.SerializeToString,
-                response_deserializer=auth__pb2.Auth.FromString,
-                )
-        self.CreateAuth = channel.unary_unary(
-                '/auth.AuthService/CreateAuth',
-                request_serializer=auth__pb2.CreateAuthRequest.SerializeToString,
-                response_deserializer=auth__pb2.Auth.FromString,
-                )
-        self.GetAuths = channel.unary_unary(
-                '/auth.AuthService/GetAuths',
+        self.GetRedirectUri = channel.unary_unary(
+                '/auth.AuthService/GetRedirectUri',
                 request_serializer=auth__pb2.Empty.SerializeToString,
-                response_deserializer=auth__pb2.AuthList.FromString,
+                response_deserializer=auth__pb2.RedirectUriResponse.FromString,
+                )
+        self.ExchangeCodeForToken = channel.unary_unary(
+                '/auth.AuthService/ExchangeCodeForToken',
+                request_serializer=auth__pb2.ExchangeCodeRequest.SerializeToString,
+                response_deserializer=auth__pb2.ExchangeCodeResponse.FromString,
+                )
+        self.GetUserIDFromJwtToken = channel.unary_unary(
+                '/auth.AuthService/GetUserIDFromJwtToken',
+                request_serializer=auth__pb2.GetUserIDFromJwtTokenRequest.SerializeToString,
+                response_deserializer=auth__pb2.GetUserIDFromJwtTokenResponse.FromString,
                 )
 
 
 class AuthServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetAuth(self, request, context):
+    def GetRedirectUri(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def CreateAuth(self, request, context):
+    def ExchangeCodeForToken(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetAuths(self, request, context):
+    def GetUserIDFromJwtToken(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -55,20 +55,20 @@ class AuthServiceServicer(object):
 
 def add_AuthServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetAuth': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetAuth,
-                    request_deserializer=auth__pb2.GetAuthRequest.FromString,
-                    response_serializer=auth__pb2.Auth.SerializeToString,
-            ),
-            'CreateAuth': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateAuth,
-                    request_deserializer=auth__pb2.CreateAuthRequest.FromString,
-                    response_serializer=auth__pb2.Auth.SerializeToString,
-            ),
-            'GetAuths': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetAuths,
+            'GetRedirectUri': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetRedirectUri,
                     request_deserializer=auth__pb2.Empty.FromString,
-                    response_serializer=auth__pb2.AuthList.SerializeToString,
+                    response_serializer=auth__pb2.RedirectUriResponse.SerializeToString,
+            ),
+            'ExchangeCodeForToken': grpc.unary_unary_rpc_method_handler(
+                    servicer.ExchangeCodeForToken,
+                    request_deserializer=auth__pb2.ExchangeCodeRequest.FromString,
+                    response_serializer=auth__pb2.ExchangeCodeResponse.SerializeToString,
+            ),
+            'GetUserIDFromJwtToken': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUserIDFromJwtToken,
+                    request_deserializer=auth__pb2.GetUserIDFromJwtTokenRequest.FromString,
+                    response_serializer=auth__pb2.GetUserIDFromJwtTokenResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -81,7 +81,7 @@ class AuthService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetAuth(request,
+    def GetRedirectUri(request,
             target,
             options=(),
             channel_credentials=None,
@@ -91,42 +91,42 @@ class AuthService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/auth.AuthService/GetAuth',
-            auth__pb2.GetAuthRequest.SerializeToString,
-            auth__pb2.Auth.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def CreateAuth(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/auth.AuthService/CreateAuth',
-            auth__pb2.CreateAuthRequest.SerializeToString,
-            auth__pb2.Auth.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetAuths(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/auth.AuthService/GetAuths',
+        return grpc.experimental.unary_unary(request, target, '/auth.AuthService/GetRedirectUri',
             auth__pb2.Empty.SerializeToString,
-            auth__pb2.AuthList.FromString,
+            auth__pb2.RedirectUriResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def ExchangeCodeForToken(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/auth.AuthService/ExchangeCodeForToken',
+            auth__pb2.ExchangeCodeRequest.SerializeToString,
+            auth__pb2.ExchangeCodeResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetUserIDFromJwtToken(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/auth.AuthService/GetUserIDFromJwtToken',
+            auth__pb2.GetUserIDFromJwtTokenRequest.SerializeToString,
+            auth__pb2.GetUserIDFromJwtTokenResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

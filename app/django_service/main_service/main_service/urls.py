@@ -18,9 +18,11 @@ from django.urls import path, include
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
 
-urlpatterns = [
-    path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True))),  # GraphQL API endpoint
+from main_service.api.schema import Schema
 
+urlpatterns = [
+    path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=Schema.schema))),  # GraphQL API endpoint
+    path('auth/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=Schema.schemaAuth))),  # GraphQL API endpoint
     # Correct reference to frontend URLs inside main_service
     path('', include('main_service.frontend.urls')),  # Include frontend routes
 ]
