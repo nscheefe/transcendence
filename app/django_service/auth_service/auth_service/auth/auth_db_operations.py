@@ -1,5 +1,5 @@
 from django.db import IntegrityError
-from .models import Auth, Codes
+from .models import Auth, State
 
 def insert_auth_record(token, user_id):
     try:
@@ -16,18 +16,18 @@ def auth_id_exists(auth_id):
     return Auth.objects.filter(id=auth_id).exists()
 
 
-def insert_code_record(code):
+def insert_state_record(state):
     try:
-        code_record = Codes.objects.create(code=code)
-        return code_record
+        state_record = State.objects.create(state=state)
+        return state_record
     except IntegrityError as e:
-        print(f"Error inserting code record: {e}")
+        print(f"Error inserting state record: {e}")
         return None
 
-def check_and_delete_code(code):
+def check_and_delete_state(state):
     try:
-        code_record = Codes.objects.get(code=code)
-        code_record.delete()
+        state_record = State.objects.get(state=state)
+        state_record.delete()
         return True
-    except Codes.DoesNotExist:
+    except State.DoesNotExist:
         return False
