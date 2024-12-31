@@ -3,15 +3,8 @@ syntax = "proto3";
 package auth;
 
 service AuthService {
-  rpc GetRedirectUri (Empty) returns (RedirectUriResponse);
   rpc ExchangeCodeForToken (ExchangeCodeRequest) returns (ExchangeCodeResponse);
   rpc GetUserIDFromJwtToken (GetUserIDFromJwtTokenRequest) returns (GetUserIDFromJwtTokenResponse);
-}
-
-message Empty {}
-
-message RedirectUriResponse {
-  string redirect_uri = 1;
 }
 
 message ExchangeCodeRequest {
