@@ -2,11 +2,12 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from . import game_pb2 as game__pb2
+import game_pb2 as game__pb2
 
 
 class GameServiceStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """Service definition for Games
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -15,39 +16,43 @@ class GameServiceStub(object):
             channel: A grpc.Channel.
         """
         self.GetGame = channel.unary_unary(
-                '/game.GameService/GetGame',
+                '/transcendence.GameService/GetGame',
                 request_serializer=game__pb2.GetGameRequest.SerializeToString,
                 response_deserializer=game__pb2.Game.FromString,
                 )
+        self.GetOngoingGames = channel.unary_unary(
+                '/transcendence.GameService/GetOngoingGames',
+                request_serializer=game__pb2.GetOngoingGamesRequest.SerializeToString,
+                response_deserializer=game__pb2.GetOngoingGamesResponse.FromString,
+                )
         self.CreateGame = channel.unary_unary(
-                '/game.GameService/CreateGame',
+                '/transcendence.GameService/CreateGame',
                 request_serializer=game__pb2.CreateGameRequest.SerializeToString,
                 response_deserializer=game__pb2.Game.FromString,
-                )
-        self.GetGames = channel.unary_unary(
-                '/game.GameService/GetGames',
-                request_serializer=game__pb2.Empty.SerializeToString,
-                response_deserializer=game__pb2.GameList.FromString,
                 )
 
 
 class GameServiceServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """Service definition for Games
+    """
 
     def GetGame(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Get a specific game by its ID
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetOngoingGames(self, request, context):
+        """Get a list of ongoing games (not finished)
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def CreateGame(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GetGames(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Create a new game
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -60,25 +65,26 @@ def add_GameServiceServicer_to_server(servicer, server):
                     request_deserializer=game__pb2.GetGameRequest.FromString,
                     response_serializer=game__pb2.Game.SerializeToString,
             ),
+            'GetOngoingGames': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetOngoingGames,
+                    request_deserializer=game__pb2.GetOngoingGamesRequest.FromString,
+                    response_serializer=game__pb2.GetOngoingGamesResponse.SerializeToString,
+            ),
             'CreateGame': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateGame,
                     request_deserializer=game__pb2.CreateGameRequest.FromString,
                     response_serializer=game__pb2.Game.SerializeToString,
             ),
-            'GetGames': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetGames,
-                    request_deserializer=game__pb2.Empty.FromString,
-                    response_serializer=game__pb2.GameList.SerializeToString,
-            ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'game.GameService', rpc_method_handlers)
+            'transcendence.GameService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
 class GameService(object):
-    """Missing associated documentation comment in .proto file."""
+    """Service definition for Games
+    """
 
     @staticmethod
     def GetGame(request,
@@ -91,9 +97,26 @@ class GameService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/game.GameService/GetGame',
+        return grpc.experimental.unary_unary(request, target, '/transcendence.GameService/GetGame',
             game__pb2.GetGameRequest.SerializeToString,
             game__pb2.Game.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetOngoingGames(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/transcendence.GameService/GetOngoingGames',
+            game__pb2.GetOngoingGamesRequest.SerializeToString,
+            game__pb2.GetOngoingGamesResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -108,25 +131,8 @@ class GameService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/game.GameService/CreateGame',
+        return grpc.experimental.unary_unary(request, target, '/transcendence.GameService/CreateGame',
             game__pb2.CreateGameRequest.SerializeToString,
             game__pb2.Game.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def GetGames(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/game.GameService/GetGames',
-            game__pb2.Empty.SerializeToString,
-            game__pb2.GameList.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

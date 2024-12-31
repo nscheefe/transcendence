@@ -1,27 +1,54 @@
 syntax = "proto3";
 
-package game;
+package transcendence;
 
-service GameService {
-  rpc GetGame (GetGameRequest) returns (Game);
-  rpc CreateGame (CreateGameRequest) returns (Game);
-  rpc GetGames (Empty) returns (GameList);
-}
+import "google/protobuf/timestamp.proto";
 
+// Message to define a Game
 message Game {
-  int32 id = 1;
+    int32 id = 1;
+    string state = 2;                // State of the game
+    int32 points_player_a = 3;       // Points for player A
+    int32 points_player_b = 4;       // Points for player B
+    int32 player_a_id = 5;           // FK to User for Player A
+    int32 player_b_id = 6;           // FK to User for Player B
+    bool finished = 7;               // Whether the game is finished
+    google.protobuf.Timestamp created_at = 8; // Timestamp of game creation
+    google.protobuf.Timestamp updated_at = 9; // Timestamp of last update
 }
 
+// Service definition for Games
+service GameService {
+    // Get a specific game by its ID
+    rpc GetGame (GetGameRequest) returns (Game);
+
+    // Get a list of ongoing games (not finished)
+    rpc GetOngoingGames (GetOngoingGamesRequest) returns (GetOngoingGamesResponse);
+
+    // Create a new game
+    rpc CreateGame (CreateGameRequest) returns (Game);
+}
+
+// Requests and Responses for RPCs
+
+// Request to get a specific game by ID
 message GetGameRequest {
-  int32 id = 1;
+    int32 game_id = 1;
 }
 
+// Request to get ongoing games (not finished)
+message GetOngoingGamesRequest {}
+
+// Response containing a list of ongoing games
+message GetOngoingGamesResponse {
+    repeated Game games = 1;
+}
+
+// Request to create a new game
 message CreateGameRequest {
-  int32 id = 1;
+    string state = 1;                // Initial game state
+    int32 points_player_a = 2;       // Initial points for player A
+    int32 points_player_b = 3;       // Initial points for player B
+    int32 player_a_id = 4;           // FK to User for Player A
+    int32 player_b_id = 5;           // FK to User for Player B
 }
-
-message GameList {
-  repeated Game games = 1;
-}
-
-message Empty {}
