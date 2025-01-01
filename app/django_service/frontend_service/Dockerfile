@@ -12,6 +12,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the entire application directory to the container
 COPY . .
 
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
 # Expose port and set the entrypoint
 EXPOSE 80
-CMD ["gunicorn", "--bind", "0.0.0.0:80", "frontend_service.wsgi:application"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
