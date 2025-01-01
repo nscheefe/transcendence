@@ -24,7 +24,6 @@ from main_service.api.schema import Schema
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=Schema.schema))),  # GraphQL API endpoint
+    path('graphiql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=Schema.schema))),  # GraphiQL frontend
     path('auth/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=Schema.schemaAuth))),  # GraphQL API endpoint
-    # Remove or update the following line if it references the non-existent frontend module
-    # path('', include('main_service.frontend.urls')),
 ]
