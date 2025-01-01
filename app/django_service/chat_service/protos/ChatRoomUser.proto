@@ -19,6 +19,7 @@ service ChatRoomUserService {
 
     // Add a user to a chat room
     rpc AddUserToChatRoom(AddUserToChatRoomRequest) returns (ChatRoomUser);
+    rpc GetChatRoomByUser(GetChatRoomByUserIdRequest) returns(ListChatRoomUsersResponse);
 }
 
 // Request and Response messages for ChatRoomUser
@@ -35,3 +36,6 @@ message ListChatRoomUsersResponse {
     repeated ChatRoomUser users = 1; // List of users in a chat room
 }
 
+message GetChatRoomByUserIdRequest {
+    int32 user_id = 1;
+}

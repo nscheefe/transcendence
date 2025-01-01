@@ -8,7 +8,6 @@ message User {
   int32 id = 1;
   string name = 2;
   string mail = 3;
-  bool isAuth = 4;
   bool blocked = 5;
   google.protobuf.Timestamp created_at = 6;
   google.protobuf.Timestamp updated_at = 7;
@@ -26,12 +25,12 @@ service UserService {
 }
 
 message CreateUserRequest {
-  string name = 1;
-  string mail = 2;
-  bool isAuth = 3;
-  bool blocked = 4;
-  int32 role_id = 5;
-  string last_login_ip = 6;
+  int32 id = 1;
+  string name = 2;
+  string mail = 3;
+  bool blocked = 5;
+  int32 role_id = 6;
+  string last_login_ip = 7;
 }
 
 message GetUserRequest {
