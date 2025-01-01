@@ -10,7 +10,7 @@ from .adminSchema import Query as adminQuery, Mutation as adminMutation
 class Query(UserQuery, StatQuery, gameQuery, chatQuery, adminQuery, graphene.ObjectType):
     pass
 
-class Mutation(UserMutation, StatMutation, gameMutation, chatMutation, authMutation, adminMutation, graphene.ObjectType):
+class Mutation(UserMutation, StatMutation, gameMutation, chatMutation, adminMutation, graphene.ObjectType):
     pass
 
 schema = graphene.Schema(query=Query, mutation=Mutation)

@@ -19,20 +19,26 @@ services:
       retries: 5
 
   main_service:
-    build:
-      context: ./django_service/main_service
-      dockerfile: Dockerfile
-    container_name: main_service
-    command: python manage.py runserver 0.0.0.0:8000
-    ports:
-      - '8001:8000'
-    volumes:
-      - ./django_service/main_service:/usr/src/app
-    networks:
-      - django_network
-    environment:
-      - DEBUG=True
-      - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+      build:
+        context: ./django_service/main_service
+        dockerfile: Dockerfile
+      container_name: main_service
+      command: python manage.py runserver 0.0.0.0:8000
+      ports:
+        - '8001:8000'
+      volumes:
+        - ./django_service/main_service:/usr/src/app
+      networks:
+        - django_network
+      environment:
+        - DEBUG=True
+        - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+      healthcheck:
+        test: ["CMD-SHELL", "curl -f http://localhost:8000/ || exit 1"]
+        interval: 30s
+        timeout: 10s
+        retries: 5
+        start_period: 30s
 
   user_service:
     build:
@@ -120,16 +126,11 @@ services:
     networks:
       - django_network
       - db_network
-    # ports:
-    #   - 50051:50051
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
-      - CLIENT_ID=asd
-      - CLIENT_SECRET=asd
-      - REDIRECT_URI=asd
-      - JWT_SECRET=asd
-
+    # ports:
+    #   - 50051:50051
   admin_service:
     build:
       context: ./django_service/auth_service
@@ -147,6 +148,21 @@ services:
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+
+  frontend_service:
+    build:
+      context: ./django_service/frontend_service
+      dockerfile: Dockerfile
+    container_name: frontend_service
+    command: python manage.py runserver 0.0.0.0:80
+    volumes:
+      - ./django_service/frontend_service:/usr/src/app
+    networks:
+      - django_network
+    ports:
+      - '80:80'
+
+
 
 networks:
   django_network:

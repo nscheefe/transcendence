@@ -10,6 +10,10 @@ GRPC_TARGET = f"{GRPC_HOST}:{GRPC_PORT}"
 
 class AuthMiddleware(MiddlewareMixin):
     def process_request(self, request):
+        # Skip authentication for auth endpoint
+        if not request.path.startswith('/graphql/'):
+            return None
+
         jwt_token = request.COOKIES.get('jwt_token')
 
         if not jwt_token:
@@ -27,7 +31,7 @@ class AuthMiddleware(MiddlewareMixin):
                 )
 
                 response = stub.GetUserIDFromJwtToken(request_message)
-                
+
                 request.user_id = response.user_id
         except grpc.RpcError as e:
             return JsonResponse(
@@ -39,5 +43,5 @@ class AuthMiddleware(MiddlewareMixin):
                 {'error': 'Internal server error', 'details': str(e)},
                 status=500
             )
-        
+
         return None
