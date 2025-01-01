@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en"></html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}My Application{% endblock %}</title>
+  <title>{% block title %}{% endblock %}</title>
   {% load static %}
   <link href="{% static 'css/normalize.css' %}" rel="stylesheet" type="text/css">
   <link href="{% static 'css/webflow.css' %}" rel="stylesheet" type="text/css">
@@ -13,10 +13,11 @@
   {% block extra_head %}{% endblock %}
 </head>
 <body class="body">
+  {% if show_nav %}
   <div class="navigation w-nav">
     <div class="w-container">
       <a href="#" class="brand-2 w-nav-brand">
-        <!-- Logo and Navigation -->
+        {% include "frontend/svg-42-hn.html" %}
       </a>
       <nav role="navigation" class="w-nav-menu">
         <a href="{% url 'home' %}" class="nav-link w-nav-link">Home</a>
@@ -28,6 +29,7 @@
       </div>
     </div>
   </div>
+  {% endif %}
   {% block content %}{% endblock %}
 
   {% block extra_js %}{% endblock %}
