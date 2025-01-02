@@ -126,6 +126,8 @@ services:
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+    env_file:
+      - .env
 ##############################################
   admin_service:
     build:

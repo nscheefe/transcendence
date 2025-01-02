@@ -25,15 +25,18 @@ def signIn(request):
 
 def exchange_code_for_token(code, state):
     transport = RequestsHTTPTransport(
-        url='http://localhost:8001/auth/',
+        url='http://main_service:8000/auth/',
         use_json=True,
+        headers={
+            'Host': 'localhost:8000'  # Set the Host header to a valid domain
+        }
     )
-    client = Client(transport=transport, fetch_schema_from_transport=True)
+    client = Client(transport=transport, fetch_schema_from_transport=False)
 
     query = gql("""
     mutation ExchangeCodeForToken($input: ExchangeCodeForTokenInput!) {
       exchangeCodeForToken(input: $input) {
-        token
+        jwtToken
       }
     }
     """)
