@@ -14,7 +14,8 @@
             "extensions": [
                 "ms-python.python",
                 "zxh404.vscode-proto3",
-                "bierner.markdown-mermaid"
+                "bierner.markdown-mermaid",
+                "golang.go"
             ]
         }
     }
