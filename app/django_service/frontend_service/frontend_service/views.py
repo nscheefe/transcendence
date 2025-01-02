@@ -56,7 +56,7 @@ def home(request):
 def profile(request):
     context = {
         'user_name': request.user.username,
-        'profile_data': get_user_profile_data(request.user),  # Example function for getting profile data
+        'profile_data': getUserProfileData(request),  # Example function for getting profile data
     }
     return render(request, 'frontend/profile.html', context)
 
