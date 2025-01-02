@@ -33,7 +33,7 @@ def oauth_callback(request):
     if 'errors' in token_data:
         return render(request, 'frontend/error.html', {'error': 'Failed to obtain access token'})
 
-    access_token = token_data['data']['jwt_token']
+    access_token = token_data['exchangeCodeForToken']['jwtToken']
 
     # Store the JWT as a cookie
     response = redirect('home')

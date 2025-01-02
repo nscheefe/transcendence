@@ -24,7 +24,7 @@ class JWTAuthenticationMiddleware:
             decoded_data = jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=["HS256"])
 
             # Add user info to the request object (you can use this in views)
-            request.user = decoded_data['user']  # Assuming 'user' contains user info
+            request.user = decoded_data['user_id']  # Assuming 'user' contains user info
         except jwt.ExpiredSignatureError:
             return JsonResponse({"error": "Token has expired"}, status=401)
         except jwt.InvalidTokenError:

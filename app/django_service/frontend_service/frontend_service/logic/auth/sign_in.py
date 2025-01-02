@@ -28,7 +28,7 @@ def exchange_code_for_token(code, state):
         url='http://main_service:8000/auth/',
         use_json=True,
         headers={
-            'Host': 'localhost:8000'  # Set the Host header to a valid domain
+            'Host': 'localhost:8000'
         }
     )
     client = Client(transport=transport, fetch_schema_from_transport=False)
@@ -48,4 +48,3 @@ def exchange_code_for_token(code, state):
     }
     response = client.execute(query, variable_values=variables)
     return response
-
