@@ -33,7 +33,6 @@ CLIENT_SECRET=your-client-secret  # Replace with your OAuth client secret
 REDIRECT_URI_IDENTITY_PROVIDER=https://login.provider/auth  # Replace with your identity provider's redirect URI
 REDIRECT_URI=http://localhost:80/home  # Replace with your application's redirect URI
 JWT_SECRET=your-jwt-secret  # Replace with a secure secret key for JWT
-BASE_REDIRECT_URI=http://localhost:8001/home  # Replace with your application's base redirect URI
 ```
 
 Replace the placeholder values with your actual credentials and settings:
@@ -51,9 +50,8 @@ Example:
 CLIENT_ID=u-s4t2ud-fa3ef9e8cac10a1250eb6fc207a67297aasddasa3e6e652d4f812a12314d
 CLIENT_SECRET=s-s4t2ud-fa3ef9e8cac10a1250eb6fc207a672asdasb3eef3e6e652d4f812a12314d
 REDIRECT_URI_IDENTITY_PROVIDER=https://api.intra.42.fr/oauth/authorize
-REDIRECT_URI=http://localhost:80/home
+REDIRECT_URI=http://localhost/oauth_callback
 JWT_SECRET=supersecuresecretkey12345
-BASE_REDIRECT_URI=http://localhost:8001/home
 ```
 
 Make sure to keep your `.env` file secure and do not commit it to version control.
