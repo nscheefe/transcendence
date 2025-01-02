@@ -1,13 +1,13 @@
 from django.shortcuts import render, redirect
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from .logic.auth.utils import jwt_required, isJwtSet
 from .logic.auth.sign_in import signIn, exchange_code_for_token
 
 def root_redirect(request):
     """
     Redirect the user based on authentication status.
     """
-    if request.user.is_authenticated:
+    if isJwtSet(request):
         return redirect('home')
     return redirect('signin')
 
@@ -33,6 +33,9 @@ def oauth_callback(request):
     if 'errors' in token_data:
         return render(request, 'frontend/error.html', {'error': 'Failed to obtain access token'})
 
+    if 'exchangeCodeForToken' not in token_data:
+        return render(request, 'frontend/error.html', {'error': 'Invalid response from server'})
+
     access_token = token_data['exchangeCodeForToken']['jwtToken']
 
     # Store the JWT as a cookie
@@ -40,7 +43,7 @@ def oauth_callback(request):
     response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='Lax')
     return response
 
-@login_required
+@jwt_required
 def home(request):
     # Create context dictionary with necessary data
     context = {
@@ -49,7 +52,7 @@ def home(request):
     }
     return render(request, 'frontend/home.html', context)
 
-@login_required
+@jwt_required
 def profile(request):
     context = {
         'user_name': request.user.username,
@@ -57,7 +60,7 @@ def profile(request):
     }
     return render(request, 'frontend/profile.html', context)
 
-@login_required
+@jwt_required
 def stats(request):
     context = {
         'user_name': request.user.username,
@@ -65,7 +68,7 @@ def stats(request):
     }
     return render(request, 'frontend/stats.html', context)
 
-@login_required
+@jwt_required
 def friends(request):
     context = {
         'user_name': request.user.username,
@@ -73,7 +76,7 @@ def friends(request):
     }
     return render(request, 'frontend/friends.html', context)
 
-@login_required
+@jwt_required
 def game(request):
     context = {
         'user_name': request.user.username,
