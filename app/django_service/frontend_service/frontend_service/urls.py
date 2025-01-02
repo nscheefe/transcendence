@@ -4,6 +4,8 @@ from . import views
 urlpatterns = [
     path('', views.root_redirect, name='root_redirect'),  # Root route redirection
     path('signin/', views.signin, name='signin'),  # Sign-in view
+	path('signout/', views.signout, name='signout'),  # Sign-out view
+    path('oauth_callback/', views.oauth_callback, name='oauth_callback'),  # OAuth callback view
 
     # If the user is not authenticated, they will be redirected to the sign-in page.
     path('home/', views.home, name='home'),  # Main home view
