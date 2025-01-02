@@ -1,6 +1,10 @@
+package grpc
+
+import "fmt"
+
 func exampleUsage() {
 	// Create a new client
-	client, err := grpcClient.NewGameClient("localhost:50051")
+	client, err := NewGameClient("localhost:50051")
 	if err != nil {
 		fmt.Printf("Failed to create client: %v\n", err)
 		return

@@ -4,5 +4,6 @@ run:
 protoc:
 	protoc --go_out=. \
 		--go-grpc_out=. \
-		grpc/game.proto \
-		grpc/gameEvent.proto
+		grpc/protos/game.proto \
+		grpc/protos/gameEvent.proto \
+		grpc/protos/auth.proto
