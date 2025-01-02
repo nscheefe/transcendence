@@ -77,7 +77,7 @@ flowchart LR
 erDiagram
     User {
         int id PK
-        string name
+        string name(intra_name)
         string mail
         bool isAuth
         bool blocked
@@ -106,8 +106,10 @@ erDiagram
 
     Auth {
         int id PK
-        string secret
         int user_id FK
+        string access_token
+        string refresh_token
+        datetime expires_at
     }
 
     Setting {
@@ -147,9 +149,7 @@ erDiagram
         int id PK
         int user_id FK
         int stat_id FK
-        int previous_user_stat_id FK
-        int next_user_stat_id FK
-        datetime stat_date
+        bool did_win
     }
 
     ChatRoom {
@@ -250,7 +250,7 @@ erDiagram
     RolePermission ||--o{ Role : grants
     RolePermission ||--o{ Permission : controls
     Staff ||--|| User : belongs_to
-    Auth ||--|| User : belongs_to
+    Auth ||--o{ User : belongs_to
     Setting }o--|| User : belongs_to
     Game }o--|| User : player_a
     Game }o--|| User : player_b
@@ -259,8 +259,6 @@ erDiagram
     Stat }o--|| User : loser
     UserStat }o--|| User : belongs_to
     UserStat }o--|| Stat : belongs_to
-    UserStat }o--|{ UserStat : previous_user_stat
-    UserStat }o--|{ UserStat : next_user_stat
     ChatRoomMessage }o--|| ChatRoom : belongs_to
     ChatRoomMessage }o--|| User : sender
     ChatRoomUser }o--|| ChatRoom : belongs_to
@@ -271,3 +269,30 @@ erDiagram
 
 ```
 
+# 42 Intra API Authentication Flow
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Backend
+    participant "42 API"
+
+    Client->>Client: Generate state key
+    Client->>+"42 API": Redirect to authorization endpoint with client ID and state key
+    "42 API"->>Client: Redirect back with code and state parameter
+    Client->>Backend: Send code and state parameter
+    Backend->>+"42 API": Exchange code for access token and refresh token
+    "42 API"->>Backend: Return access token and refresh token
+    Backend-->>Client: Send JWT token (no expiry date)
+
+    Note over Client,Backend: JWT token used for authentication in subsequent requests
+
+    Client->>Backend: Send request with JWT token
+    Backend->>Backend: Validate JWT token
+    Backend-->>Client: If JWT token is valid, process request
+
+    alt Access token needs renewal
+        Backend->>+"42 API": Use refresh token to get new access token
+        "42 API"->>Backend: Return new access token
+    end
+```

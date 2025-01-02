@@ -24,7 +24,7 @@ class ChatRoomMessage(models.Model):
     timestamp = models.DateTimeField(default=now)  # Timestamp of the message
 
     def __str__(self):
-        return f"Message {self.id} in ChatRoom {self.chat_room_id}"
+        return f"Message {self.id} in ChatRoom {self.chat_room}"
 
 
 # ChatRoomUser model
@@ -37,4 +37,4 @@ class ChatRoomUser(models.Model):
     joined_at = models.DateTimeField(default=now)  # Timestamp when the user joined the room
 
     def __str__(self):
-        return f"User {self.user_id} in ChatRoom {self.chat_room_id}"
+        return f"User {self.user_id} in ChatRoom {self.chat_room}"

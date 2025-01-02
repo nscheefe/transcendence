@@ -15,7 +15,6 @@ class UserServiceHandler(user_pb2_grpc.UserServiceServicer):
                 id=user.id,
                 name=user.name,
                 mail=user.mail,
-                isAuth=user.isAuth,
                 blocked=user.blocked,
                 created_at=google.protobuf.timestamp_pb2.Timestamp(seconds=int(user.created_at.timestamp())),
                 updated_at=google.protobuf.timestamp_pb2.Timestamp(seconds=int(user.updated_at.timestamp())),
@@ -31,9 +30,9 @@ class UserServiceHandler(user_pb2_grpc.UserServiceServicer):
     def CreateUser(self, request, context):
         try:
             user = User(
+                id= request.id,
                 name=request.name,
                 mail=request.mail,
-                isAuth=request.isAuth,
                 blocked=request.blocked,
                 role_id=request.role_id,
                 last_login_ip=request.last_login_ip or ""  # Default empty string for optional field
@@ -44,7 +43,6 @@ class UserServiceHandler(user_pb2_grpc.UserServiceServicer):
                 id=user.id,
                 name=user.name,
                 mail=user.mail,
-                isAuth=user.isAuth,
                 blocked=user.blocked,
                 role_id=user.role_id,
                 last_login_ip=user.last_login_ip,

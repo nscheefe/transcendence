@@ -14,10 +14,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.urls import path
+from django.contrib import admin
+from django.urls import path, include
 from graphene_django.views import GraphQLView
 from django.views.decorators.csrf import csrf_exempt
-urlpatterns = [
-    path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True))),
 
+from main_service.api.schema import Schema
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=Schema.schema))),  # GraphQL API endpoint
+    path('graphiql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=Schema.schema))),  # GraphiQL frontend
+    path('auth/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=Schema.schemaAuth))),  # GraphQL API endpoint
 ]

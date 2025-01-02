@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en"></html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}My Application{% endblock %}</title>
+  {% load static %}
+  <link href="{% static 'css/normalize.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'css/webflow.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'css/transcendence.css' %}" rel="stylesheet" type="text/css">
+  <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/x-icon">
+  <link href="{% static 'images/webclip.png' %}" rel="apple-touch-icon">
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="body-2">
+  <div class="w-layout-blockcontainer container-3 w-container">
+    <div id="sign-in-with-intra" class="custom-button">
+      <div class="custom-button-text">Sign in with intra</div><img src="static/images/42.svg" loading="lazy" alt="" class="_42-logo-svg">
+    </div>
+  </div>
+</body>
+</html>

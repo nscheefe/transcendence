@@ -79,6 +79,36 @@ class ChatRoomUserServiceHandler(ChatRoomUser_pb2_grpc.ChatRoomUserServiceServic
             context.set_details(f"Error fetching users in chat room: {str(e)}")
             return ChatRoomUser_pb2.ListChatRoomUsersResponse()
 
+    def GetChatRoomsByUserId(self, request, context):
+        """
+        Retrieves all chat rooms by a user id.
+        """
+        try:
+            # Fetch all ChatRoomUser entries for the given user ID
+            chat_room_users = ChatRoomUser.objects.filter(user_id=request.user_id)
+
+            # Build response protobuf
+            response = ChatRoomUser_pb2.ListChatRoomsByUserResponse()
+            for chat_room_user in chat_room_users:
+                chat_room = chat_room_user.chat_room
+
+            response.chat_rooms.add(
+                id=chat_room.id,
+                name=chat_room.name,  # Assuming ChatRoom has a 'name' field
+                created_at=google.protobuf.timestamp_pb2.Timestamp().FromDatetime(chat_room.created_at),
+            )
+
+            return response
+        except ChatRoomUser.DoesNotExist:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details("User is not part of any chat rooms")
+            return ChatRoomUser_pb2.ListChatRoomsByUserResponse()
+        except Exception as e:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Error fetching chat rooms by user: {str(e)}")
+            return ChatRoomUser_pb2.ListChatRoomsByUserResponse()
+
+
     @classmethod
     def as_servicer(cls):
         """
