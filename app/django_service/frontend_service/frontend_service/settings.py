@@ -12,10 +12,18 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+REDIRECT_URI = os.getenv('REDIRECT_URI')
+JWT_SECRET = os.getenv('JWT_SECRET')
+REDIRECT_URI_IDENTITY_PROVIDER = os.getenv('REDIRECT_URI_IDENTITY_PROVIDER')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
@@ -28,6 +36,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
+SECURE_COOKIE = os.getenv('SECURE_COOKIE', 'False').lower() in ['true', '1', 't']
 
 # Application definition
 

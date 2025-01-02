@@ -182,6 +182,8 @@ services:
       - django_network
     ports:
       - '80:80'
+    env_file:
+      - .env
 ## DJANGO SERVICES EXPOSED TO THE USER ##
 ##########################################
 
