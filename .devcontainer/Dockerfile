@@ -10,6 +10,7 @@ RUN apt-get update && \
     python3-dev \
     git \
     wget \
+    protobuf-compiler \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
