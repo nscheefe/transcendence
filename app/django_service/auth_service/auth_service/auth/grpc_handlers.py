@@ -28,7 +28,7 @@ class AuthServiceHandler(auth_pb2_grpc.AuthServiceServicer):
 
         jwt_token = jwt.encode({'auth_id': auth_id, 'user_id': user_info.get('id')}, settings.JWT_SECRET, algorithm='HS256')
 
-        return auth_pb2.ExchangeCodeResponse(jwt_token=jwt_token, name=user_info.get('login'), mail=user_info.get('email'), user_id=user_info.get('id'))
+        return auth_pb2.ExchangeCodeResponse(jwt_token=jwt_token, name=user_info.get('login'), mail=user_info.get('email'), user_id=user_info.get('id'), avatar_url=user_info.get('image')['link'], full_name=user_info.get('displayname'))
     
     def GetUserIDFromJwtToken(self, request, context):
         try:
