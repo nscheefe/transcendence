@@ -86,6 +86,12 @@ services:
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+    healthcheck:
+      test: ["CMD-SHELL", "python manage.py showmigrations | grep '\\[ \\]' && exit 1 || exit 0"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 2s
 ##############################################
   chat_service:
     build:
@@ -126,6 +132,12 @@ services:
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+    healthcheck:
+      test: ["CMD-SHELL", "python manage.py showmigrations | grep '\\[ \\]' && exit 1 || exit 0"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 2s
 ##############################################
   admin_service:
     build:
@@ -150,7 +162,7 @@ services:
 ##############################################
 
 ##########################################
-## DJANGO SERVICES EXPOSED TO THE USER ##
+## DJANGO/PONG SERVICES EXPOSED TO THE USER ##
   main_service:
       build:
         context: ./django_service/main_service
@@ -182,7 +194,22 @@ services:
       - django_network
     ports:
       - '80:80'
-## DJANGO SERVICES EXPOSED TO THE USER ##
+##########################################
+  pong_service:
+    build:
+      context: ./pong_service
+      dockerfile: Dockerfile
+    container_name: pong_service
+    depends_on:
+      game_service:
+        condition: service_healthy
+      auth_service:
+        condition: service_healthy
+    networks:
+      - django_network
+    ports:
+      - '4000:4000'
+## DJANGO/PONG SERVICES EXPOSED TO THE USER ##
 ##########################################
 
 networks:
