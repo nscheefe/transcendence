@@ -791,6 +791,16 @@ blockquote {
   display: block;
 }
 
+.st0{display:none;}
+.st1{display:inline;fill:none;stroke:#E32285;stroke-miterlimit:10;}
+.st2{display:inline;fill:#E32285;}
+.neon-stroke {
+	stroke: #E32285; /* Neon color */
+	stroke-width: 1; /* Adjust stroke width as needed */
+	filter: drop-shadow(0 0 10px #E32285) drop-shadow(0 0 5px #E32285) drop-shadow(0 0 1px #E32285);
+	overflow: visible;
+}
+
 .nav-link {
   -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: var(--neon-pink);
@@ -1505,9 +1515,10 @@ blockquote {
   font-display: auto;
 }
 
+
 @font-face {
   font-family: 'Audiowide';
-  src: url("{% static 'font/Audiowide-Regular.ttf' %}") format("truetype");
+  src: url('../font/Audiowide-Regular.ttf') format('truetype');
   font-weight: 400;
   font-style: normal;
   font-display: auto;

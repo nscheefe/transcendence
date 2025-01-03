@@ -1,4 +1,6 @@
 services:
+
+#DATABASE
   postgres:
     image: postgres:13
     container_name: postgres_db
@@ -17,23 +19,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+      start_period: 3s
 
-  main_service:
-    build:
-      context: ./django_service/main_service
-      dockerfile: Dockerfile
-    container_name: main_service
-    command: python manage.py runserver 0.0.0.0:8000
-    ports:
-      - '8001:8000'
-    volumes:
-      - ./django_service/main_service:/usr/src/app
-    networks:
-      - django_network
-    environment:
-      - DEBUG=True
-      - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
-
+##############################################
+## DJANGO SERVICES WITH DATABASE CONNECTION ##
   user_service:
     build:
       context: ./django_service/user_service
@@ -51,7 +40,13 @@ services:
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
-
+    healthcheck:
+      test: ["CMD-SHELL", "python manage.py showmigrations | grep '\\[ \\]' && exit 1 || exit 0"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 2s
+##############################################
   stat_service:
     build:
       context: ./django_service/stat_service
@@ -63,13 +58,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      user_service:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
-
+##############################################
   game_service:
     build:
       context: ./django_service/game_service
@@ -81,13 +78,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      user_service:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
-
+##############################################
   chat_service:
     build:
       context: ./django_service/chat_service
@@ -99,13 +98,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      user_service:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
-
+##############################################
   auth_service:
     build:
       context: ./django_service/auth_service
@@ -117,19 +118,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      user_service:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
-    # ports:
-    #   - 50051:50051
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
-      - CLIENT_ID=asd
-      - CLIENT_SECRET=asd
-      - REDIRECT_URI=asd
-      - JWT_SECRET=asd
-
+##############################################
   admin_service:
     build:
       context: ./django_service/auth_service
@@ -141,13 +138,54 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      user_service:
+        condition: service_healthy
     networks:
       - django_network
       - db_network
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+## DJANGO SERVICES WITH DATABASE CONNECTION ##
+##############################################
+
+##########################################
+## DJANGO SERVICES EXPOSED TO THE USER ##
+  main_service:
+      build:
+        context: ./django_service/main_service
+        dockerfile: Dockerfile
+      container_name: main_service
+      command: python manage.py runserver 0.0.0.0:8000
+      ports:
+        - '8001:8000'
+      volumes:
+        - ./django_service/main_service:/usr/src/app
+      depends_on:
+        auth_service:
+          condition: service_started
+      networks:
+        - django_network
+      environment:
+        - DEBUG=True
+        - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+##########################################
+  frontend_service:
+    build:
+      context: ./django_service/frontend_service
+      dockerfile: Dockerfile
+    container_name: frontend_service
+    command: python manage.py runserver 0.0.0.0:80
+    volumes:
+      - ./django_service/frontend_service:/usr/src/app
+    networks:
+      - django_network
+    ports:
+      - '80:80'
+## DJANGO SERVICES EXPOSED TO THE USER ##
+##########################################
 
 networks:
   django_network:
   db_network:
+
