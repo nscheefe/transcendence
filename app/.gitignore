@@ -1,4 +1,0 @@
-/DB/*
-!/DB/
-/django_service/venv
-**/__pycache__/
