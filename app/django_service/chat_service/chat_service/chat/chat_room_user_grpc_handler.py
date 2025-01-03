@@ -4,6 +4,7 @@ from django.utils.timezone import now
 from chat_service.protos import ChatRoomUser_pb2_grpc, ChatRoomUser_pb2
 from chat_service.chat.models import ChatRoom, ChatRoomUser
 
+from google.protobuf.timestamp_pb2 import Timestamp
 
 class ChatRoomUserServiceHandler(ChatRoomUser_pb2_grpc.ChatRoomUserServiceServicer):
     """Implementation of ChatRoomUserService."""
@@ -79,35 +80,45 @@ class ChatRoomUserServiceHandler(ChatRoomUser_pb2_grpc.ChatRoomUserServiceServic
             context.set_details(f"Error fetching users in chat room: {str(e)}")
             return ChatRoomUser_pb2.ListChatRoomUsersResponse()
 
-    def GetChatRoomsByUserId(self, request, context):
+    def GetChatRoomByUserId(self, request, context):
         """
-        Retrieves all chat rooms by a user id.
+        Retrieves all chat rooms by a user ID.
         """
         try:
-            # Fetch all ChatRoomUser entries for the given user ID
             chat_room_users = ChatRoomUser.objects.filter(user_id=request.user_id)
 
-            # Build response protobuf
-            response = ChatRoomUser_pb2.ListChatRoomsByUserResponse()
-            for chat_room_user in chat_room_users:
-                chat_room = chat_room_user.chat_room
+            response = ChatRoomUser_pb2.ListChatRoomUsersResponse()
 
-            response.chat_rooms.add(
-                id=chat_room.id,
-                name=chat_room.name,  # Assuming ChatRoom has a 'name' field
-                created_at=google.protobuf.timestamp_pb2.Timestamp().FromDatetime(chat_room.created_at),
-            )
+            if not chat_room_users.exists():
+                return response
+
+            for chat_room_user in chat_room_users:
+                chat_room = chat_room_user.chat_room  # ForeignKey relationship
+
+                if chat_room_user.joined_at:
+                    joined_at_timestamp = Timestamp()
+                    joined_at_timestamp.FromDatetime(chat_room_user.joined_at)
+                else:
+                    raise ValueError("Missing joined_at field for user id {}".format(chat_room_user.id))
+
+                user_proto = response.users.add()
+                user_proto.id = chat_room_user.id
+                user_proto.user_id = chat_room_user.user_id
+                user_proto.chat_room_id = chat_room.id
+                user_proto.joined_at.CopyFrom(joined_at_timestamp)
 
             return response
         except ChatRoomUser.DoesNotExist:
+            # Handle the case where no chat room users exist
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("User is not part of any chat rooms")
-            return ChatRoomUser_pb2.ListChatRoomsByUserResponse()
-        except Exception as e:
-            context.set_code(grpc.StatusCode.INTERNAL)
-            context.set_details(f"Error fetching chat rooms by user: {str(e)}")
-            return ChatRoomUser_pb2.ListChatRoomsByUserResponse()
+            return []
 
+        except Exception as e:
+            # Handle unexpected errors gracefully
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Unexpected error occurred: {str(e)}")
+            return []
 
     @classmethod
     def as_servicer(cls):

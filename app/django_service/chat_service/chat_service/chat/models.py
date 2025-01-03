@@ -7,7 +7,7 @@ class ChatRoom(models.Model):
     id = models.AutoField(primary_key=True)  # Auto-generated primary key
     name = models.CharField(max_length=255)  # Name of the chat room
     created_at = models.DateTimeField(default=now)  # Timestamp for when the room was created
-    game_id = models.IntegerField()  # Foreign key to a game (just an integer ID)
+    game_id = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.name
