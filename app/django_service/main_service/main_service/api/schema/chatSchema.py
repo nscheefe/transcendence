@@ -300,6 +300,13 @@ class CreateChatRoomMutation(graphene.Mutation):
                 created_at=response.created_at.ToDatetime(),
                 game_id=response.game_id
             )
+            chatRoomUserstub = ChatRoomUserServiceStub(channel)
+            request = AddUserToChatRoomRequest(
+                chat_room_id=created_chat_room.id,
+                user_id=info.context.user_id,
+            )
+            chatRoomUserstub.AddUserToChatRoom(request)
+
             return CreateChatRoomMutation(
                 success=True,
                 chat_room=created_chat_room,
