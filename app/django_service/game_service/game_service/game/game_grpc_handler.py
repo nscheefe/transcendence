@@ -39,8 +39,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 points_player_b=request.points_player_b,
                 player_a_id=request.player_a_id,
                 player_b_id=request.player_b_id,
-                # Optional fields like "finished" default to False
-                finished=request.finished or False,
+                finished=False,
             )
             game.save()
             game.refresh_from_db()
