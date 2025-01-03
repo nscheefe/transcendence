@@ -59,9 +59,26 @@
 .w-nav-menu {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   height: 60px;
+  width: 100%;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+.nav-container{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-evenly;
+  width: 100%;
+  padding-left: 10vw;
+  padding-right: 10vw;
+}
+
+
+.w-nav-brand svg {
+  height: 100%;
   width: 100%;
 }
 
@@ -80,8 +97,6 @@
 }
 
 .user-profile-picture {
-    height: 40px;
-    width: 40px;
     position: 50% 50%;
     border-radius: 50%;
     margin: auto;
@@ -99,6 +114,7 @@
   line-height: 40px;
   align-items: stretch;
   padding: 10px;
+  width: 200px;
 }
 
 
@@ -1348,9 +1364,7 @@ blockquote {
 .brand-2 {
   color: #61234e00;
   flex-flow: column;
-  width: 144px;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  width: auto;
   display: block;
 }
 

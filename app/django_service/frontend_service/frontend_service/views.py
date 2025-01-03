@@ -61,15 +61,15 @@ def home(request):
 @jwt_required
 def profile(request):
     context = {
-        'user_name': request.user.username,
-        'profile_data': getUserProfileData(request),  # Example function for getting profile data
+        'show_nav': True,
+        #'profile_data': getUserProfileData(request),  # Example function for getting profile data
     }
-    return render(request, 'frontend/profile.html', context)
+    return render(request, 'frontend/manage-profile.html', context)
 
 @jwt_required
 def stats(request):
     context = {
-        'user_name': request.user.username,
+        'show_nav': True,
         'stats_data': get_user_stats(request.user),  # Example function for getting stats data
     }
     return render(request, 'frontend/stats.html', context)
