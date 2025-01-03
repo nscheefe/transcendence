@@ -126,30 +126,27 @@ class Query(graphene.ObjectType):
 
 # Mutation for creating a game
 class CreateGame(graphene.Mutation):
-    class Arguments:
-        state = graphene.String(required=True)
-        points_player_a = graphene.Int(required=True)
-        points_player_b = graphene.Int(required=True)
-        player_a_id = graphene.Int(required=True)
-        player_b_id = graphene.Int(required=True)
+    """Defines the CreateGame mutation."""
 
-    game = graphene.Field(GameType)
+    # Fields (output of the mutation)
+    game = graphene.Field(lambda: GameType)  # The field to return the created/updated game
+
+    class Arguments:
+        """Any arguments required for this mutation."""
+        player_id = graphene.ID(required=True)  # Example argument, could vary based on your logic
 
     @staticmethod
-    def mutate(root, info, state, points_player_a, points_player_b, player_a_id, player_b_id):
-        """Create a new game."""
+    def mutate(root, info, player_id):
         try:
+            # Your mutation logic here, e.g., gRPC call
             with grpc.insecure_channel(GRPC_TARGET) as channel:
                 client = GameServiceStub(channel)
                 request = CreateGameRequest(
-                    state=state,
-                    points_player_a=points_player_a,
-                    points_player_b=points_player_b,
-                    player_a_id=player_a_id,
-                    player_b_id=player_b_id,
+                    player_id=info.context.user_id,  # Or player_id if passed in arguments
                 )
                 response = client.CreateGame(request)
 
+                # Return the mutation response
                 return CreateGame(
                     game=GameType(
                         id=response.id,
@@ -164,6 +161,7 @@ class CreateGame(graphene.Mutation):
                 )
         except grpc.RpcError as e:
             raise Exception(f"gRPC error: {e.details()}")
+
 
 
 
