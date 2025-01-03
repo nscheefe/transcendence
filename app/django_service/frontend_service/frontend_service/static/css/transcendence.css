@@ -56,6 +56,52 @@
   border-color: #3898ec;
 }
 
+.w-nav-menu {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  height: 60px;
+  width: 100%;
+}
+
+.intra-name-42 {
+    font-size: 1.2em;
+    font-weight: bold;
+    /* color:#666; */
+    padding-right: 2rem
+}
+
+.intra-name-42::hover {
+    font-size: 1.2em;
+    font-weight: bold;
+    color:#00ecef;
+    padding-right: 2rem
+}
+
+.user-profile-picture {
+    height: 40px;
+    width: 40px;
+    position: 50% 50%;
+    border-radius: 50%;
+    margin: auto;
+    object-fit: cover;
+}
+
+.nav-item-group {
+  position: relative;
+}
+
+.nav-item-group .profile-link-wrapper {
+  display: flex !important;
+  flex-direction: row;
+  justify-content: center;
+  line-height: 40px;
+  align-items: stretch;
+  padding: 10px;
+}
+
+
 .w-checkbox-input--inputType-custom.w--redirected-focus {
   box-shadow: 0 0 3px 1px #3898ec;
 }
@@ -106,6 +152,9 @@ body {
   font-size: 14px;
   font-weight: 400;
   line-height: 20px;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
 }
 
 h1 {

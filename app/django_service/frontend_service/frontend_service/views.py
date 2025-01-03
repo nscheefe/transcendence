@@ -49,6 +49,12 @@ def home(request):
     context = {
         'show_nav': True,
         'user_name': request.user.username,  # Example: passing the username
+        'user': {
+            'username': "mreidenb",
+            'profile': {
+                'avatar': 'https://cdn.intra.42.fr/users/9f696469f2a38d21067d5df82437fc7a/mreidenb.jpg'
+            }
+        }
     }
     return render(request, 'frontend/home.html', context)
 

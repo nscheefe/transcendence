@@ -28,16 +28,21 @@
     {% if show_nav %}
       <div class="navigation w-nav">
         <div class="w-container">
-          <a href="#" class="brand-2 w-nav-brand">{% include "frontend/svg-42-hn.html" %}</a>
           <nav role="navigation" class="w-nav-menu">
+          <a href="#" class="brand-2 w-nav-brand">{% include "frontend/svg-42-hn.html" %}</a>
+            <span class="nav-item-group">
             <a href="{% url 'home' %}" class="nav-link w-nav-link">Home</a>
             <a href="{% url 'stats' %}" class="nav-link w-nav-link">Stats</a>
             <a href="{% url 'friends' %}" class="nav-link w-nav-link">Friends</a>
-            <a href="{% url 'profile' %}" aria-expanded="false">
-              <span data-login="{{ user.username }}">{{ user.username }}</span>
-              <div class="user-profile-picture visible-sidebars"
-                   style="background-image: url({{ user.profile_picture_url }})"></div>
+            </span>
+            <span class="nav-item-group">
+            <a class"profile-link-wrapper" href="{% url 'profile' %}" aria-expanded="false">
+            <div class="profile-link-wrapper">
+              <span class="intra-name-42" data-login="{{ user.username }}">{{ user.username }}</span>
+              <img class="user-profile-picture visible-sidebars" src="{{ user.profile.avatar }}" alt="User Profile Picture">
+            </div>
             </a>
+            </span>
           </nav>
           <div class="w-nav-button">
             <div class="w-icon-nav-menu"></div>
