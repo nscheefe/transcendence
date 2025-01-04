@@ -243,7 +243,7 @@ class UserType(graphene.ObjectType):
 # Define the GraphQL query type
 class Query(graphene.ObjectType):
     user = graphene.Field(UserType)
-
+    profile = graphene.Field(ProfileType, user_id=graphene.ID(required=True))
 
     def resolve_user(self, info):
         user_id = info.context.user_id
@@ -311,6 +311,31 @@ class Query(graphene.ObjectType):
             raise Exception(f"gRPC error: {e.details()} (Code: {e.code()})")
         except Exception as ex:
             raise Exception(f"Error occurred while fetching profiles: {str(ex)}")
+
+    @staticmethod
+    def resolve_profile(self, info, user_id):
+        """Fetch the user's profile."""
+        try:
+            channel = grpc.insecure_channel(GRPC_TARGET)
+            client = ProfileServiceStub(channel)
+            request = GetProfileByUserIdRequest(user_id=user_id)
+            response = client.GetProfileByUserId(request)
+
+            return ProfileType(
+                user_id=response.user_id,
+                avatar_url=response.avatar_url,
+                nickname=response.nickname,
+                bio=response.bio,
+                additional_info=response.additional_info,
+            )
+
+        except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                # Return None or raise a custom GraphQL error
+                return None
+            else:
+                # Raise other unexpected errors as-is
+                raise e
 
 ##############################################################################################
 

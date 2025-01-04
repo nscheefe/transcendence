@@ -1,55 +1,71 @@
 import graphene
 import grpc
 from main_service.protos.auth_pb2_grpc import AuthServiceStub
-from main_service.protos.auth_pb2 import GetAuthRequest, CreateAuthRequest
+from main_service.protos.auth_pb2 import ExchangeCodeRequest
+from main_service.protos.user_pb2_grpc import UserServiceStub
+from main_service.protos.user_pb2 import CreateUserRequest
+from main_service.protos.profile_pb2_grpc import ProfileServiceStub
+from main_service.protos.profile_pb2 import CreateProfileRequest
 
-# Define the auth type
-class AuthType(graphene.ObjectType):
-    id = graphene.Int()
+GRPC_HOST = "auth_service"
+GRPC_PORT = "50051"
+GRPC_TARGET = f"{GRPC_HOST}:{GRPC_PORT}"
 
-# Define the GraphQL query type
-class Query(graphene.ObjectType):
-    auth = graphene.Field(AuthType, id=graphene.Int(required=True))
+class ExchangeCodeForTokenInput(graphene.InputObjectType):
+    code = graphene.String(required=True)
+    state = graphene.String(required=True)
 
-    def resolve_auth(self, info, id):
-        # Connect to gRPC auth service
-        channel = grpc.insecure_channel('auth_service:50051')  # Docker container service name
-        client = AuthServiceStub(channel)
-
-        # Call the gRPC service
-        request = GetAuthRequest(id=id)
-        response = client.GetAuth(request)
-
-        if response.id == 0:
-            return None
-
-        return AuthType(
-            id=response.id
-        )
-
-# Define the CreateAuth mutation
-class CreateAuth(graphene.Mutation):
+class ExchangeCodeForTokenMutation(graphene.Mutation):
     class Arguments:
-        id = graphene.Int(required=True)
+        input = ExchangeCodeForTokenInput(required=True)
 
-    auth = graphene.Field(AuthType)
+    jwt_token = graphene.String(required=True)
 
-    def mutate(self, info, id):
-        # Connect to gRPC auth service
-        channel = grpc.insecure_channel('auth_service:50051')  # Docker container service name
-        client = AuthServiceStub(channel)
+    def mutate(self, info, input=None):
+        try:
+            with grpc.insecure_channel(GRPC_TARGET) as channel:
+                stub = AuthServiceStub(channel)
+                request = ExchangeCodeRequest(code=input.code, state=input.state)
+                response = stub.ExchangeCodeForToken(request)
 
-        # Call the gRPC service
-        request = CreateAuthRequest(id=id)
-        response = client.CreateAuth(request)
+                # Create user
+                with grpc.insecure_channel("user_service:50051") as channel:
+                    stub = UserServiceStub(channel)
+                    grpc_request = CreateUserRequest(
+                        id= response.user_id,
+                        name=response.name,
+                        mail=response.mail
+                    )
+                    stub.CreateUser(grpc_request)
+                
+                try:
+                    # Create user profile
+                    with grpc.insecure_channel("user_service:50051") as channel:
+                        stub = ProfileServiceStub(channel)
+                    grpc_request = CreateProfileRequest(
+                        user_id=response.user_id,
+                        avatar_url=response.avatar_url,
+                        nickname=response.full_name
+                    )
+                    stub.CreateProfile(grpc_request)
+                except Exception as e:
+                    pass
 
-        return CreateAuth(auth=AuthType(
-            id=response.id
-        ))
+            return ExchangeCodeForTokenMutation(
+                jwt_token=response.jwt_token
+            )
+        except grpc.RpcError as e:
+            raise Exception(f"gRPC error: {e.details()} (Code: {e.code()})")
+        except Exception as ex:
+            raise Exception(f"Error occurred while exchanging code for token: {str(ex)}")
 
-# Define the mutation type
+# Add an empty Query root type
+class Query(graphene.ObjectType):
+    dummy_field = graphene.String()
+
+# Add Mutation root type
 class Mutation(graphene.ObjectType):
-    create_auth = CreateAuth.Field()
+    exchange_code_for_token = ExchangeCodeForTokenMutation.Field()
 
-# Update the schema to include the query and mutation
-schema = graphene.Schema(query=Query, mutation=Mutation)
+# Create schema with both Query and Mutation root types
+schemaAuth = graphene.Schema(query=Query, mutation=Mutation)

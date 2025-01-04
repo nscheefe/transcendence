@@ -1,33 +1,23 @@
 from django.db import IntegrityError
-from .models import Auth, Codes
+from .models import Auth
 
-def insert_auth_record(token, user_id):
+def insert_auth_record(access_token, refresh_token, expires_at, user_id):
     try:
-        auth_record = Auth.objects.create(token=token, user_id=user_id)
-        return auth_record
+        auth_record = Auth.objects.create(access_token=access_token, refresh_token=refresh_token, expires_at=expires_at, user_id=user_id)
+        return auth_record.id
     except IntegrityError as e:
         print(f"Error inserting auth record: {e}")
         return None
 
-def get_token(user_id):
-    return Auth.objects.get(user_id=user_id).token
+def get_auth_record(auth_id):
+    return Auth.objects.get(id=auth_id)
 
-def user_exists(user_id):
-    return Auth.objects.filter(user_id=user_id).exists()
+def update_auth_record(auth_id, access_token, refresh_token, expires_at):
+    auth_record = Auth.objects.get(id=auth_id)
+    auth_record.access_token = access_token
+    auth_record.refresh_token = refresh_token
+    auth_record.expires_at = expires_at
+    auth_record.save()
 
-
-def insert_code_record(code):
-    try:
-        code_record = Codes.objects.create(code=code)
-        return code_record
-    except IntegrityError as e:
-        print(f"Error inserting code record: {e}")
-        return None
-
-def check_and_delete_code(code):
-    try:
-        code_record = Codes.objects.get(code=code)
-        code_record.delete()
-        return True
-    except Codes.DoesNotExist:
-        return False
+def delete_auth_record(auth_id):
+    Auth.objects.filter(id=auth_id).delete()

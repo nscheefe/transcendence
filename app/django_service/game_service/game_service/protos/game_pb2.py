@@ -11,25 +11,35 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
+from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\ngame.proto\x12\x04game\"\x12\n\x04Game\x12\n\n\x02id\x18\x01 \x01(\x05\"\x1c\n\x0eGetGameRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"\x1f\n\x11\x43reateGameRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"%\n\x08GameList\x12\x19\n\x05games\x18\x01 \x03(\x0b\x32\n.game.Game\"\x07\n\x05\x45mpty2\x96\x01\n\x0bGameService\x12+\n\x07GetGame\x12\x14.game.GetGameRequest\x1a\n.game.Game\x12\x31\n\nCreateGame\x12\x17.game.CreateGameRequest\x1a\n.game.Game\x12\'\n\x08GetGames\x12\x0b.game.Empty\x1a\x0e.game.GameListb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\ngame.proto\x12\rtranscendence\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xef\x01\n\x04Game\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05state\x18\x02 \x01(\t\x12\x17\n\x0fpoints_player_a\x18\x03 \x01(\x05\x12\x17\n\x0fpoints_player_b\x18\x04 \x01(\x05\x12\x13\n\x0bplayer_a_id\x18\x05 \x01(\x05\x12\x13\n\x0bplayer_b_id\x18\x06 \x01(\x05\x12\x10\n\x08\x66inished\x18\x07 \x01(\x08\x12.\n\ncreated_at\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nupdated_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"#\n\x10GameReadyRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\"!\n\x0eGetGameRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\"\x18\n\x16GetOngoingGamesRequest\"=\n\x17GetOngoingGamesResponse\x12\"\n\x05games\x18\x01 \x03(\x0b\x32\x13.transcendence.Game\"&\n\x11\x43reateGameRequest\x12\x11\n\tplayer_id\x18\x01 \x01(\x05\"#\n\x10StartGameRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\";\n\x11StartGameResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x15\n\rwebsocket_url\x18\x02 \x01(\t\"r\n\x13GameFinishedRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\x12\x17\n\x0fpoints_player_a\x18\x02 \x01(\x05\x12\x17\n\x0fpoints_player_b\x18\x03 \x01(\x05\x12\x18\n\x10winner_player_id\x18\x04 \x01(\x05\x32\xda\x03\n\x0bGameService\x12=\n\x07GetGame\x12\x1d.transcendence.GetGameRequest\x1a\x13.transcendence.Game\x12`\n\x0fGetOngoingGames\x12%.transcendence.GetOngoingGamesRequest\x1a&.transcendence.GetOngoingGamesResponse\x12\x43\n\nCreateGame\x12 .transcendence.CreateGameRequest\x1a\x13.transcendence.Game\x12N\n\tStartGame\x12\x1f.transcendence.StartGameRequest\x1a .transcendence.StartGameResponse\x12P\n\x12HandleGameFinished\x12\".transcendence.GameFinishedRequest\x1a\x16.google.protobuf.Empty\x12\x43\n\tGameReady\x12\x1f.transcendence.GameReadyRequest\x1a\x13.transcendence.Game0\x01\x62\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'game_pb2', globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _GAME._serialized_start=20
-  _GAME._serialized_end=38
-  _GETGAMEREQUEST._serialized_start=40
-  _GETGAMEREQUEST._serialized_end=68
-  _CREATEGAMEREQUEST._serialized_start=70
-  _CREATEGAMEREQUEST._serialized_end=101
-  _GAMELIST._serialized_start=103
-  _GAMELIST._serialized_end=140
-  _EMPTY._serialized_start=142
-  _EMPTY._serialized_end=149
-  _GAMESERVICE._serialized_start=152
-  _GAMESERVICE._serialized_end=302
+  _GAME._serialized_start=92
+  _GAME._serialized_end=331
+  _GAMEREADYREQUEST._serialized_start=333
+  _GAMEREADYREQUEST._serialized_end=368
+  _GETGAMEREQUEST._serialized_start=370
+  _GETGAMEREQUEST._serialized_end=403
+  _GETONGOINGGAMESREQUEST._serialized_start=405
+  _GETONGOINGGAMESREQUEST._serialized_end=429
+  _GETONGOINGGAMESRESPONSE._serialized_start=431
+  _GETONGOINGGAMESRESPONSE._serialized_end=492
+  _CREATEGAMEREQUEST._serialized_start=494
+  _CREATEGAMEREQUEST._serialized_end=532
+  _STARTGAMEREQUEST._serialized_start=534
+  _STARTGAMEREQUEST._serialized_end=569
+  _STARTGAMERESPONSE._serialized_start=571
+  _STARTGAMERESPONSE._serialized_end=630
+  _GAMEFINISHEDREQUEST._serialized_start=632
+  _GAMEFINISHEDREQUEST._serialized_end=746
+  _GAMESERVICE._serialized_start=749
+  _GAMESERVICE._serialized_end=1223
 # @@protoc_insertion_point(module_scope)

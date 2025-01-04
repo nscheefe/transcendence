@@ -4,13 +4,15 @@ from .userSchema import Query as UserQuery, Mutation as UserMutation
 from .statSchema import Query as StatQuery, Mutation as StatMutation
 from .gameSchema import Query as gameQuery, Mutation as gameMutation
 from .chatSchema import Query as chatQuery, Mutation as chatMutation
-from .authSchema import Query as authQuery, Mutation as authMutation
 
-class Query(UserQuery, StatQuery, gameQuery,chatQuery,authQuery,graphene.ObjectType):
+from .authSchema import Mutation as authMutation
+from .adminSchema import Query as adminQuery, Mutation as adminMutation
+
+class Query(UserQuery, StatQuery, gameQuery, chatQuery, adminQuery, graphene.ObjectType):
     pass
 
-class Mutation(UserMutation, StatMutation, gameMutation, chatMutation,authMutation, graphene.ObjectType):
+class Mutation(UserMutation, StatMutation, gameMutation, chatMutation, adminMutation, graphene.ObjectType):
     pass
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
-schemaAuth = graphene.Schema(query=authQuery, mutation=authMutation)
+schemaAuth = graphene.Schema(mutation=authMutation)

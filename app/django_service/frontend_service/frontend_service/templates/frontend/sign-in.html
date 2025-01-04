@@ -1,0 +1,13 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}Sign In{% endblock %}
+
+{% block content %}
+  <div class="w-layout-blockcontainer container-3 w-container">
+    <a href="{{ oauth_url }}" id="sign-in-with-intra" class="custom-button">
+      <div class="custom-button-text">Sign in with intra</div>
+      {% load static %}
+      <img src="{% static 'images/42.svg' %}" loading="lazy" alt="" class="_42-logo-svg">
+    </a>
+  </div>
+{% endblock %}

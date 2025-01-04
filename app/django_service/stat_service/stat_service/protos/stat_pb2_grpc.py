@@ -6,7 +6,8 @@ from . import stat_pb2 as stat__pb2
 
 
 class StatServiceStub(object):
-    """Missing associated documentation comment in .proto file."""
+    """The gRPC StatService definition
+    """
 
     def __init__(self, channel):
         """Constructor.
@@ -14,40 +15,56 @@ class StatServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetStats = channel.unary_unary(
-                '/stat.StatService/GetStats',
-                request_serializer=stat__pb2.Empty.SerializeToString,
-                response_deserializer=stat__pb2.StatList.FromString,
+        self.CreateStat = channel.unary_unary(
+                '/statservice.StatService/CreateStat',
+                request_serializer=stat__pb2.CreateStatRequest.SerializeToString,
+                response_deserializer=stat__pb2.CreateStatResponse.FromString,
                 )
         self.GetStat = channel.unary_unary(
-                '/stat.StatService/GetStat',
+                '/statservice.StatService/GetStat',
                 request_serializer=stat__pb2.GetStatRequest.SerializeToString,
-                response_deserializer=stat__pb2.Stat.FromString,
+                response_deserializer=stat__pb2.GetStatResponse.FromString,
                 )
-        self.CreateStat = channel.unary_unary(
-                '/stat.StatService/CreateStat',
-                request_serializer=stat__pb2.CreateStatRequest.SerializeToString,
-                response_deserializer=stat__pb2.Stat.FromString,
+        self.GetStatsByUserId = channel.unary_unary(
+                '/statservice.StatService/GetStatsByUserId',
+                request_serializer=stat__pb2.GetStatsByUserIdRequest.SerializeToString,
+                response_deserializer=stat__pb2.GetStatsByUserIdResponse.FromString,
+                )
+        self.CalculateStats = channel.unary_unary(
+                '/statservice.StatService/CalculateStats',
+                request_serializer=stat__pb2.CalculateStatsRequest.SerializeToString,
+                response_deserializer=stat__pb2.CalculateStatsResponse.FromString,
                 )
 
 
 class StatServiceServicer(object):
-    """Missing associated documentation comment in .proto file."""
+    """The gRPC StatService definition
+    """
 
-    def GetStats(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def CreateStat(self, request, context):
+        """Create a new Stat
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
     def GetStat(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+        """Get a specific Stat by ID
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def CreateStat(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def GetStatsByUserId(self, request, context):
+        """Get all UserStats by User ID
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CalculateStats(self, request, context):
+        """Calculate aggregate statistics for a user
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -55,33 +72,39 @@ class StatServiceServicer(object):
 
 def add_StatServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetStats': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetStats,
-                    request_deserializer=stat__pb2.Empty.FromString,
-                    response_serializer=stat__pb2.StatList.SerializeToString,
+            'CreateStat': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateStat,
+                    request_deserializer=stat__pb2.CreateStatRequest.FromString,
+                    response_serializer=stat__pb2.CreateStatResponse.SerializeToString,
             ),
             'GetStat': grpc.unary_unary_rpc_method_handler(
                     servicer.GetStat,
                     request_deserializer=stat__pb2.GetStatRequest.FromString,
-                    response_serializer=stat__pb2.Stat.SerializeToString,
+                    response_serializer=stat__pb2.GetStatResponse.SerializeToString,
             ),
-            'CreateStat': grpc.unary_unary_rpc_method_handler(
-                    servicer.CreateStat,
-                    request_deserializer=stat__pb2.CreateStatRequest.FromString,
-                    response_serializer=stat__pb2.Stat.SerializeToString,
+            'GetStatsByUserId': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetStatsByUserId,
+                    request_deserializer=stat__pb2.GetStatsByUserIdRequest.FromString,
+                    response_serializer=stat__pb2.GetStatsByUserIdResponse.SerializeToString,
+            ),
+            'CalculateStats': grpc.unary_unary_rpc_method_handler(
+                    servicer.CalculateStats,
+                    request_deserializer=stat__pb2.CalculateStatsRequest.FromString,
+                    response_serializer=stat__pb2.CalculateStatsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'stat.StatService', rpc_method_handlers)
+            'statservice.StatService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
 
 
  # This class is part of an EXPERIMENTAL API.
 class StatService(object):
-    """Missing associated documentation comment in .proto file."""
+    """The gRPC StatService definition
+    """
 
     @staticmethod
-    def GetStats(request,
+    def CreateStat(request,
             target,
             options=(),
             channel_credentials=None,
@@ -91,9 +114,9 @@ class StatService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stat.StatService/GetStats',
-            stat__pb2.Empty.SerializeToString,
-            stat__pb2.StatList.FromString,
+        return grpc.experimental.unary_unary(request, target, '/statservice.StatService/CreateStat',
+            stat__pb2.CreateStatRequest.SerializeToString,
+            stat__pb2.CreateStatResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -108,14 +131,14 @@ class StatService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stat.StatService/GetStat',
+        return grpc.experimental.unary_unary(request, target, '/statservice.StatService/GetStat',
             stat__pb2.GetStatRequest.SerializeToString,
-            stat__pb2.Stat.FromString,
+            stat__pb2.GetStatResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def CreateStat(request,
+    def GetStatsByUserId(request,
             target,
             options=(),
             channel_credentials=None,
@@ -125,8 +148,25 @@ class StatService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/stat.StatService/CreateStat',
-            stat__pb2.CreateStatRequest.SerializeToString,
-            stat__pb2.Stat.FromString,
+        return grpc.experimental.unary_unary(request, target, '/statservice.StatService/GetStatsByUserId',
+            stat__pb2.GetStatsByUserIdRequest.SerializeToString,
+            stat__pb2.GetStatsByUserIdResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def CalculateStats(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/statservice.StatService/CalculateStats',
+            stat__pb2.CalculateStatsRequest.SerializeToString,
+            stat__pb2.CalculateStatsResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
