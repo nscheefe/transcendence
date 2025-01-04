@@ -1,27 +1,81 @@
 syntax = "proto3";
 
-package stat;
+package statservice;
 
-service StatService {
-  rpc GetStats (Empty) returns (StatList);
-  rpc GetStat (GetStatRequest) returns (Stat);
-  rpc CreateStat (CreateStatRequest) returns (Stat);
-}
+import "google/protobuf/timestamp.proto";
 
+// Represents a Stat record
 message Stat {
-  int32 id = 1;
+    int32 id = 1;                     // Primary Key
+    int32 game_id = 2;                // Foreign Key
+    int32 winner_id = 3;              // Foreign Key (Winner's User ID)
+    int32 loser_id = 4;               // Foreign Key (Loser's User ID)
+    google.protobuf.Timestamp created_at = 5;  // Creation timestamp
 }
 
-message StatList {
-  repeated Stat Stats = 1;
+// Represents a UserStat record
+message UserStat {
+    int32 id = 1;                     // Primary Key
+    int32 user_id = 2;                // Foreign Key
+    int32 stat_id = 3;                // Foreign Key (Stat ID)
+    bool did_win = 4;                 // Boolean indicating if the user won
 }
 
-message Empty {}
-
+// Request for creating a new Stat
 message CreateStatRequest {
-  int32 id = 1;
+    int32 game_id = 1;
+    int32 winner_id = 2;
+    int32 loser_id = 3;
 }
 
+// Response for creating a new Stat
+message CreateStatResponse {
+    Stat stat = 1;
+}
+
+// Request for fetching a specific Stat by ID
 message GetStatRequest {
-  int32 id = 1;
+    int32 id = 1;  // Stat ID
+}
+
+// Response for fetching a specific Stat
+message GetStatResponse {
+    Stat stat = 1;
+}
+
+// Request for fetching all stats by a specific user ID
+message GetStatsByUserIdRequest {
+    int32 user_id = 1;  // User ID
+}
+
+// Response for fetching all stats for a user
+message GetStatsByUserIdResponse {
+    repeated UserStat user_stats = 1;
+}
+
+// Request for calculating the stats for a user
+message CalculateStatsRequest {
+    int32 user_id = 1;  // User ID
+}
+
+// Response for calculating stats (e.g., number of wins/losses)
+message CalculateStatsResponse {
+    int32 total_games = 1;   // Total number of games played by the user
+    int32 total_wins = 2;    // Total number of wins
+    int32 total_losses = 3;  // Total number of losses
+}
+
+// The gRPC StatService definition
+service StatService {
+    // Create a new Stat
+    rpc CreateStat(CreateStatRequest) returns (CreateStatResponse);
+
+    // Get a specific Stat by ID
+    rpc GetStat(GetStatRequest) returns (GetStatResponse);
+
+    // Get all UserStats by User ID
+    rpc GetStatsByUserId(GetStatsByUserIdRequest) returns (GetStatsByUserIdResponse);
+
+    // Calculate aggregate statistics for a user
+    rpc CalculateStats(CalculateStatsRequest) returns (CalculateStatsResponse);
 }
