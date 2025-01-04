@@ -2,8 +2,11 @@ syntax = "proto3";
 
 package transcendence;
 
+option go_package = "./protos";
+
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
+
 // Message to define a Game
 message Game {
     int32 id = 1;
@@ -15,10 +18,6 @@ message Game {
     bool finished = 7;               // Whether the game is finished
     google.protobuf.Timestamp created_at = 8; // Timestamp of game creation
     google.protobuf.Timestamp updated_at = 9; // Timestamp of last update
-}
-
-message GameReadyRequest {
-    int32 game_id = 1; // ID of the game to track readiness
 }
 
 // Service definition for Games
@@ -34,8 +33,6 @@ service GameService {
 
     rpc StartGame (StartGameRequest) returns (StartGameResponse); // Start a game and provide WebSocket updates URL
     rpc HandleGameFinished (GameFinishedRequest) returns (google.protobuf.Empty); // Receive update if the game is finished
-    rpc GameReady (GameReadyRequest) returns (stream Game);
-
 }
 
 // Requests and Responses for RPCs
@@ -55,7 +52,11 @@ message GetOngoingGamesResponse {
 
 // Request to create a new game
 message CreateGameRequest {
-    int32 player_id = 1;
+    string state = 1;                // Initial game state
+    int32 points_player_a = 2;       // Initial points for player A
+    int32 points_player_b = 3;       // Initial points for player B
+    int32 player_a_id = 4;           // FK to User for Player A
+    int32 player_b_id = 5;           // FK to User for Player B
 }
 
 // Request to start a game

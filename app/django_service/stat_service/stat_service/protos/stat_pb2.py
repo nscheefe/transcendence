@@ -11,25 +11,36 @@ from google.protobuf import symbol_database as _symbol_database
 _sym_db = _symbol_database.Default()
 
 
+from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nstat.proto\x12\x04stat\"\x12\n\x04Stat\x12\n\n\x02id\x18\x01 \x01(\x05\"%\n\x08StatList\x12\x19\n\x05Stats\x18\x01 \x03(\x0b\x32\n.stat.Stat\"\x07\n\x05\x45mpty\"\x1f\n\x11\x43reateStatRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"\x1c\n\x0eGetStatRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x32\x96\x01\n\x0bStatService\x12\'\n\x08GetStats\x12\x0b.stat.Empty\x1a\x0e.stat.StatList\x12+\n\x07GetStat\x12\x14.stat.GetStatRequest\x1a\n.stat.Stat\x12\x31\n\nCreateStat\x12\x17.stat.CreateStatRequest\x1a\n.stat.Statb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nstat.proto\x12\x0bstatservice\x1a\x1fgoogle/protobuf/timestamp.proto\"x\n\x04Stat\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07game_id\x18\x02 \x01(\x05\x12\x11\n\twinner_id\x18\x03 \x01(\x05\x12\x10\n\x08loser_id\x18\x04 \x01(\x05\x12.\n\ncreated_at\x18\x05 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"I\n\x08UserStat\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07user_id\x18\x02 \x01(\x05\x12\x0f\n\x07stat_id\x18\x03 \x01(\x05\x12\x0f\n\x07\x64id_win\x18\x04 \x01(\x08\"I\n\x11\x43reateStatRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\x12\x11\n\twinner_id\x18\x02 \x01(\x05\x12\x10\n\x08loser_id\x18\x03 \x01(\x05\"5\n\x12\x43reateStatResponse\x12\x1f\n\x04stat\x18\x01 \x01(\x0b\x32\x11.statservice.Stat\"\x1c\n\x0eGetStatRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"2\n\x0fGetStatResponse\x12\x1f\n\x04stat\x18\x01 \x01(\x0b\x32\x11.statservice.Stat\"*\n\x17GetStatsByUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"E\n\x18GetStatsByUserIdResponse\x12)\n\nuser_stats\x18\x01 \x03(\x0b\x32\x15.statservice.UserStat\"(\n\x15\x43\x61lculateStatsRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"W\n\x16\x43\x61lculateStatsResponse\x12\x13\n\x0btotal_games\x18\x01 \x01(\x05\x12\x12\n\ntotal_wins\x18\x02 \x01(\x05\x12\x14\n\x0ctotal_losses\x18\x03 \x01(\x05\x32\xde\x02\n\x0bStatService\x12M\n\nCreateStat\x12\x1e.statservice.CreateStatRequest\x1a\x1f.statservice.CreateStatResponse\x12\x44\n\x07GetStat\x12\x1b.statservice.GetStatRequest\x1a\x1c.statservice.GetStatResponse\x12_\n\x10GetStatsByUserId\x12$.statservice.GetStatsByUserIdRequest\x1a%.statservice.GetStatsByUserIdResponse\x12Y\n\x0e\x43\x61lculateStats\x12\".statservice.CalculateStatsRequest\x1a#.statservice.CalculateStatsResponseb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'stat_pb2', globals())
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  _STAT._serialized_start=20
-  _STAT._serialized_end=38
-  _STATLIST._serialized_start=40
-  _STATLIST._serialized_end=77
-  _EMPTY._serialized_start=79
-  _EMPTY._serialized_end=86
-  _CREATESTATREQUEST._serialized_start=88
-  _CREATESTATREQUEST._serialized_end=119
-  _GETSTATREQUEST._serialized_start=121
-  _GETSTATREQUEST._serialized_end=149
-  _STATSERVICE._serialized_start=152
-  _STATSERVICE._serialized_end=302
+  _STAT._serialized_start=60
+  _STAT._serialized_end=180
+  _USERSTAT._serialized_start=182
+  _USERSTAT._serialized_end=255
+  _CREATESTATREQUEST._serialized_start=257
+  _CREATESTATREQUEST._serialized_end=330
+  _CREATESTATRESPONSE._serialized_start=332
+  _CREATESTATRESPONSE._serialized_end=385
+  _GETSTATREQUEST._serialized_start=387
+  _GETSTATREQUEST._serialized_end=415
+  _GETSTATRESPONSE._serialized_start=417
+  _GETSTATRESPONSE._serialized_end=467
+  _GETSTATSBYUSERIDREQUEST._serialized_start=469
+  _GETSTATSBYUSERIDREQUEST._serialized_end=511
+  _GETSTATSBYUSERIDRESPONSE._serialized_start=513
+  _GETSTATSBYUSERIDRESPONSE._serialized_end=582
+  _CALCULATESTATSREQUEST._serialized_start=584
+  _CALCULATESTATSREQUEST._serialized_end=624
+  _CALCULATESTATSRESPONSE._serialized_start=626
+  _CALCULATESTATSRESPONSE._serialized_end=713
+  _STATSERVICE._serialized_start=716
+  _STATSERVICE._serialized_end=1066
 # @@protoc_insertion_point(module_scope)

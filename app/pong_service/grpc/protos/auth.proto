@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package auth;
 
+option go_package = "./protos";
+
 service AuthService {
   rpc ExchangeCodeForToken (ExchangeCodeRequest) returns (ExchangeCodeResponse);
   rpc GetUserIDFromJwtToken (GetUserIDFromJwtTokenRequest) returns (GetUserIDFromJwtTokenResponse);
@@ -17,8 +19,6 @@ message ExchangeCodeResponse {
   string jwt_token = 2;
   string name = 3;
   string mail = 4;
-  string avatar_url = 5;
-  string full_name = 6;
 }
 
 message GetUserIDFromJwtTokenRequest {

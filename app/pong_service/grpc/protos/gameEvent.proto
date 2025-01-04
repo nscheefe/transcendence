@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package transcendence;
+
+option go_package = "./protos";
+import "google/protobuf/timestamp.proto";
+
+// Message to define a GameEvent
+message GameEvent {
+    int32 id = 1;
+    int32 game_id = 2;               // FK to Game
+    string event_type = 3;           // Type of the event
+    string event_data = 4;           // Data associated with the event
+    google.protobuf.Timestamp timestamp = 5;  // Time of the event
+}
+
+// Service definition for GameEvents
+service GameEventService {
+    // Get a specific game event by its ID
+    rpc GetGameEvent (GetGameEventRequest) returns (GameEvent);
+
+    // Create a new game event
+    rpc CreateGameEvent (CreateGameEventRequest) returns (GameEvent);
+}
+
+// Requests and Responses for RPCs
+
+// Request to get a specific game event by its ID
+message GetGameEventRequest {
+    int32 game_event_id = 1;
+}
+
+// Request to create a new game event
+message CreateGameEventRequest {
+    int32 game_id = 1;               // FK to Game
+    string event_type = 2;           // Type of the event
+    string event_data = 3;           // Data associated with the event
+    google.protobuf.Timestamp timestamp = 4;  // Time of the event
+}
