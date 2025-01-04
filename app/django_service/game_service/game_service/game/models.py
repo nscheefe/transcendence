@@ -9,7 +9,7 @@ class Game(models.Model):
     points_player_a = models.IntegerField()  # Points scored by player A
     points_player_b = models.IntegerField()  # Points scored by player B
     player_a_id = models.IntegerField()  # Foreign Key to User for Player A
-    player_b_id = models.IntegerField()  # Foreign Key to User for Player B
+    player_b_id = models.IntegerField(blank=True, null=True)  # Foreign Key to User for Player B
     finished = models.BooleanField(default=False)  # Whether the game is finished
     created_at = models.DateTimeField(auto_now_add=True)  # Timestamp of game creation
     updated_at = models.DateTimeField(auto_now=True)  # Timestamp of last update

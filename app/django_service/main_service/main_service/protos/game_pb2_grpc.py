@@ -41,6 +41,11 @@ class GameServiceStub(object):
                 request_serializer=game__pb2.GameFinishedRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
+        self.GameReady = channel.unary_stream(
+                '/transcendence.GameService/GameReady',
+                request_serializer=game__pb2.GameReadyRequest.SerializeToString,
+                response_deserializer=game__pb2.Game.FromString,
+                )
 
 
 class GameServiceServicer(object):
@@ -82,6 +87,12 @@ class GameServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GameReady(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_GameServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -109,6 +120,11 @@ def add_GameServiceServicer_to_server(servicer, server):
                     servicer.HandleGameFinished,
                     request_deserializer=game__pb2.GameFinishedRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'GameReady': grpc.unary_stream_rpc_method_handler(
+                    servicer.GameReady,
+                    request_deserializer=game__pb2.GameReadyRequest.FromString,
+                    response_serializer=game__pb2.Game.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -203,5 +219,22 @@ class GameService(object):
         return grpc.experimental.unary_unary(request, target, '/transcendence.GameService/HandleGameFinished',
             game__pb2.GameFinishedRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GameReady(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/transcendence.GameService/GameReady',
+            game__pb2.GameReadyRequest.SerializeToString,
+            game__pb2.Game.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
