@@ -24,7 +24,7 @@ def exchange_code_for_token(code, state):
         'client_id': settings.CLIENT_ID,
         'client_secret': settings.CLIENT_SECRET,
         'code': code,
-        # 'state': state,
+        'state': state,
         'redirect_uri': settings.REDIRECT_URI,
     }
     response = requests.post(token_url, data=data)

@@ -1,35 +1,58 @@
 <!DOCTYPE html>
-<html lang="en"></html>
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}My Application{% endblock %}</title>
-  {% load static %}
-  <link href="{% static 'css/normalize.css' %}" rel="stylesheet" type="text/css">
-  <link href="{% static 'css/webflow.css' %}" rel="stylesheet" type="text/css">
-  <link href="{% static 'css/transcendence.css' %}" rel="stylesheet" type="text/css">
-  <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" type="image/x-icon">
-  <link href="{% static 'images/webclip.png' %}" rel="apple-touch-icon">
-  {% block extra_head %}{% endblock %}
-</head>
-<body class="body">
-  <div class="navigation w-nav">
-    <div class="w-container">
-      <a href="#" class="brand-2 w-nav-brand">
-        <!-- Logo and Navigation -->
-      </a>
-      <nav role="navigation" class="w-nav-menu">
-        <a href="{% url 'home' %}" class="nav-link w-nav-link">Home</a>
-        <a href="{% url 'about' %}" class="nav-link w-nav-link">About</a>
-        <a href="{% url 'contact' %}" class="nav-link w-nav-link">Contact</a>
-      </nav>
-      <div class="w-nav-button">
-        <div class="w-icon-nav-menu"></div>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+      {% block title %}
+      {% endblock title %}
+    </title>
+    <meta name="description" content="Your description here">
+    <meta name="keywords" content="keyword1, keyword2, keyword3">
+    {% load static %}
+    <link href="{% static 'css/normalize.css' %}"
+          rel="stylesheet"
+          type="text/css">
+    <link href="{% static 'css/webflow.css' %}"
+          rel="stylesheet"
+          type="text/css">
+    <link href="{% static 'css/transcendence.css' %}"
+          rel="stylesheet"
+          type="text/css">
+    <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon">
+    <link href="{% static 'images/webclip.png' %}" rel="apple-touch-icon">
+    {% block extra_head %}
+    {% endblock extra_head %}
+  </head>
+  <body class="body">
+    {% if show_nav %}
+      <div class="navigation w-nav">
+        <div class="nav-container">
+          <a href="https://profile.intra.42.fr/" class="brand-2 w-nav-brand">{% include "frontend/svg-42-hn.html" %}</a>
+          <nav role="navigation" class="w-nav-menu">
+            <span class="nav-item-group">
+            <a href="{% url 'stats' %}" class="nav-link w-nav-link">Stats</a>
+            <a href="{% url 'home' %}" class="nav-link w-nav-link">Home</a>
+            <a href="{% url 'friends' %}" class="nav-link w-nav-link">Friends</a>
+            </span>
+          </nav>
+            <span class="nav-item-group">
+            <a class"profile-link-wrapper" href="{% url 'profile' %}" aria-expanded="false">
+            <div class="profile-link-wrapper">
+              <span class="intra-name-42" data-login="{{ user.username }}">{{ user.username }}</span>
+              <img class="user-profile-picture visible-sidebars" src="{{ user.profile.avatar }}" alt="User Profile Picture" height="40" width="40">
+            </div>
+            </a>
+            </span>
+          <div class="w-nav-button">
+            <div class="w-icon-nav-menu"></div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-  {% block content %}{% endblock %}
-
-  {% block extra_js %}{% endblock %}
-</body>
-</html>
+      {% endif %}
+      {% block content %}
+      {% endblock content %}
+      {% block extra_js %}
+      {% endblock extra_js %}
+    </body>
+  </html>

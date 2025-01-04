@@ -132,6 +132,8 @@ services:
     environment:
       - DEBUG=True
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD-SHELL", "python manage.py showmigrations | grep '\\[ \\]' && exit 1 || exit 0"]
       interval: 1s
@@ -194,6 +196,8 @@ services:
       - django_network
     ports:
       - '80:80'
+    env_file:
+      - .env
 ##########################################
   pong_service:
     build:

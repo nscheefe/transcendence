@@ -59,8 +59,13 @@ class ExchangeCodeForTokenMutation(graphene.Mutation):
         except Exception as ex:
             raise Exception(f"Error occurred while exchanging code for token: {str(ex)}")
 
+# Add an empty Query root type
+class Query(graphene.ObjectType):
+    dummy_field = graphene.String()
+
+# Add Mutation root type
 class Mutation(graphene.ObjectType):
     exchange_code_for_token = ExchangeCodeForTokenMutation.Field()
 
-
-schema = graphene.Schema(mutation=Mutation)
+# Create schema with both Query and Mutation root types
+schemaAuth = graphene.Schema(query=Query, mutation=Mutation)

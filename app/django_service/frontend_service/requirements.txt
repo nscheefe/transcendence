@@ -1,2 +1,8 @@
 Django
 gql
+requests
+aiohttp
+websockets
+graphql-core
+requests_toolbelt
+python-dotenv
