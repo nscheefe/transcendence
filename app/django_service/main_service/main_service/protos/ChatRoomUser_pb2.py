@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12\x43hatRoomUser.proto\x12\x04\x63hat\x1a\x1fgoogle/protobuf/timestamp.proto\"p\n\x0c\x43hatRoomUser\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07user_id\x18\x02 \x01(\x05\x12\x14\n\x0c\x63hat_room_id\x18\x03 \x01(\x05\x12-\n\tjoined_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"3\n\x1bGetUsersByChatRoomIdRequest\x12\x14\n\x0c\x63hat_room_id\x18\x01 \x01(\x05\"A\n\x18\x41\x64\x64UserToChatRoomRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x14\n\x0c\x63hat_room_id\x18\x02 \x01(\x05\">\n\x19ListChatRoomUsersResponse\x12!\n\x05users\x18\x01 \x03(\x0b\x32\x12.chat.ChatRoomUser\"-\n\x1aGetChatRoomByUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x32\x92\x02\n\x13\x43hatRoomUserService\x12Z\n\x14GetUsersByChatRoomId\x12!.chat.GetUsersByChatRoomIdRequest\x1a\x1f.chat.ListChatRoomUsersResponse\x12G\n\x11\x41\x64\x64UserToChatRoom\x12\x1e.chat.AddUserToChatRoomRequest\x1a\x12.chat.ChatRoomUser\x12V\n\x11GetChatRoomByUser\x12 .chat.GetChatRoomByUserIdRequest\x1a\x1f.chat.ListChatRoomUsersResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x12\x43hatRoomUser.proto\x12\x04\x63hat\x1a\x1fgoogle/protobuf/timestamp.proto\"p\n\x0c\x43hatRoomUser\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07user_id\x18\x02 \x01(\x05\x12\x14\n\x0c\x63hat_room_id\x18\x03 \x01(\x05\x12-\n\tjoined_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"3\n\x1bGetUsersByChatRoomIdRequest\x12\x14\n\x0c\x63hat_room_id\x18\x01 \x01(\x05\"A\n\x18\x41\x64\x64UserToChatRoomRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x14\n\x0c\x63hat_room_id\x18\x02 \x01(\x05\">\n\x19ListChatRoomUsersResponse\x12!\n\x05users\x18\x01 \x03(\x0b\x32\x12.chat.ChatRoomUser\"-\n\x1aGetChatRoomByUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x32\x94\x02\n\x13\x43hatRoomUserService\x12Z\n\x14GetUsersByChatRoomId\x12!.chat.GetUsersByChatRoomIdRequest\x1a\x1f.chat.ListChatRoomUsersResponse\x12G\n\x11\x41\x64\x64UserToChatRoom\x12\x1e.chat.AddUserToChatRoomRequest\x1a\x12.chat.ChatRoomUser\x12X\n\x13GetChatRoomByUserId\x12 .chat.GetChatRoomByUserIdRequest\x1a\x1f.chat.ListChatRoomUsersResponseb\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'ChatRoomUser_pb2', globals())
@@ -32,5 +32,5 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _GETCHATROOMBYUSERIDREQUEST._serialized_start=359
   _GETCHATROOMBYUSERIDREQUEST._serialized_end=404
   _CHATROOMUSERSERVICE._serialized_start=407
-  _CHATROOMUSERSERVICE._serialized_end=681
+  _CHATROOMUSERSERVICE._serialized_end=683
 # @@protoc_insertion_point(module_scope)

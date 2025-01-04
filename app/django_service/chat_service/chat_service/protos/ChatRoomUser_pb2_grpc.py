@@ -25,8 +25,8 @@ class ChatRoomUserServiceStub(object):
                 request_serializer=ChatRoomUser__pb2.AddUserToChatRoomRequest.SerializeToString,
                 response_deserializer=ChatRoomUser__pb2.ChatRoomUser.FromString,
                 )
-        self.GetChatRoomByUser = channel.unary_unary(
-                '/chat.ChatRoomUserService/GetChatRoomByUser',
+        self.GetChatRoomByUserId = channel.unary_unary(
+                '/chat.ChatRoomUserService/GetChatRoomByUserId',
                 request_serializer=ChatRoomUser__pb2.GetChatRoomByUserIdRequest.SerializeToString,
                 response_deserializer=ChatRoomUser__pb2.ListChatRoomUsersResponse.FromString,
                 )
@@ -50,7 +50,7 @@ class ChatRoomUserServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetChatRoomByUser(self, request, context):
+    def GetChatRoomByUserId(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -69,8 +69,8 @@ def add_ChatRoomUserServiceServicer_to_server(servicer, server):
                     request_deserializer=ChatRoomUser__pb2.AddUserToChatRoomRequest.FromString,
                     response_serializer=ChatRoomUser__pb2.ChatRoomUser.SerializeToString,
             ),
-            'GetChatRoomByUser': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetChatRoomByUser,
+            'GetChatRoomByUserId': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetChatRoomByUserId,
                     request_deserializer=ChatRoomUser__pb2.GetChatRoomByUserIdRequest.FromString,
                     response_serializer=ChatRoomUser__pb2.ListChatRoomUsersResponse.SerializeToString,
             ),
@@ -120,7 +120,7 @@ class ChatRoomUserService(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def GetChatRoomByUser(request,
+    def GetChatRoomByUserId(request,
             target,
             options=(),
             channel_credentials=None,
@@ -130,7 +130,7 @@ class ChatRoomUserService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/chat.ChatRoomUserService/GetChatRoomByUser',
+        return grpc.experimental.unary_unary(request, target, '/chat.ChatRoomUserService/GetChatRoomByUserId',
             ChatRoomUser__pb2.GetChatRoomByUserIdRequest.SerializeToString,
             ChatRoomUser__pb2.ListChatRoomUsersResponse.FromString,
             options, channel_credentials,

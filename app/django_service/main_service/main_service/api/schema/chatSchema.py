@@ -160,14 +160,11 @@ class Query(graphene.ObjectType):
             client = ChatRoomUserServiceStub(channel)
 
             grpc_request = GetChatRoomByUserIdRequest(user_id=info.context.user_id)
-            chat_rooms = client.GetChatRoomByUser(grpc_request)
+            chat_rooms = client.GetChatRoomByUserId(grpc_request)
 
-            chat_rooms = [
-                Query.resolve_chat_room(self, info, chat_room.id)
-                for chat_room in chat_rooms
-            ]
 
-            return chat_rooms
+
+            return chat_rooms.users
 
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
@@ -289,7 +286,7 @@ class CreateChatRoomMutation(graphene.Mutation):
 
             request = CreateChatRoomRequest(
                 name=input["name"],
-                game_id=input["game_id"]
+                game_id=input.get("game_id")
             )
 
             response = stub.CreateChatRoom(request)
@@ -300,6 +297,13 @@ class CreateChatRoomMutation(graphene.Mutation):
                 created_at=response.created_at.ToDatetime(),
                 game_id=response.game_id
             )
+            chatRoomUserstub = ChatRoomUserServiceStub(channel)
+            request = AddUserToChatRoomRequest(
+                chat_room_id=created_chat_room.id,
+                user_id=info.context.user_id,
+            )
+            chatRoomUserstub.AddUserToChatRoom(request)
+
             return CreateChatRoomMutation(
                 success=True,
                 chat_room=created_chat_room,
