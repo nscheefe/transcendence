@@ -1,8 +1,6 @@
 package game
 
-import (
-	"math"
-)
+import "math"
 
 const (
 	winningPoints             = 10

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	mu sync.Mutex
+	mu sync.Mutex = sync.Mutex{}
 
 	upgrader = websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
