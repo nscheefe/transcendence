@@ -16,10 +16,10 @@ services:
       - 5432:5432
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "django_db", "-U", "django_user" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-      start_period: 3s
+      interval: 1s
+      timeout: 1s
+      retries: 30
+      start_period: 1s
 
 ##############################################
 ## DJANGO SERVICES WITH DATABASE CONNECTION ##
@@ -42,10 +42,10 @@ services:
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
     healthcheck:
       test: ["CMD-SHELL", "python manage.py showmigrations | grep '\\[ \\]' && exit 1 || exit 0"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 2s
+      interval: 1s
+      timeout: 1s
+      retries: 30
+      start_period: 1s
 ##############################################
   stat_service:
     build:
@@ -88,10 +88,10 @@ services:
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
     healthcheck:
       test: ["CMD-SHELL", "python manage.py showmigrations | grep '\\[ \\]' && exit 1 || exit 0"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 2s
+      interval: 1s
+      timeout: 1s
+      retries: 30
+      start_period: 1s
 ##############################################
   chat_service:
     build:
@@ -134,10 +134,10 @@ services:
       - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
     healthcheck:
       test: ["CMD-SHELL", "python manage.py showmigrations | grep '\\[ \\]' && exit 1 || exit 0"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 2s
+      interval: 1s
+      timeout: 1s
+      retries: 30
+      start_period: 1s
 ##############################################
   admin_service:
     build:
