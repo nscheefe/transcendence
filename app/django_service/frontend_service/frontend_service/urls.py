@@ -13,5 +13,6 @@ urlpatterns = [
 	path('home/friends/', views.friends, name='friends'),  # Friends view
     path('home/game/', views.game, name='game'),  # Game view
     path('home/profile/', views.profile, name='profile'),  # Profile view
+    path('home/chat/', views.chat, name='chat'),  # chat view
 
 ]

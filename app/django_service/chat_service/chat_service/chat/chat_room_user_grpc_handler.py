@@ -85,16 +85,14 @@ class ChatRoomUserServiceHandler(ChatRoomUser_pb2_grpc.ChatRoomUserServiceServic
         Retrieves all chat rooms by a user ID.
         """
         try:
-            chat_room_users = ChatRoomUser.objects.filter(user_id=request.user_id)
+            chat_room_users = ChatRoomUser.objects.select_related('chat_room').filter(user_id=request.user_id)
 
             response = ChatRoomUser_pb2.ListChatRoomUsersResponse()
 
             if not chat_room_users.exists():
                 return response
-
             for chat_room_user in chat_room_users:
                 chat_room = chat_room_user.chat_room  # ForeignKey relationship
-
                 if chat_room_user.joined_at:
                     joined_at_timestamp = Timestamp()
                     joined_at_timestamp.FromDatetime(chat_room_user.joined_at)

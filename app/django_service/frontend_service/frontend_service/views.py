@@ -1,8 +1,12 @@
+from pprint import pprint
+
 from django.shortcuts import render, redirect
 from django.conf import settings
 from .logic.auth.utils import jwt_required, isJwtSet
 from .logic.auth.sign_in import signIn, exchange_code_for_token
 from .logic.gql.query.get_user_data import getUserProfileData
+from .logic.gql.query.get_user_chat import getDetailedChatRoomData
+
 from .logic.gql.mutation.update_user_profile import update_user_profile
 from django.core.files.storage import default_storage
 
@@ -105,3 +109,16 @@ def game(request):
         'game_data': get_game_data(request.user),  # Example function for getting game data
     }
     return render(request, 'frontend/game.html', context)
+
+@jwt_required
+def chat(request):
+    user_data = getUserProfileData(request)
+    ChatRooms = getDetailedChatRoomData(request)
+    context = {
+        'show_nav': True,
+        'user': user_data,
+        'chatRooms':ChatRooms
+    }
+    pprint(ChatRooms)
+
+    return render(request, 'frontend/chat.html', context)
