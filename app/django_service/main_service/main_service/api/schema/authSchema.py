@@ -32,12 +32,10 @@ class ExchangeCodeForTokenMutation(graphene.Mutation):
                 with grpc.insecure_channel("user_service:50051") as channel:
                     stub = UserServiceStub(channel)
                     grpc_request = CreateUserRequest(
-                        id= response.user_id,
-                        name=response.name,
-                        mail=response.mail
+                        id=response.user_id, name=response.full_name, mail=response.mail
                     )
                     stub.CreateUser(grpc_request)
-                
+
                 try:
                     # Create user profile
                     with grpc.insecure_channel("user_service:50051") as channel:
@@ -45,7 +43,7 @@ class ExchangeCodeForTokenMutation(graphene.Mutation):
                         grpc_request = CreateProfileRequest(
                             user_id=response.user_id,
                             avatar_url=response.avatar_url,
-                            nickname=response.full_name
+                            nickname=response.name
                         )
                         stub.CreateProfile(grpc_request)
                 except Exception as e:
