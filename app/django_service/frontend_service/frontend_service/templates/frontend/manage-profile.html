@@ -6,20 +6,30 @@
   <section class="section-3">
     <div class="w-layout-blockcontainer container-2 w-container">
       <h1 class="heading-2">Manage Your Profile</h1>
+      <h2 class="heading-3">{{ user.profile.nickname }}</h2>
       <div class="form-block w-form">
-        <form id="email-form" name="email-form" data-name="Email Form" method="get" class="form" data-wf-page-id="67705c19a75cfc55a1d22afd" data-wf-element-id="64f0644a-ca63-ee35-bb3f-28862db773cb">
+        <form id="email-form" name="email-form" data-name="Email Form" method="post" enctype="multipart/form-data" class="form" data-wf-page-id="67705c19a75cfc55a1d22afd" data-wf-element-id="64f0644a-ca63-ee35-bb3f-28862db773cb">
           <div class="w-embed">
-
-            <input class="file-input" type="file" id="myFile" name="filename">
-            <label for="myFile"></label> <!--  Link the label with the input using the 'for' attribute  -->
+            <input class="file-input" type="file" id="myFile" name="filename" onchange="previewFile()">
+            <label for="myFile" class="file-input-label">
+              {% if user.profile.avatarUrl %}
+                <img src="{{ user.profile.avatarUrl }}" alt="Profile Avatar" id="avatarPreview" class="profile-avatar">
+              {% endif %}
+            </label>
           </div>
           <div class="text-input-wrapper">
             <label for="Bio">Bio</label>
-            <textarea placeholder="[Your Name] is a passionate developer and retro gaming enthusiast, specializing in creating classic games with a modern twist. Inspired by the simplicity and fun of old-school arcade games," maxlength="5000" id="Bio" name="Bio" data-name="Bio" class="form-text-input-transparent w-input"></textarea>
+            <textarea
+              placeholder="[Your Name] is a passionate developer and retro gaming enthusiast, specializing in creating classic games with a modern twist. Inspired by the simplicity and fun of old-school arcade games,"
+              maxlength="5000"
+              id="Bio"
+              name="Bio"
+              data-name="Bio"
+              class="form-text-input-transparent w-input">{% if user.profile.bio %}{{ user.profile.bio }}{% endif %}</textarea>
           </div>
           <div class="text-input-wrapper">
             <label for="Nickname">Nickname</label>
-            <input class="form-text-input-transparent w-input" maxlength="256" name="Nickname" data-name="Nickname" placeholder="eg. nscheefe" type="text" id="Nickname" required="">
+            <input class="form-text-input-transparent w-input" maxlength="256" name="Nickname" data-name="Nickname" placeholder="eg. nscheefe" type="text" id="Nickname" required="" value="{% if user.profile.nickname %}{{ user.profile.nickname }}{% endif %}">
           </div>
           <input type="submit" data-wait="Please wait..." class="submit-button w-button" value="Submit">
         </form>
@@ -33,3 +43,22 @@
     </div>
   </section>
 {% endblock content %}
+
+{% block extra_js %}
+<script>
+function previewFile() {
+  const preview = document.getElementById('avatarPreview');
+  const file = document.getElementById('myFile').files[0];
+  const reader = new FileReader();
+
+  reader.addEventListener('load', function () {
+    // Convert file to base64 string and display it
+    preview.src = reader.result;
+  }, false);
+
+  if (file) {
+    reader.readAsDataURL(file);
+  }
+}
+</script>
+{% endblock extra_js %}
