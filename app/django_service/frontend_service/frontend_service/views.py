@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from .logic.auth.utils import jwt_required, isJwtSet
 from .logic.auth.sign_in import signIn, exchange_code_for_token
+from .logic.query.gql.get_user_data import getUserProfileData
 
 def root_redirect(request):
     """
@@ -46,15 +47,11 @@ def oauth_callback(request):
 @jwt_required
 def home(request):
     # Create context dictionary with necessary data
+    user_data = getUserProfileData(request)
     context = {
         'show_nav': True,
         'user_name': request.user.username,  # Example: passing the username
-        'user': {
-            'username': "mreidenb",
-            'profile': {
-                'avatar': 'https://cdn.intra.42.fr/users/9f696469f2a38d21067d5df82437fc7a/mreidenb.jpg'
-            }
-        }
+        'user': user_data,
     }
     return render(request, 'frontend/home.html', context)
 
@@ -62,7 +59,7 @@ def home(request):
 def profile(request):
     context = {
         'show_nav': True,
-        #'profile_data': getUserProfileData(request),  # Example function for getting profile data
+        'user': getUserProfileData(request),  # Example function for getting profile data
     }
     return render(request, 'frontend/manage-profile.html', context)
 
