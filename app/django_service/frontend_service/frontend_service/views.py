@@ -2,7 +2,9 @@ from django.shortcuts import render, redirect
 from django.conf import settings
 from .logic.auth.utils import jwt_required, isJwtSet
 from .logic.auth.sign_in import signIn, exchange_code_for_token
-from .logic.query.gql.get_user_data import getUserProfileData
+from .logic.gql.query.get_user_data import getUserProfileData
+from .logic.gql.mutation.update_user_profile import update_user_profile
+from django.core.files.storage import default_storage
 
 def root_redirect(request):
     """
@@ -57,9 +59,26 @@ def home(request):
 
 @jwt_required
 def profile(request):
+    if request.method == 'POST':
+        bio = request.POST.get('Bio')
+        nickname = request.POST.get('Nickname')
+        avatar = request.FILES.get('filename')
+
+        # Handle file upload
+        if avatar:
+            avatar_path = default_storage.save(f'avatars/{avatar.name}', avatar)
+            # Update user profile with the new avatar path
+            # Assuming you have a function to update the user profile
+            update_user_profile(request.user, bio, nickname, avatar_path)
+        else:
+            update_user_profile(request.user, bio, nickname)
+
+        return redirect('profile')
+
+    user_data = getUserProfileData(request)
     context = {
         'show_nav': True,
-        'user': getUserProfileData(request),  # Example function for getting profile data
+        'user': user_data,
     }
     return render(request, 'frontend/manage-profile.html', context)
 

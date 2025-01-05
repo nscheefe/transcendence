@@ -3,7 +3,7 @@ from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 
 def load_query(filename):
-    filepath = os.path.join(os.path.dirname(__file__), "gql", filename)
+    filepath = os.path.join(os.path.dirname(__file__),  filename)
     with open(filepath, "r") as file:
         return file.read()
 
