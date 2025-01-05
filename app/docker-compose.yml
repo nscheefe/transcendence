@@ -20,7 +20,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 5s
-      start_interval: 1s
+      #start_interval: 1s
 
 ##############################################
 ## DJANGO SERVICES WITH DATABASE CONNECTION ##
@@ -34,7 +34,7 @@ services:
       - ./django_service/user_service:/usr/src/app
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
     networks:
       - django_network
       - db_network
@@ -47,7 +47,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 5s
-      start_interval: 1s
+      #start_interval: 1s: 1s
 
 ##############################################
   stat_service:
@@ -60,9 +60,9 @@ services:
       - ./django_service/stat_service:/usr/src/app
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       user_service:
-        condition: service_healthy
+        condition: service_started
     networks:
       - django_network
       - db_network
@@ -80,9 +80,9 @@ services:
       - ./django_service/game_service:/usr/src/app
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       user_service:
-        condition: service_healthy
+        condition: service_started
     networks:
       - django_network
       - db_network
@@ -95,7 +95,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 5s
-      start_interval: 1s
+      #start_interval: 1s: 1s
 ##############################################
   chat_service:
     build:
@@ -107,9 +107,9 @@ services:
       - ./django_service/chat_service:/usr/src/app
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       user_service:
-        condition: service_healthy
+        condition: service_started
     networks:
       - django_network
       - db_network
@@ -127,9 +127,9 @@ services:
       - ./django_service/auth_service:/usr/src/app
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       user_service:
-        condition: service_healthy
+        condition: service_started
     networks:
       - django_network
       - db_network
@@ -144,7 +144,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 5s
-      start_interval: 1s
+      #start_interval: 1s: 1s
 ##############################################
   admin_service:
     build:
@@ -156,9 +156,9 @@ services:
       - ./django_service/admin_service:/usr/src/app
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
       user_service:
-        condition: service_healthy
+        condition: service_started
     networks:
       - django_network
       - db_network
@@ -211,9 +211,9 @@ services:
     container_name: pong_service
     depends_on:
       game_service:
-        condition: service_healthy
+        condition: service_started
       auth_service:
-        condition: service_healthy
+        condition: service_started
     networks:
       - django_network
     ports:
