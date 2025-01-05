@@ -1,0 +1,11 @@
+query getUserData {
+  user {
+    lastLoginIp
+    mail
+    name
+    profile {
+      avatarUrl
+      nickname
+    }
+  }
+}
