@@ -13,7 +13,7 @@ class AuthMiddleware(MiddlewareMixin):
         # Skip authentication for auth endpoint
         if not request.path.startswith('/graphql/'):
             return None
-
+        return None
         jwt_token = request.COOKIES.get('jwt_token')
 
         if not jwt_token:

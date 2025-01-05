@@ -14,6 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
 from graphene_django.views import GraphQLView
@@ -22,9 +23,14 @@ from django.views.decorators.csrf import csrf_exempt
 from main_service.api.schema import Schema as MainSchema
 from main_service.api.schema.authSchema import schemaAuth
 
+from . import settings
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=MainSchema.schema))),  # GraphQL API endpoint
     path('graphiql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=MainSchema.schema))),  # GraphiQL frontend
     path('auth/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schemaAuth))),  # Auth GraphQL API endpoint
 ]
+
+if settings.DEBUG:  # Only serve static files in development mode
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
