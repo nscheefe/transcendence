@@ -31,6 +31,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'main_service', '172.18.0.9']
 # Application definition
 
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -39,9 +40,18 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'graphene_django',
 ]
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 GRAPHENE = {
     'SCHEMA': 'main_service.api.schema.Schema.schema',
+    "GRAPHIQL": True,  # Ensure GraphiQL debug tool is enabled
+    "SUBSCRIPTION_PATH": "/graphql/",
+    'MIDDLEWARE': []
+
 }
 
 MIDDLEWARE = [
@@ -73,8 +83,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'main_service.wsgi.application'
-
+ASGI_APPLICATION = "main_service.asgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -116,9 +125,11 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+print("BASE_DIR:", BASE_DIR)
 
 STATIC_URL = 'static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'main_service/staticfiles')
+print("STATIC_ROOT:", STATIC_ROOT)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field

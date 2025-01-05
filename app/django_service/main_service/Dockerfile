@@ -23,4 +23,4 @@ RUN python -m grpc_tools.protoc -I./protos --python_out=./main_service/protos --
 
 # Expose port and set the entrypoint
 EXPOSE 8000
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "main_service.wsgi:application"]
+CMD ["uvicorn", "--host", "0.0.0.0", "--port", "8000", "main_service.asgi:application"]

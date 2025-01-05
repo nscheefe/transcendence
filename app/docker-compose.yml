@@ -175,7 +175,7 @@ services:
         context: ./django_service/main_service
         dockerfile: Dockerfile
       container_name: main_service
-      command: python manage.py runserver 0.0.0.0:8000
+      command: uvicorn main_service.asgi:application --host 0.0.0.0 --port 8000 --reload --log-level debug
       ports:
         - '8001:8000'
       volumes:

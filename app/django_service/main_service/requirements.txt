@@ -1,15 +1,18 @@
-aniso8601
-asgiref
-Django
-graphene
-graphene-django
-graphql-core
-graphql-relay
-grpcio
-grpcio-tools
-promise
-protobuf
-six
-sqlparse
-text-unidecode
-gunicorn
+aniso8601>=3,<8
+asgiref>=3.6.0
+Django>=3.2,<5.0                # Support Django 4.x
+graphql-core>=2.0,<3.0
+graphene>=2.1,<3.0
+graphene-django>=2.16,<3.0
+graphql-relay>=2.0,<3.0     # Compatible with graphene 2.x
+grpcio>=1.58.0
+grpcio-tools>=1.58.0
+promise>=2.3
+protobuf>=5.0.0
+six>=1.17.0
+sqlparse>=0.4.4
+text-unidecode>=1.3
+gunicorn>=23.0.0
+uvicorn[standard]>=0.34.0       # Install uvicorn with "standard" extras
+django-channels-graphql-ws>=0.9.0,<0.10
+channels>=3.0,<5.0             # Compatible with django-channels-graphql-ws
