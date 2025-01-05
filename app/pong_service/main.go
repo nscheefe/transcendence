@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"server-side-pong/game"
 )
 
 const (
@@ -10,7 +11,7 @@ const (
 )
 
 func main() {
-	http.HandleFunc("/", handleConnections)
+	http.HandleFunc("/", game.HandleConnection)
 	fmt.Println("WebSocket server is running on ws://localhost" + port)
 	err := http.ListenAndServe(port, nil)
 	if err != nil {

@@ -1,11 +1,19 @@
 package game
 
 import (
+	"fmt"
 	"math"
 	"math/rand/v2"
 )
 
 func gameLoop(game *Game) {
+	game.Mu.Lock()
+
+	if len(game.Clients) != 2 || game.State != GameStateInProgress {
+		game.loopInterval.Stop()
+		game.Mu.Unlock()
+		return
+	}
 
 	updatePaddlePositions(game)
 
@@ -37,15 +45,17 @@ func gameLoop(game *Game) {
 
 	if game.state.Ball.Z <= -10 {
 		game.state.Points.Player2++
-		resetBall()
-		checkWinner()
+		resetBall(game)
+		checkWinner(game)
 	} else if game.state.Ball.Z >= 10 {
 		game.state.Points.Player1++
-		resetBall()
-		checkWinner()
+		resetBall(game)
+		checkWinner(game)
 	}
 
-	broadcast(map[string]interface{}{
+	game.Mu.Unlock()
+
+	broadcast(game, map[string]interface{}{
 		"type":      "updateState",
 		"ball":      game.state.Ball,
 		"paddle1":   game.state.Paddle1,
@@ -56,34 +66,34 @@ func gameLoop(game *Game) {
 }
 
 func updatePaddlePositions(game *Game) {
-	game.mu.Lock()
-	defer game.mu.Unlock()
-	if game.state.KeyState["ArrowLeft"] && game.state.Paddle1.X > -4.5 {
-		game.state.Paddle1.X -= 0.1
-	}
-	if game.state.KeyState["ArrowRight"] && game.state.Paddle1.X < 4.5 {
-		game.state.Paddle1.X += 0.1
-	}
-	if game.state.KeyState["a"] && game.state.Paddle2.X > -4.5 {
-		game.state.Paddle2.X -= 0.1
-	}
-	if game.state.KeyState["d"] && game.state.Paddle2.X < 4.5 {
-		game.state.Paddle2.X += 0.1
+	for _, keyState := range game.state.KeyState {
+		if keyState["ArrowLeft"] && game.state.Paddle1.X > -4.5 {
+			game.state.Paddle1.X -= 0.1
+		}
+		if keyState["ArrowRight"] && game.state.Paddle1.X < 4.5 {
+			game.state.Paddle1.X += 0.1
+		}
+		if keyState["a"] && game.state.Paddle2.X > -4.5 {
+			game.state.Paddle2.X -= 0.1
+		}
+		if keyState["d"] && game.state.Paddle2.X < 4.5 {
+			game.state.Paddle2.X += 0.1
+		}
 	}
 }
 
-func resetBall() {
+func resetBall(game *Game) {
 	randomX := (rand.Float32() - 0.5) * 9
 	var randomZ float32 = 0.0
 
-	game.state.Ball = Position{X: randomX, Y: 0.5, Z: randomZ}
+	game.state.Ball = position{X: randomX, Y: 0.5, Z: randomZ}
 
 	baseAngle := math.Pi / 2
 	if rand.Float64() < 0.5 {
 		baseAngle = -math.Pi / 2
 	}
 	randomAngle := baseAngle + (rand.Float64()*2-1)*maxAngleVariation
-	game.state.BallSpeed = Speed{
+	game.state.BallSpeed = speed{
 		X: initialBallSpeed * float32(math.Cos(randomAngle)),
 		Z: initialBallSpeed * float32(math.Sin(randomAngle)),
 	}
@@ -93,21 +103,23 @@ func resetBall() {
 	}
 }
 
-func checkWinner() {
+func checkWinner(game *Game) {
 	if game.state.Points.Player1 >= winningPoints || game.state.Points.Player2 >= winningPoints {
-		gameStarted = false
-		gameLoopInterval.Stop()
-		broadcast(map[string]interface{}{
+		game.State = GameStateFinished
+		game.Mu.Unlock()
+		broadcast(game, map[string]interface{}{
 			"type":   "gameOver",
 			"winner": 1,
 		})
+		game.Mu.Lock()
 		if game.state.Points.Player2 >= winningPoints {
-			broadcast(map[string]interface{}{
+			game.Mu.Unlock()
+			broadcast(game, map[string]interface{}{
 				"type":   "gameOver",
 				"winner": 2,
 			})
+			game.Mu.Lock()
 		}
-		game.state.Points.Player1 = 0
-		game.state.Points.Player2 = 0
+		fmt.Println("Game over")
 	}
 }

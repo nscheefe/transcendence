@@ -204,6 +204,8 @@ services:
       context: ./pong_service
       dockerfile: Dockerfile
     container_name: pong_service
+    volumes:
+      - ./pong_service:/app
     depends_on:
       game_service:
         condition: service_healthy

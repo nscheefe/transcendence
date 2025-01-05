@@ -23,20 +23,30 @@ type points struct {
 	Player2 int `json:"player2"`
 }
 
+type GameState int
+
+const (
+	GameStatePending GameState = iota
+	GameStateInProgress
+	GameStateFinished
+	GameStatePaused
+)
+
 type state struct {
-	Ball      position        `json:"ball"`
-	BallSpeed speed           `json:"ballSpeed"`
-	Paddle1   position        `json:"paddle1"`
-	Paddle2   position        `json:"paddle2"`
-	Points    points          `json:"points"`
-	KeyState  map[string]bool `json:"keyState"`
-	Direction int             `json:"direction"`
+	Ball      position                `json:"ball"`
+	BallSpeed speed                   `json:"ballSpeed"`
+	Paddle1   position                `json:"paddle1"`
+	Paddle2   position                `json:"paddle2"`
+	Points    points                  `json:"points"`
+	KeyState  map[int]map[string]bool `json:"keyState"`
+	Direction int                     `json:"direction"`
 }
 
 type Game struct {
-	Started      bool
+	id           int
+	Mu           sync.Mutex
+	Clients      map[int]*websocket.Conn
+	State        GameState
 	loopInterval *time.Ticker
 	state        state
-	Clients      map[int]*websocket.Conn
-	mu           sync.Mutex
 }

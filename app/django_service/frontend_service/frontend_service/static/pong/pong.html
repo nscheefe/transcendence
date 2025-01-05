@@ -71,9 +71,6 @@ function createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMes
     socket.onopen = () => {
         console.log('Connected to the server');
         isConnecting = false;
-        // Send handshake message with a placeholder client ID
-        const clientId = '1';
-        socket.send(JSON.stringify({ type: 'handshake', clientId }));
     };
 
     socket.onmessage = (event) => {

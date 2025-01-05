@@ -1,5 +1,5 @@
 run:
-	go run *.go
+	go run main.go
 
 protoc:
 	protoc --go_out=. \
