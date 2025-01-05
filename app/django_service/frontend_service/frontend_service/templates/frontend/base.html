@@ -39,7 +39,7 @@
             <span class="nav-item-group">
             <a class"profile-link-wrapper" href="{% url 'profile' %}" aria-expanded="false">
             <div class="profile-link-wrapper">
-              <span class="intra-name-42" data-login="{{ user.name }}">{{ user.name }}</span>
+              <span class="intra-name-42" data-login="{{ user.profile.nickname }}">{{ user.profile.nickname }}</span>
               <img class="user-profile-picture visible-sidebars" src="{{ user.profile.avatarUrl }}" alt="User Profile Picture" height="40" width="40">
             </div>
             </a>
