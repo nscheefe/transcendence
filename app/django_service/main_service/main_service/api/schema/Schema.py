@@ -4,6 +4,7 @@ from .userSchema import Query as UserQuery, Mutation as UserMutation
 from .statSchema import Query as StatQuery, Mutation as StatMutation
 from .gameSchema import Query as gameQuery, Mutation as gameMutation
 from .chatSchema import Query as chatQuery, Mutation as chatMutation
+
 from .authSchema import Mutation as authMutation
 from .adminSchema import Query as adminQuery, Mutation as adminMutation
 

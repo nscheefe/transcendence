@@ -19,7 +19,7 @@ service ChatRoomUserService {
 
     // Add a user to a chat room
     rpc AddUserToChatRoom(AddUserToChatRoomRequest) returns (ChatRoomUser);
-    rpc GetChatRoomByUser(GetChatRoomByUserIdRequest) returns(ListChatRoomUsersResponse);
+    rpc GetChatRoomByUserId(GetChatRoomByUserIdRequest) returns(ListChatRoomUsersResponse);
 }
 
 // Request and Response messages for ChatRoomUser

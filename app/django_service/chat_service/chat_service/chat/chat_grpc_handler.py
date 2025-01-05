@@ -1,3 +1,6 @@
+from datetime import datetime
+from xxlimited import Null
+
 import google
 import grpc
 from django.utils.timezone import now
@@ -18,7 +21,8 @@ class ChatServiceHandler(chat_pb2_grpc.ChatServiceServicer):
         try:
             chat_room = ChatRoom(
                 name=request.name,
-                game_id=request.game_id
+                game_id=request.game_id,
+                created_at = datetime.now()
             )
             chat_room.save()
 

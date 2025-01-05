@@ -296,3 +296,52 @@ sequenceDiagram
         "42 API"->>Backend: Return new access token
     end
 ```
+
+
+# Game sequenz diagram
+```mermaid
+
+sequenceDiagram
+    participant PlayerA
+    participant PlayerB
+    participant DjangoService
+    participant GoGameServer
+
+    PlayerA->>DjangoService: CreateGameRequest
+    DjangoService-->>PlayerA: NewGameObject (PlayerB == null)
+
+    loop Waiting for PlayerB
+        PlayerA->>DjangoService: PollGameStatus
+        DjangoService-->>PlayerA: GameObject (PlayerB == null)
+    end
+
+    PlayerB->>DjangoService: JoinGameRequest
+    DjangoService-->>PlayerB: UpdatedGameObject (PlayerB != null)
+    DjangoService-->>PlayerA: UpdatedGameObject (PlayerB != null)
+
+    PlayerA->>DjangoService: GameStartRequest
+    DjangoService->>GoGameServer: StartGame(gameId, userIdA, userIdB)
+    GoGameServer-->>DjangoService: GameInitialized(gameId)
+    DjangoService-->>PlayerA: GameStartSuccess(gameId)
+    DjangoService-->>PlayerB: GameStartSuccess(gameId)
+
+    par WebSocket Connections
+        PlayerA->>GoGameServer: WebSocket Connect
+        PlayerB->>GoGameServer: WebSocket Connect
+    end
+
+    loop Game Loop
+        PlayerA->>GoGameServer: SendMove(moveData)
+        GoGameServer-->>PlayerA: Acknowledgement(moveSuccess)
+        GoGameServer-->>PlayerB: UpdateGameState(newGameState)
+
+        PlayerB->>GoGameServer: SendMove(moveData)
+        GoGameServer-->>PlayerB: Acknowledgement(moveSuccess)
+        GoGameServer-->>PlayerA: UpdateGameState(newGameState)
+    end
+
+    Note over GoGameServer: The game reaches the end condition.
+
+    GoGameServer->>DjangoService: FinalGameStats(gameId, statsData)
+    DjangoService-->>DjangoService: CreateStatsEntry<br/>(gameId, statsData) [stat service]
+```
