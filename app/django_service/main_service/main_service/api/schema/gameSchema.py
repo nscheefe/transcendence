@@ -5,7 +5,7 @@ from datetime import datetime
 import graphene
 import grpc
 import asyncio
-from rx import Observable
+
 # Importing gRPC stubs & request messages
 from main_service.protos.game_pb2_grpc import GameServiceStub
 from main_service.protos.game_pb2 import (
