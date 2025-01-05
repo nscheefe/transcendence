@@ -3,4 +3,4 @@ import os
 from django.conf import settings
 
 class CustomGraphQLView(GraphQLView):
-    graphiql_template = 'graphene/graphiql.html'
+    graphiql_template = 'graphene-ws/graphiql.html'
