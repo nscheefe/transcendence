@@ -13,7 +13,7 @@ import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # Quick-start development settings - unsuitable for production
@@ -32,6 +32,7 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'main_service', '172.18.0.9']
 
 INSTALLED_APPS = [
     'channels',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,9 +50,8 @@ CHANNEL_LAYERS = {
 GRAPHENE = {
     'SCHEMA': 'main_service.api.schema.Schema.schema',
     "GRAPHIQL": True,  # Ensure GraphiQL debug tool is enabled
-    "SUBSCRIPTION_PATH": "/graphql/",
+    "SUBSCRIPTION_PATH": "/graphql-ws/",
     'MIDDLEWARE': []
-
 }
 
 MIDDLEWARE = [
@@ -70,7 +70,7 @@ ROOT_URLCONF = 'main_service.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'main_service', 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

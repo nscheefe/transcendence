@@ -95,7 +95,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 5s
-      #start_interval: 1s: 1s
+      #start_interval: 1s
 ##############################################
   chat_service:
     build:
@@ -175,7 +175,7 @@ services:
         context: ./django_service/main_service
         dockerfile: Dockerfile
       container_name: main_service
-      command: sh -c "python manage.py collectstatic --noinput && uvicorn main_service.asgi:application --host 0.0.0.0 --port 8000 --reload --log-level debug"
+      command: sh -c "python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 main_service.asgi:application"
       ports:
         - '8001:8000'
       volumes:
