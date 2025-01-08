@@ -247,7 +247,7 @@ class GameReadyType(graphene.ObjectType):
 import graphene
 import channels_graphql_ws
 
-
+#Subscription
 class PingSubscription(channels_graphql_ws.Subscription):
     response = graphene.String()  # Define the output field for the subscription.
 
