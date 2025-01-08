@@ -35,8 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_grpc_framework',
     'chat_service.chat.apps.ChatConfig',
+    'protos',
 ]
 
 MIDDLEWARE = [
@@ -51,9 +51,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'chat_service.urls'
 
-DJANGO_GRPC_FRAMEWORK = {
-    'ROOT_HANDLERS_HOOK': 'chat_service.urls.grpc_handler',
-}
 
 
 TEMPLATES = [

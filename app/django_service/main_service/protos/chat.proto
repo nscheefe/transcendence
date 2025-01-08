@@ -2,26 +2,99 @@ syntax = "proto3";
 
 package chat;
 
-service ChatService {
-  rpc GetChat (GetChatRequest) returns (Chat);
-  rpc CreateChat (CreateChatRequest) returns (Chat);
-  rpc GetChats (Empty) returns (ChatList);
-}
+// Import Timestamp from Protobuf for timestamps
+import "google/protobuf/timestamp.proto";
 
-message Chat {
+message ChatMessage {
   int32 id = 1;
+  string content = 2;
+  int32 sender_id = 3;
+  int32 chat_room_id = 4;
+  google.protobuf.Timestamp timestamp = 5;
 }
 
-message GetChatRequest {
+message ChatRoom {
   int32 id = 1;
+  string name = 2;
+  google.protobuf.Timestamp created_at = 3;
+  int32 game_id = 4;
 }
 
-message CreateChatRequest {
+message CreateChatRoomRequest {
+  string name = 1;
+  int32 game_id = 2;
+}
+
+message GetChatRoomRequest {
   int32 id = 1;
-}
-
-message ChatList {
-  repeated Chat chats = 1;
 }
 
 message Empty {}
+
+message SubscribeChatRoomMessagesRequest {
+  int32 chat_room_id = 1;
+}
+
+message ChatRoomUser {
+  int32 id = 1;
+  int32 user_id = 2;
+  int32 chat_room_id = 3;
+  google.protobuf.Timestamp joined_at = 4;
+}
+
+message GetUsersByChatRoomIdRequest {
+  int32 chat_room_id = 1;
+}
+
+message AddUserToChatRoomRequest {
+  int32 user_id = 1;
+  int32 chat_room_id = 2;
+}
+
+message ListChatRoomUsersResponse {
+  repeated ChatRoomUser users = 1;
+}
+
+message GetChatRoomByUserIdRequest {
+  int32 user_id = 1;
+}
+
+message ChatRoomMessage {
+  int32 id = 1;
+  string content = 2;
+  int32 sender_id = 3;
+  int32 chat_room_id = 4;
+  google.protobuf.Timestamp timestamp = 5;
+}
+
+message GetMessagesByChatRoomIdRequest {
+  int32 chat_room_id = 1;
+}
+
+message CreateChatRoomMessageRequest {
+  string content = 1;
+  int32 sender_id = 2;
+  int32 chat_room_id = 3;
+}
+
+message ListChatRoomMessagesResponse {
+  repeated ChatRoomMessage messages = 1;
+}
+
+service ChatService {
+  rpc CreateChatRoom(CreateChatRoomRequest) returns (ChatRoom);
+  rpc GetChatRoomById(GetChatRoomRequest) returns (ChatRoom);
+  rpc ListChatRooms(Empty) returns (stream ChatRoom);
+  rpc SubscribeChatRoomMessages(SubscribeChatRoomMessagesRequest) returns (stream ChatMessage);
+}
+
+service ChatRoomUserService {
+  rpc GetUsersByChatRoomId(GetUsersByChatRoomIdRequest) returns (ListChatRoomUsersResponse);
+  rpc AddUserToChatRoom(AddUserToChatRoomRequest) returns (ChatRoomUser);
+  rpc GetChatRoomByUserId(GetChatRoomByUserIdRequest) returns (ListChatRoomUsersResponse);
+}
+
+service ChatRoomMessageService {
+  rpc GetMessagesByChatRoomId(GetMessagesByChatRoomIdRequest) returns (ListChatRoomMessagesResponse);
+  rpc CreateMessage(CreateChatRoomMessageRequest) returns (ChatRoomMessage);
+}

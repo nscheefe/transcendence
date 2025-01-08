@@ -1,11 +1,11 @@
 import google
 import grpc
 from django.utils.timezone import now
-from chat_service.protos import ChatRoomMessage_pb2_grpc, ChatRoomMessage_pb2
+from protos import chat_pb2, chat_pb2_grpc
 from chat_service.chat.models import ChatRoom, ChatRoomMessage
 
 
-class ChatRoomMessageServiceHandler(ChatRoomMessage_pb2_grpc.ChatRoomMessageServiceServicer):
+class ChatRoomMessageServiceHandler(chat_pb2_grpc.ChatRoomMessageServiceServicer):
     """Implementation of ChatRoomMessageService."""
 
     def __init__(self):
@@ -31,7 +31,7 @@ class ChatRoomMessageServiceHandler(ChatRoomMessage_pb2_grpc.ChatRoomMessageServ
             timestamp = google.protobuf.timestamp_pb2.Timestamp()
             timestamp.FromDatetime(chat_room_message.timestamp)
 
-            return ChatRoomMessage_pb2.ChatRoomMessage(
+            return chat_pb2.ChatRoomMessage(
                 id=chat_room_message.id,
                 content=chat_room_message.content,
                 sender_id=chat_room_message.sender_id,
@@ -41,11 +41,11 @@ class ChatRoomMessageServiceHandler(ChatRoomMessage_pb2_grpc.ChatRoomMessageServ
         except ChatRoom.DoesNotExist:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Chat room not found")
-            return ChatRoomMessage_pb2.ChatRoomMessage()
+            return chat_pb2.ChatRoomMessage()
         except Exception as e:
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(f"Error creating chat room message: {str(e)}")
-            return ChatRoomMessage_pb2.ChatRoomMessage()
+            return chat_pb2.ChatRoomMessage()
 
     def GetMessagesByChatRoomId(self, request, context):
         """
@@ -59,7 +59,7 @@ class ChatRoomMessageServiceHandler(ChatRoomMessage_pb2_grpc.ChatRoomMessageServ
             messages = ChatRoomMessage.objects.filter(chat_room=chat_room).order_by("timestamp")
 
             # Convert messages into protobuf response format
-            response = ChatRoomMessage_pb2.ListChatRoomMessagesResponse()
+            response = chat_pb2.ListChatRoomMessagesResponse()
             for message in messages:
                 # Prepare timestamp
                 timestamp = google.protobuf.timestamp_pb2.Timestamp()
@@ -78,11 +78,11 @@ class ChatRoomMessageServiceHandler(ChatRoomMessage_pb2_grpc.ChatRoomMessageServ
         except ChatRoom.DoesNotExist:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Chat room not found")
-            return ChatRoomMessage_pb2.ListChatRoomMessagesResponse()
+            return chat_pb2.ListChatRoomMessagesResponse()
         except Exception as e:
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(f"Error fetching messages: {str(e)}")
-            return ChatRoomMessage_pb2.ListChatRoomMessagesResponse()
+            return chat_pb2.ListChatRoomMessagesResponse()
 
     @classmethod
     def as_servicer(cls):
