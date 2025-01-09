@@ -1,5 +1,5 @@
 # Use a base image with Python 3.8 installed
-FROM python:3.8-slim
+FROM python:3.10
 
 # Install build dependencies and necessary libraries
 RUN apt-get update && \

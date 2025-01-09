@@ -1,9 +1,5 @@
 # Import gRPC protobuf definitions
-from chat_service.protos import (
-    chat_pb2_grpc,
-    ChatRoomMessage_pb2_grpc,
-    ChatRoomUser_pb2_grpc,
-)
+from protos import chat_pb2_grpc, chat_pb2
 
 # Import handler classes
 from chat_service.chat.chat_grpc_handler import ChatServiceHandler
@@ -18,8 +14,8 @@ def grpc_handlers(server):
 
     # Register Chat Room Message Service
     chat_room_message_service_handler = ChatRoomMessageServiceHandler.as_servicer()
-    ChatRoomMessage_pb2_grpc.add_ChatRoomMessageServiceServicer_to_server(chat_room_message_service_handler, server)
+    chat_pb2_grpc.add_ChatRoomMessageServiceServicer_to_server(chat_room_message_service_handler, server)
 
     # Register Chat Room User Service
     chat_room_user_service_handler = ChatRoomUserServiceHandler.as_servicer()
-    ChatRoomUser_pb2_grpc.add_ChatRoomUserServiceServicer_to_server(chat_room_user_service_handler, server)
+    chat_pb2_grpc.add_ChatRoomUserServiceServicer_to_server(chat_room_user_service_handler, server)

@@ -35,7 +35,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_grpc_framework',
+    'django_socio_grpc',
     'game_service.game.apps.GameConfig',
 ]
 
@@ -68,10 +68,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'game_service.wsgi.application'
-
-DJANGO_GRPC_FRAMEWORK = {
-    'ROOT_HANDLERS_HOOK': 'game_service.urls.grpc_handler',
-}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
