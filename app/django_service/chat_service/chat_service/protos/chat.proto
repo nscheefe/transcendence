@@ -20,6 +20,7 @@ message ChatRoom {
   string name = 2;
   google.protobuf.Timestamp created_at = 3;
   int32 game_id = 4;
+  repeated ChatRoomUser users = 5;
 }
 
 // CreateChatRoomRequest definition
@@ -96,6 +97,11 @@ message ListChatRoomMessagesResponse {
   repeated ChatRoomMessage messages = 1;
 }
 
+// ListChatRoomsResponse definition
+message ListChatRoomsResponse {
+  repeated ChatRoom rooms = 1;
+}
+
 // ChatService definition
 service ChatService {
   rpc CreateChatRoom(CreateChatRoomRequest) returns (ChatRoom);
@@ -108,7 +114,7 @@ service ChatService {
 service ChatRoomUserService {
   rpc GetUsersByChatRoomId(GetUsersByChatRoomIdRequest) returns (ListChatRoomUsersResponse);
   rpc AddUserToChatRoom(AddUserToChatRoomRequest) returns (ChatRoomUser);
-  rpc GetChatRoomByUserId(GetChatRoomByUserIdRequest) returns (ListChatRoomUsersResponse);
+  rpc GetChatRoomByUserId(GetChatRoomByUserIdRequest) returns (ListChatRoomsResponse);
 }
 
 // ChatRoomMessageService definition

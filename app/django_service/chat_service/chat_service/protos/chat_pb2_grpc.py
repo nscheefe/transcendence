@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from protos import chat_pb2 as protos_dot_chat__pb2
+from protos import chat_pb2 as chat__pb2
 
 GRPC_GENERATED_VERSION = '1.69.0'
 GRPC_VERSION = grpc.__version__
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in protos/chat_pb2_grpc.py depends on'
+        + f' but the generated code in chat_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -37,23 +37,23 @@ class ChatServiceStub(object):
         """
         self.CreateChatRoom = channel.unary_unary(
                 '/chat.ChatService/CreateChatRoom',
-                request_serializer=protos_dot_chat__pb2.CreateChatRoomRequest.SerializeToString,
-                response_deserializer=protos_dot_chat__pb2.ChatRoom.FromString,
+                request_serializer=chat__pb2.CreateChatRoomRequest.SerializeToString,
+                response_deserializer=chat__pb2.ChatRoom.FromString,
                 _registered_method=True)
         self.GetChatRoomById = channel.unary_unary(
                 '/chat.ChatService/GetChatRoomById',
-                request_serializer=protos_dot_chat__pb2.GetChatRoomRequest.SerializeToString,
-                response_deserializer=protos_dot_chat__pb2.ChatRoom.FromString,
+                request_serializer=chat__pb2.GetChatRoomRequest.SerializeToString,
+                response_deserializer=chat__pb2.ChatRoom.FromString,
                 _registered_method=True)
         self.ListChatRooms = channel.unary_stream(
                 '/chat.ChatService/ListChatRooms',
-                request_serializer=protos_dot_chat__pb2.Empty.SerializeToString,
-                response_deserializer=protos_dot_chat__pb2.ChatRoom.FromString,
+                request_serializer=chat__pb2.Empty.SerializeToString,
+                response_deserializer=chat__pb2.ChatRoom.FromString,
                 _registered_method=True)
         self.SubscribeChatRoomMessages = channel.unary_stream(
                 '/chat.ChatService/SubscribeChatRoomMessages',
-                request_serializer=protos_dot_chat__pb2.SubscribeChatRoomMessagesRequest.SerializeToString,
-                response_deserializer=protos_dot_chat__pb2.ChatMessage.FromString,
+                request_serializer=chat__pb2.SubscribeChatRoomMessagesRequest.SerializeToString,
+                response_deserializer=chat__pb2.ChatMessage.FromString,
                 _registered_method=True)
 
 
@@ -90,23 +90,23 @@ def add_ChatServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'CreateChatRoom': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateChatRoom,
-                    request_deserializer=protos_dot_chat__pb2.CreateChatRoomRequest.FromString,
-                    response_serializer=protos_dot_chat__pb2.ChatRoom.SerializeToString,
+                    request_deserializer=chat__pb2.CreateChatRoomRequest.FromString,
+                    response_serializer=chat__pb2.ChatRoom.SerializeToString,
             ),
             'GetChatRoomById': grpc.unary_unary_rpc_method_handler(
                     servicer.GetChatRoomById,
-                    request_deserializer=protos_dot_chat__pb2.GetChatRoomRequest.FromString,
-                    response_serializer=protos_dot_chat__pb2.ChatRoom.SerializeToString,
+                    request_deserializer=chat__pb2.GetChatRoomRequest.FromString,
+                    response_serializer=chat__pb2.ChatRoom.SerializeToString,
             ),
             'ListChatRooms': grpc.unary_stream_rpc_method_handler(
                     servicer.ListChatRooms,
-                    request_deserializer=protos_dot_chat__pb2.Empty.FromString,
-                    response_serializer=protos_dot_chat__pb2.ChatRoom.SerializeToString,
+                    request_deserializer=chat__pb2.Empty.FromString,
+                    response_serializer=chat__pb2.ChatRoom.SerializeToString,
             ),
             'SubscribeChatRoomMessages': grpc.unary_stream_rpc_method_handler(
                     servicer.SubscribeChatRoomMessages,
-                    request_deserializer=protos_dot_chat__pb2.SubscribeChatRoomMessagesRequest.FromString,
-                    response_serializer=protos_dot_chat__pb2.ChatMessage.SerializeToString,
+                    request_deserializer=chat__pb2.SubscribeChatRoomMessagesRequest.FromString,
+                    response_serializer=chat__pb2.ChatMessage.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -135,8 +135,8 @@ class ChatService(object):
             request,
             target,
             '/chat.ChatService/CreateChatRoom',
-            protos_dot_chat__pb2.CreateChatRoomRequest.SerializeToString,
-            protos_dot_chat__pb2.ChatRoom.FromString,
+            chat__pb2.CreateChatRoomRequest.SerializeToString,
+            chat__pb2.ChatRoom.FromString,
             options,
             channel_credentials,
             insecure,
@@ -162,8 +162,8 @@ class ChatService(object):
             request,
             target,
             '/chat.ChatService/GetChatRoomById',
-            protos_dot_chat__pb2.GetChatRoomRequest.SerializeToString,
-            protos_dot_chat__pb2.ChatRoom.FromString,
+            chat__pb2.GetChatRoomRequest.SerializeToString,
+            chat__pb2.ChatRoom.FromString,
             options,
             channel_credentials,
             insecure,
@@ -189,8 +189,8 @@ class ChatService(object):
             request,
             target,
             '/chat.ChatService/ListChatRooms',
-            protos_dot_chat__pb2.Empty.SerializeToString,
-            protos_dot_chat__pb2.ChatRoom.FromString,
+            chat__pb2.Empty.SerializeToString,
+            chat__pb2.ChatRoom.FromString,
             options,
             channel_credentials,
             insecure,
@@ -216,8 +216,8 @@ class ChatService(object):
             request,
             target,
             '/chat.ChatService/SubscribeChatRoomMessages',
-            protos_dot_chat__pb2.SubscribeChatRoomMessagesRequest.SerializeToString,
-            protos_dot_chat__pb2.ChatMessage.FromString,
+            chat__pb2.SubscribeChatRoomMessagesRequest.SerializeToString,
+            chat__pb2.ChatMessage.FromString,
             options,
             channel_credentials,
             insecure,
@@ -241,18 +241,18 @@ class ChatRoomUserServiceStub(object):
         """
         self.GetUsersByChatRoomId = channel.unary_unary(
                 '/chat.ChatRoomUserService/GetUsersByChatRoomId',
-                request_serializer=protos_dot_chat__pb2.GetUsersByChatRoomIdRequest.SerializeToString,
-                response_deserializer=protos_dot_chat__pb2.ListChatRoomUsersResponse.FromString,
+                request_serializer=chat__pb2.GetUsersByChatRoomIdRequest.SerializeToString,
+                response_deserializer=chat__pb2.ListChatRoomUsersResponse.FromString,
                 _registered_method=True)
         self.AddUserToChatRoom = channel.unary_unary(
                 '/chat.ChatRoomUserService/AddUserToChatRoom',
-                request_serializer=protos_dot_chat__pb2.AddUserToChatRoomRequest.SerializeToString,
-                response_deserializer=protos_dot_chat__pb2.ChatRoomUser.FromString,
+                request_serializer=chat__pb2.AddUserToChatRoomRequest.SerializeToString,
+                response_deserializer=chat__pb2.ChatRoomUser.FromString,
                 _registered_method=True)
         self.GetChatRoomByUserId = channel.unary_unary(
                 '/chat.ChatRoomUserService/GetChatRoomByUserId',
-                request_serializer=protos_dot_chat__pb2.GetChatRoomByUserIdRequest.SerializeToString,
-                response_deserializer=protos_dot_chat__pb2.ListChatRoomUsersResponse.FromString,
+                request_serializer=chat__pb2.GetChatRoomByUserIdRequest.SerializeToString,
+                response_deserializer=chat__pb2.ListChatRoomsResponse.FromString,
                 _registered_method=True)
 
 
@@ -283,18 +283,18 @@ def add_ChatRoomUserServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetUsersByChatRoomId': grpc.unary_unary_rpc_method_handler(
                     servicer.GetUsersByChatRoomId,
-                    request_deserializer=protos_dot_chat__pb2.GetUsersByChatRoomIdRequest.FromString,
-                    response_serializer=protos_dot_chat__pb2.ListChatRoomUsersResponse.SerializeToString,
+                    request_deserializer=chat__pb2.GetUsersByChatRoomIdRequest.FromString,
+                    response_serializer=chat__pb2.ListChatRoomUsersResponse.SerializeToString,
             ),
             'AddUserToChatRoom': grpc.unary_unary_rpc_method_handler(
                     servicer.AddUserToChatRoom,
-                    request_deserializer=protos_dot_chat__pb2.AddUserToChatRoomRequest.FromString,
-                    response_serializer=protos_dot_chat__pb2.ChatRoomUser.SerializeToString,
+                    request_deserializer=chat__pb2.AddUserToChatRoomRequest.FromString,
+                    response_serializer=chat__pb2.ChatRoomUser.SerializeToString,
             ),
             'GetChatRoomByUserId': grpc.unary_unary_rpc_method_handler(
                     servicer.GetChatRoomByUserId,
-                    request_deserializer=protos_dot_chat__pb2.GetChatRoomByUserIdRequest.FromString,
-                    response_serializer=protos_dot_chat__pb2.ListChatRoomUsersResponse.SerializeToString,
+                    request_deserializer=chat__pb2.GetChatRoomByUserIdRequest.FromString,
+                    response_serializer=chat__pb2.ListChatRoomsResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -323,8 +323,8 @@ class ChatRoomUserService(object):
             request,
             target,
             '/chat.ChatRoomUserService/GetUsersByChatRoomId',
-            protos_dot_chat__pb2.GetUsersByChatRoomIdRequest.SerializeToString,
-            protos_dot_chat__pb2.ListChatRoomUsersResponse.FromString,
+            chat__pb2.GetUsersByChatRoomIdRequest.SerializeToString,
+            chat__pb2.ListChatRoomUsersResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -350,8 +350,8 @@ class ChatRoomUserService(object):
             request,
             target,
             '/chat.ChatRoomUserService/AddUserToChatRoom',
-            protos_dot_chat__pb2.AddUserToChatRoomRequest.SerializeToString,
-            protos_dot_chat__pb2.ChatRoomUser.FromString,
+            chat__pb2.AddUserToChatRoomRequest.SerializeToString,
+            chat__pb2.ChatRoomUser.FromString,
             options,
             channel_credentials,
             insecure,
@@ -377,8 +377,8 @@ class ChatRoomUserService(object):
             request,
             target,
             '/chat.ChatRoomUserService/GetChatRoomByUserId',
-            protos_dot_chat__pb2.GetChatRoomByUserIdRequest.SerializeToString,
-            protos_dot_chat__pb2.ListChatRoomUsersResponse.FromString,
+            chat__pb2.GetChatRoomByUserIdRequest.SerializeToString,
+            chat__pb2.ListChatRoomsResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -402,13 +402,13 @@ class ChatRoomMessageServiceStub(object):
         """
         self.GetMessagesByChatRoomId = channel.unary_unary(
                 '/chat.ChatRoomMessageService/GetMessagesByChatRoomId',
-                request_serializer=protos_dot_chat__pb2.GetMessagesByChatRoomIdRequest.SerializeToString,
-                response_deserializer=protos_dot_chat__pb2.ListChatRoomMessagesResponse.FromString,
+                request_serializer=chat__pb2.GetMessagesByChatRoomIdRequest.SerializeToString,
+                response_deserializer=chat__pb2.ListChatRoomMessagesResponse.FromString,
                 _registered_method=True)
         self.CreateMessage = channel.unary_unary(
                 '/chat.ChatRoomMessageService/CreateMessage',
-                request_serializer=protos_dot_chat__pb2.CreateChatRoomMessageRequest.SerializeToString,
-                response_deserializer=protos_dot_chat__pb2.ChatRoomMessage.FromString,
+                request_serializer=chat__pb2.CreateChatRoomMessageRequest.SerializeToString,
+                response_deserializer=chat__pb2.ChatRoomMessage.FromString,
                 _registered_method=True)
 
 
@@ -433,13 +433,13 @@ def add_ChatRoomMessageServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetMessagesByChatRoomId': grpc.unary_unary_rpc_method_handler(
                     servicer.GetMessagesByChatRoomId,
-                    request_deserializer=protos_dot_chat__pb2.GetMessagesByChatRoomIdRequest.FromString,
-                    response_serializer=protos_dot_chat__pb2.ListChatRoomMessagesResponse.SerializeToString,
+                    request_deserializer=chat__pb2.GetMessagesByChatRoomIdRequest.FromString,
+                    response_serializer=chat__pb2.ListChatRoomMessagesResponse.SerializeToString,
             ),
             'CreateMessage': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateMessage,
-                    request_deserializer=protos_dot_chat__pb2.CreateChatRoomMessageRequest.FromString,
-                    response_serializer=protos_dot_chat__pb2.ChatRoomMessage.SerializeToString,
+                    request_deserializer=chat__pb2.CreateChatRoomMessageRequest.FromString,
+                    response_serializer=chat__pb2.ChatRoomMessage.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -468,8 +468,8 @@ class ChatRoomMessageService(object):
             request,
             target,
             '/chat.ChatRoomMessageService/GetMessagesByChatRoomId',
-            protos_dot_chat__pb2.GetMessagesByChatRoomIdRequest.SerializeToString,
-            protos_dot_chat__pb2.ListChatRoomMessagesResponse.FromString,
+            chat__pb2.GetMessagesByChatRoomIdRequest.SerializeToString,
+            chat__pb2.ListChatRoomMessagesResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -495,8 +495,8 @@ class ChatRoomMessageService(object):
             request,
             target,
             '/chat.ChatRoomMessageService/CreateMessage',
-            protos_dot_chat__pb2.CreateChatRoomMessageRequest.SerializeToString,
-            protos_dot_chat__pb2.ChatRoomMessage.FromString,
+            chat__pb2.CreateChatRoomMessageRequest.SerializeToString,
+            chat__pb2.ChatRoomMessage.FromString,
             options,
             channel_credentials,
             insecure,
