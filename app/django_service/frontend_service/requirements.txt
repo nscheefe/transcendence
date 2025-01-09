@@ -4,7 +4,7 @@ requests==2.32.3
 aiohttp==3.10.11
 websockets==11.0.3
 graphql-core==3.2.3
-requests_toolbelt==0.10.1
+requests_toolbelt==1.0.0
 python-dotenv==1.0.0
 protobuf==5.29.2
 asgiref==3.8.1
