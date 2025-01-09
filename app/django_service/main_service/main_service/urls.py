@@ -29,7 +29,7 @@ from . import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('graphql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=MainSchema.schema))),  # GraphQL API endpoint
-    path('graphql-ws/', csrf_exempt(CustomGraphQLView.as_view(graphiql=True, schema=MainSchema.schema))),  # Subscription endpoint
+    #path('graphql/', csrf_exempt(CustomGraphQLView.as_view(graphiql=True, schema=MainSchema.schema))),  # Subscription endpoint
     path('graphiql/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=MainSchema.schema))),  # GraphiQL frontend
     path('auth/', csrf_exempt(GraphQLView.as_view(graphiql=True, schema=schemaAuth))),  # Auth GraphQL API endpoint
 ]

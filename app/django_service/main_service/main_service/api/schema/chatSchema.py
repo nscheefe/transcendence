@@ -1,3 +1,4 @@
+from venv import create
 import grpc
 from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime
@@ -5,12 +6,21 @@ import graphene
 import channels_graphql_ws
 import asyncio
 
-from main_service.protos.ChatRoomMessage_pb2_grpc import ChatRoomMessageServiceStub
-from main_service.protos.ChatRoomMessage_pb2 import GetMessagesByChatRoomIdRequest, CreateChatRoomMessageRequest
-from main_service.protos.chat_pb2 import CreateChatRoomRequest, GetChatRoomRequest
-from main_service.protos.chat_pb2_grpc import ChatServiceStub
-from main_service.protos.ChatRoomUser_pb2_grpc import ChatRoomUserServiceStub
-from main_service.protos.ChatRoomUser_pb2 import GetUsersByChatRoomIdRequest, AddUserToChatRoomRequest, GetChatRoomByUserIdRequest
+from main_service.protos.chat_pb2 import (
+    GetChatRoomByUserIdRequest,
+    GetUsersByChatRoomIdRequest,
+    GetMessagesByChatRoomIdRequest,
+    GetChatRoomRequest,
+    AddUserToChatRoomRequest,
+    CreateChatRoomMessageRequest,
+    CreateChatRoomRequest,
+    SubscribeChatRoomMessagesRequest,
+)
+from main_service.protos.chat_pb2_grpc import (
+    ChatRoomUserServiceStub,
+    ChatRoomMessageServiceStub,
+    ChatServiceStub,
+)
 
 # Set up the gRPC target for Chat Service
 GRPC_CHAT_HOST = "chat_service"
@@ -52,6 +62,7 @@ class ChatRoomType(graphene.ObjectType):
             request = GetUsersByChatRoomIdRequest(chat_room_id=self.id)
             response = client.GetUsersByChatRoomId(request)
 
+            # Process and return the response
             return [
                 ChatRoomUserType(
                     id=user.id,
@@ -64,7 +75,9 @@ class ChatRoomType(graphene.ObjectType):
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 return []  # Return empty list if no users found
-            raise Exception(f"gRPC error: {e.details()} (Code: {str(e.code())})")
+            raise Exception(f"gRPC error: {e.details()} (Code: {e.code().name})")
+        except Exception as ex:
+            raise Exception(f"Unexpected error: {str(ex)}")
 
     def resolve_messages(self, info):
         """Fetch messages from a chat room using gRPC."""
@@ -93,26 +106,20 @@ class ChatRoomType(graphene.ObjectType):
             raise Exception(f"gRPC error: {e.details()} (Code: {str(e.code())})")
 
 class Query(graphene.ObjectType):
-    chat_room = graphene.Field(ChatRoomType, id=graphene.Int(required=True))
+    chat_room_users = graphene.List(ChatRoomUserType, id=graphene.Int(required=True))
     chat_rooms_for_user = graphene.List(ChatRoomType)
 
     @staticmethod
-    def resolve_chat_room(root, info, id):
-        """Resolve chat room by ID via gRPC."""
+    def resolve_chat_room_users(root, info, id):
+        """Resolve all users in a chat room by chat room ID via gRPC."""
         try:
-            # Establish connection to gRPC services
+            # Establish connection to gRPC service
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
-
-            # Initialize stubs
             user_client = ChatRoomUserServiceStub(channel)
-            message_client = ChatRoomMessageServiceStub(channel)
-            chat_client = ChatServiceStub(channel)
-            chat_request =  GetChatRoomRequest(id=id)
-            chat_response = chat_client.GetChatRoomById(chat_request)
 
+            # Fetch users in the chat room
             user_request = GetUsersByChatRoomIdRequest(chat_room_id=id)
             user_response = user_client.GetUsersByChatRoomId(user_request)
-            chat_room = ChatRoomType(id=id, name=chat_response.name, created_at=chat_response.created_at, game_id=chat_response.game_id)
             users = [
                 ChatRoomUserType(
                     id=user.id,
@@ -123,50 +130,39 @@ class Query(graphene.ObjectType):
                 for user in user_response.users
             ]
 
-            message_request = GetMessagesByChatRoomIdRequest(chat_room_id=id)
-            message_response = message_client.GetMessagesByChatRoomId(message_request)
-
-            messages = [
-                ChatRoomMessageType(
-                    id=msg.id,
-                    content=msg.content,
-                    sender_id=msg.sender_id,
-                    chat_room_id=msg.chat_room_id,
-                    timestamp=datetime.fromtimestamp(msg.timestamp.seconds)
-                )
-                for msg in message_response.messages
-            ]
-
-            return ChatRoomType(
-                id=chat_room.id,
-                name=chat_room.name,
-                created_at=datetime.fromtimestamp(chat_room.created_at.seconds),
-                game_id=chat_room.game_id,
-                users=users,
-                messages=messages
-            )
+            return users
 
         except grpc.RpcError as e:
+            if e.code() == grpc.StatusCode.NOT_FOUND:
+                return []  # Return empty list if no users found
             raise Exception(f"gRPC error: {e.details()} (Code: {e.code().name})")
         except Exception as ex:
             raise Exception(f"Unexpected error: {str(ex)}")
 
     @staticmethod
-    def resolve_chat_rooms_for_user(self, info):
+    def resolve_chat_rooms_for_user(root, info):
         """
         Fetch multiple chat rooms for a user using resolve_chat_room.
         """
         try:
-
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
             client = ChatRoomUserServiceStub(channel)
 
             grpc_request = GetChatRoomByUserIdRequest(user_id=info.context.user_id)
-            chat_rooms = client.GetChatRoomByUserId(grpc_request)
+            chat_rooms_response = client.GetChatRoomByUserId(grpc_request)
 
+            chat_rooms = []
+            for chat_room in chat_rooms_response.rooms:
+                chat_rooms.append(
+                    ChatRoomType(
+                        id=chat_room.id,
+                        name=chat_room.name,
+                        created_at=datetime.fromtimestamp(chat_room.created_at.seconds),
+                        game_id=chat_room.game_id,
+                    )
+                )
 
-
-            return chat_rooms.users
+            return chat_rooms
 
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
@@ -260,7 +256,7 @@ class CreateChatRoomMessageMutation(graphene.Mutation):
         except grpc.RpcError as e:
             return CreateChatRoomMessageMutation(
                 success=False,
-                message=f"gRPC error: {e.details()} (Code: {str(e.code())})"
+                message=f"gRPC error: {e.details()} (Code: {e.code()})"
             )
         except Exception as ex:
             return CreateChatRoomMessageMutation(
@@ -328,6 +324,7 @@ class Mutation(graphene.ObjectType):
     manage_chat = CreateChatRoomMutation.Field()
     add_user_to_chat_room = AddUserToChatRoomMutation.Field()
     create_chat_room_message = CreateChatRoomMessageMutation.Field()
+    create_chat_room = CreateChatRoomMutation.Field()
 
 # GraphQL Schema
 schema = graphene.Schema(query=Query, mutation=Mutation)
@@ -354,6 +351,31 @@ class ChatRoomMessageSubscription(channels_graphql_ws.Subscription):
             payload=message,
         )
 
+    @classmethod
+    async def resolve(cls, root, info, chat_room_id):
+        """Fetch messages from a chat room using gRPC."""
+        try:
+            # Establish gRPC channel for message service
+            channel = grpc.aio.insecure_channel(GRPC_CHAT_TARGET)
+            client = ChatServiceStub(channel)
+
+            # Prepare and send the request
+            request = SubscribeChatRoomMessagesRequest(chat_room_id=chat_room_id)
+            async for response in client.SubscribeChatRoomMessages(request):
+                timestamp = datetime.fromtimestamp(response.timestamp.seconds)
+                message = ChatRoomMessageType(
+                    id=response.id,
+                    content=response.content,
+                    sender_id=response.sender_id,
+                    chat_room_id=response.chat_room_id,
+                    timestamp=timestamp
+                )
+                await cls.send_message_update(chat_room_id, message)
+        except grpc.RpcError as e:
+            raise Exception(f"gRPC error: {e.details()} (Code: {str(e.code())})")
+
 # Add the subscription to the schema
 class Subscription(graphene.ObjectType):
     chat_room_message = ChatRoomMessageSubscription.Field()
+
+schema = graphene.Schema(query=Query, mutation=Mutation, subscription=Subscription)

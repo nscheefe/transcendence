@@ -50,7 +50,6 @@ CHANNEL_LAYERS = {
 GRAPHENE = {
     'SCHEMA': 'main_service.api.schema.Schema.schema',
     "GRAPHIQL": True,  # Ensure GraphiQL debug tool is enabled
-    "SUBSCRIPTION_PATH": "/graphql-ws/",
     'MIDDLEWARE': []
 }
 
@@ -135,3 +134,27 @@ print("STATIC_ROOT:", STATIC_ROOT)
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'grpc': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+    },
+}

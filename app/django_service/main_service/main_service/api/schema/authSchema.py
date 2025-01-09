@@ -1,3 +1,4 @@
+from socket import timeout
 import graphene
 import grpc
 from main_service.protos.auth_pb2_grpc import AuthServiceStub
@@ -45,7 +46,7 @@ class ExchangeCodeForTokenMutation(graphene.Mutation):
                             avatar_url=response.avatar_url,
                             nickname=response.name
                         )
-                        stub.CreateProfile(grpc_request)
+                        stub.CreateProfile(grpc_request, timeout=5)
                 except Exception as e:
                     pass
 
