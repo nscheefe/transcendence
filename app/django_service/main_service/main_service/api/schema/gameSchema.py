@@ -1,6 +1,10 @@
+import inspect
+from typing import AsyncIterable
+
 from datetime import datetime
 import graphene
 import grpc
+import asyncio
 
 # Importing gRPC stubs & request messages
 from main_service.protos.game_pb2_grpc import GameServiceStub
@@ -10,7 +14,9 @@ from main_service.protos.game_pb2 import (
     CreateGameRequest,
     StartGameRequest,
     GameFinishedRequest,
+    GameReadyRequest,
 )
+from channels_graphql_ws import GraphqlWsConsumer
 
 from main_service.protos.gameEvent_pb2_grpc import GameEventServiceStub
 from main_service.protos.gameEvent_pb2 import (
@@ -53,7 +59,10 @@ class Query(graphene.ObjectType):
     game = graphene.Field(GameType, game_id=graphene.Int(required=True))
     ongoing_games = graphene.List(GameType)
     game_event = graphene.Field(GameEventType, game_event_id=graphene.Int(required=True))
+    hello = graphene.String()
 
+    def resolve_hello(root, info):
+        return "Hello, World!"
     def resolve_game(self, info, game_id):
         """Fetch a specific game by its ID."""
         try:
@@ -225,6 +234,61 @@ class StartGame(graphene.Mutation):
             raise Exception(f"gRPC error: {e.details()}")
 
 
+
+
+
+
+
+
+class GameReadyType(graphene.ObjectType):
+    id = graphene.Int()
+
+
+import graphene
+import channels_graphql_ws
+
+#Subscription
+class PingSubscription(channels_graphql_ws.Subscription):
+    response = graphene.String()  # Define the output field for the subscription.
+
+    @staticmethod
+    def subscribe(root, info):
+        """
+        A simple subscription handler that subscribes all clients to the same group.
+        """
+        return ["ping_group"]  # All clients subscribe to the same group.
+
+    @staticmethod
+    def publish(payload, info):
+        """
+        Publish the payload to the subscribers.
+        """
+        return PingSubscription(response=payload["message"])  # Return the response field.
+
+    @classmethod
+    async def send_ping(cls):
+        """
+        Broadcast a message to all subscribers in the 'ping_group'.
+        """
+        await cls.broadcast_async(
+            group="ping_group",  # All subscribers of the group receive the message.
+            payload={"message": "pong"},  # Message content.
+        )
+
+
+
+
+
+
+# Example usage of PingSubscription in the root subscription schema
+class Subscription(graphene.ObjectType):
+    """GraphQL Subscription Root."""
+    ping = PingSubscription.Field()
+
+
+
+
+
 # Register all mutations
 class Mutation(graphene.ObjectType):
     create_game = CreateGame.Field()
@@ -232,8 +296,9 @@ class Mutation(graphene.ObjectType):
     start_game = StartGame.Field()
 
 
+
 # ---------------------------------------
 # GraphQL Schema
 # ---------------------------------------
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
+schema = graphene.Schema(query=Query, mutation=Mutation, subscription=Subscription)

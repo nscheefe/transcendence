@@ -159,23 +159,18 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
         """
         try:
             # Fetch friendships where the user is `user_id`
-            friendships = Friendship.objects.filter(user_id=request.user_id).order_by('-established_at')
+            friendships = Friendship.objects.filter(user_id=request.user_id)
 
-            friendships_proto = []
-            for friendship in friendships:
-                # Convert `established_at` to protobuf Timestamp
-                established_at_proto = Timestamp()
-                established_at_proto.FromDatetime(friendship.established_at)
-
-                friendships_proto.append(
-                    friendship_pb2.Friendship(
-                        id=friendship.id,
-                        user_id=friendship.user.id,
-                        friend_id=friendship.friend.id,
-                        established_at=established_at_proto,
-                        accepted=friendship.accepted
-                    )
+            friendships_proto = [
+                friendship_pb2.Friendship(
+                    id=friendship.id,
+                    user_id=friendship.user.id,
+                    friend_id=friendship.friend.id,
+                    established_at=Timestamp(seconds=int(friendship.established_at.timestamp())),
+                    accepted=friendship.accepted
                 )
+                for friendship in friendships
+            ]
 
             # Return the friendships in a response
             return friendship_pb2.FriendshipsResponse(friendships=friendships_proto)

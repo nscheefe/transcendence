@@ -5,6 +5,7 @@ package chat;
 // Import Timestamp from Protobuf for timestamps
 import "google/protobuf/timestamp.proto";
 
+// ChatMessage definition
 message ChatMessage {
   int32 id = 1;
   string content = 2;
@@ -13,6 +14,7 @@ message ChatMessage {
   google.protobuf.Timestamp timestamp = 5;
 }
 
+// ChatRoom definition
 message ChatRoom {
   int32 id = 1;
   string name = 2;
@@ -20,21 +22,26 @@ message ChatRoom {
   int32 game_id = 4;
 }
 
+// CreateChatRoomRequest definition
 message CreateChatRoomRequest {
   string name = 1;
   int32 game_id = 2;
 }
 
+// GetChatRoomRequest definition
 message GetChatRoomRequest {
   int32 id = 1;
 }
 
+// Empty message definition
 message Empty {}
 
+// SubscribeChatRoomMessagesRequest definition
 message SubscribeChatRoomMessagesRequest {
   int32 chat_room_id = 1;
 }
 
+// ChatRoomUser definition
 message ChatRoomUser {
   int32 id = 1;
   int32 user_id = 2;
@@ -42,23 +49,28 @@ message ChatRoomUser {
   google.protobuf.Timestamp joined_at = 4;
 }
 
+// GetUsersByChatRoomIdRequest definition
 message GetUsersByChatRoomIdRequest {
   int32 chat_room_id = 1;
 }
 
+// AddUserToChatRoomRequest definition
 message AddUserToChatRoomRequest {
   int32 user_id = 1;
   int32 chat_room_id = 2;
 }
 
+// ListChatRoomUsersResponse definition
 message ListChatRoomUsersResponse {
   repeated ChatRoomUser users = 1;
 }
 
+// GetChatRoomByUserIdRequest definition
 message GetChatRoomByUserIdRequest {
   int32 user_id = 1;
 }
 
+// ChatRoomMessage definition
 message ChatRoomMessage {
   int32 id = 1;
   string content = 2;
@@ -67,20 +79,24 @@ message ChatRoomMessage {
   google.protobuf.Timestamp timestamp = 5;
 }
 
+// GetMessagesByChatRoomIdRequest definition
 message GetMessagesByChatRoomIdRequest {
   int32 chat_room_id = 1;
 }
 
+// CreateChatRoomMessageRequest definition
 message CreateChatRoomMessageRequest {
   string content = 1;
   int32 sender_id = 2;
   int32 chat_room_id = 3;
 }
 
+// ListChatRoomMessagesResponse definition
 message ListChatRoomMessagesResponse {
   repeated ChatRoomMessage messages = 1;
 }
 
+// ChatService definition
 service ChatService {
   rpc CreateChatRoom(CreateChatRoomRequest) returns (ChatRoom);
   rpc GetChatRoomById(GetChatRoomRequest) returns (ChatRoom);
@@ -88,12 +104,14 @@ service ChatService {
   rpc SubscribeChatRoomMessages(SubscribeChatRoomMessagesRequest) returns (stream ChatMessage);
 }
 
+// ChatRoomUserService definition
 service ChatRoomUserService {
   rpc GetUsersByChatRoomId(GetUsersByChatRoomIdRequest) returns (ListChatRoomUsersResponse);
   rpc AddUserToChatRoom(AddUserToChatRoomRequest) returns (ChatRoomUser);
   rpc GetChatRoomByUserId(GetChatRoomByUserIdRequest) returns (ListChatRoomUsersResponse);
 }
 
+// ChatRoomMessageService definition
 service ChatRoomMessageService {
   rpc GetMessagesByChatRoomId(GetMessagesByChatRoomIdRequest) returns (ListChatRoomMessagesResponse);
   rpc CreateMessage(CreateChatRoomMessageRequest) returns (ChatRoomMessage);
