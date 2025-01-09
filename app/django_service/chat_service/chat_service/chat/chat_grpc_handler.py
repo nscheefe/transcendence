@@ -83,6 +83,25 @@ class ChatServiceHandler(chat_pb2_grpc.ChatServiceServicer):
             context.set_details(f"Error listing chat rooms: {str(e)}")
             context.set_code(grpc.StatusCode.INTERNAL)
 
+    def SubscribeChatRoomMessages(self, request, context):
+        """
+        Streams messages from a chat room.
+        """
+        try:
+            messages = ChatRoomMessage.objects.filter(chat_room_id=request.chat_room_id).order_by('timestamp')
+            for message in messages:
+                timestamp = google.protobuf.timestamp_pb2.Timestamp()
+                timestamp.FromDatetime(message.timestamp)
+                yield chat_pb2.ChatMessage(
+                    chat_room_id=message.chat_room_id,
+                    user_id=message.user_id,
+                    message=message.message,
+                    timestamp=timestamp
+                )
+        except Exception as e:
+            context.set_details(f"Error subscribing to chat room messages: {str(e)}")
+            context.set_code(grpc.StatusCode.INTERNAL)
+
     @classmethod
     def as_servicer(cls):
         """
