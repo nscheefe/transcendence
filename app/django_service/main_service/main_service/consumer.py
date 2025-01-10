@@ -24,6 +24,10 @@ async def demo_middleware(next_middleware, root, info, *args, **kwds):
 class MyGraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
     """Channels WebSocket consumer which provides GraphQL API."""
 
-    send_ping_every = 1
+    #send_ping_every = 1
     schema = graphene.Schema(query=Query, mutation=Mutation, subscription=Subscription)
     middleware = [demo_middleware]
+    async def on_connect(self, msg):
+        """New client connection handler."""
+        # You can `raise` from here to reject the connection.
+        print("New client connected!")

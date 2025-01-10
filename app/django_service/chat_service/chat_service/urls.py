@@ -21,8 +21,6 @@ from .protos import chat_pb2_grpc
 urlpatterns = [
 ]
 
-
-
 def grpc_handlers(server):
     # Register Chat Service
     chat_service_handler = ChatServiceHandler.as_servicer()

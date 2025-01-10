@@ -1,10 +1,16 @@
-from venv import create
+from email import message
+from email.policy import default
+from hmac import new
+import logging
+from re import sub
+from tokenize import group
+import asyncio
 import grpc
 from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime
 import graphene
 import channels_graphql_ws
-import asyncio
+#from main_service.api.subscriptions.chat_subscription import subscribe_chat_room_messages
 
 from main_service.protos.chat_pb2 import (
     GetChatRoomByUserIdRequest,
@@ -103,7 +109,9 @@ class ChatRoomType(graphene.ObjectType):
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
                 return []
-            raise Exception(f"gRPC error: {e.details()} (Code: {str(e.code())})")
+            raise Exception(f"gRPC error: {e.details()} (Code: {e.code().name})")
+        except Exception as ex:
+            raise Exception(f"Unexpected error: {str(ex)}")
 
 class Query(graphene.ObjectType):
     chat_room_users = graphene.List(ChatRoomUserType, id=graphene.Int(required=True))
@@ -329,6 +337,35 @@ class Mutation(graphene.ObjectType):
 # GraphQL Schema
 schema = graphene.Schema(query=Query, mutation=Mutation)
 
+logger = logging.getLogger('grpc')
+
+async def subscribe_chat_room_messages(cls, chat_room_id):
+    logger.debug(f"Subscribing to chat room messages for chat room ID: {chat_room_id}")
+    try:
+        async with grpc.aio.insecure_channel(GRPC_CHAT_TARGET) as channel:
+            stub = ChatServiceStub(channel)
+            request = SubscribeChatRoomMessagesRequest(chat_room_id=chat_room_id)
+            async for response in stub.SubscribeChatRoomMessages(request):
+                timestamp = Timestamp()
+                timestamp.FromDatetime(response.timestamp.ToDatetime())
+                logger.debug(f"Received message: {response.content}")
+                await cls.new_chat_message(
+                    chat_room_id=chat_room_id,
+                    payload={
+                        "id": response.id,
+                        "content": response.content,
+                        "sender_id": response.sender_id,
+                        "chat_room_id": response.chat_room_id,
+                        "timestamp": timestamp.ToJsonString(),
+                    }
+                )
+    except grpc.RpcError as e:
+        logger.error(f"Error subscribing to chat room messages: {e}")
+        raise Exception(f"gRPC error: {e.details()} (Code: {e.code().name})")
+    except Exception as ex:
+        logger.error(f"Unexpected error: {str(ex)}")
+        raise Exception(f"Unexpected error: {str(ex)}")
+
 class ChatRoomMessageSubscription(channels_graphql_ws.Subscription):
     """GraphQL subscription for chat room messages."""
     message = graphene.Field(ChatRoomMessageType)
@@ -338,41 +375,29 @@ class ChatRoomMessageSubscription(channels_graphql_ws.Subscription):
 
     @staticmethod
     def subscribe(root, info, chat_room_id):
+        logger.debug(f"Subscribing to chat room messages for chat room ID: {chat_room_id}")
         return [f"chat_room_{chat_room_id}"]
 
     @staticmethod
     def publish(payload, info, chat_room_id):
+        logger.debug(f"Publishing message for chat room ID: {chat_room_id}")
         return ChatRoomMessageSubscription(message=payload)
 
-    @classmethod
-    async def send_message_update(cls, chat_room_id, message):
-        await cls.broadcast(
+    @staticmethod
+    async def send_message_update(chat_room_id, message):
+        logger.debug(f"Sending message update for chat room ID: {chat_room_id}")
+        await ChatRoomMessageSubscription.broadcast(
             group=f"chat_room_{chat_room_id}",
             payload=message,
         )
 
     @classmethod
-    async def resolve(cls, root, info, chat_room_id):
-        """Fetch messages from a chat room using gRPC."""
-        try:
-            # Establish gRPC channel for message service
-            channel = grpc.aio.insecure_channel(GRPC_CHAT_TARGET)
-            client = ChatServiceStub(channel)
-
-            # Prepare and send the request
-            request = SubscribeChatRoomMessagesRequest(chat_room_id=chat_room_id)
-            async for response in client.SubscribeChatRoomMessages(request):
-                timestamp = datetime.fromtimestamp(response.timestamp.seconds)
-                message = ChatRoomMessageType(
-                    id=response.id,
-                    content=response.content,
-                    sender_id=response.sender_id,
-                    chat_room_id=response.chat_room_id,
-                    timestamp=timestamp
-                )
-                await cls.send_message_update(chat_room_id, message)
-        except grpc.RpcError as e:
-            raise Exception(f"gRPC error: {e.details()} (Code: {str(e.code())})")
+    def new_chat_message(cls, chat_room_id, payload):
+        logger.debug(f"New chat message for chat room ID: {chat_room_id}")
+        cls.broadcast(
+            group=f"chat_room_{chat_room_id}",
+            payload=payload
+        )
 
 # Add the subscription to the schema
 class Subscription(graphene.ObjectType):

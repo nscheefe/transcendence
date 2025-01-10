@@ -51,7 +51,10 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'chat_service.urls'
 
-
+GRPC_FRAMEWORK = {
+  "GRPC_ASYNC": True,
+  "GRPC_CHANNEL_PORT": 50051,
+}
 
 TEMPLATES = [
     {
