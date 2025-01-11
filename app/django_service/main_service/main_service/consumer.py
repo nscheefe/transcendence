@@ -3,7 +3,7 @@ import channels_graphql_ws
 import graphql
 import graphene
 from .api.schema.Schema import Query, Mutation, Subscription
-from .api.schema.chatSchema import subscribe_chat_room_messages, ChatRoomMessageSubscription
+from .api.schema.chatSchema import ChatRoomMessageSubscription
 import json
 
 async def demo_middleware(next_middleware, root, info, *args, **kwds):
@@ -41,15 +41,11 @@ class MyGraphqlWsConsumer(channels_graphql_ws.GraphqlWsConsumer):
         chat_room_id = data.get("chat_room_id")
 
         # Call the subscribe_chat_room_messages function
-        await self.subscribe_chat_room_messages(self, chat_room_id)
+        await ChatRoomMessageSubscription.subscribe_chat_room_messages(chat_room_id)
 
     async def on_disconnect(self, code):
         # Handle disconnection logic
         pass
-
-    async def subscribe_chat_room_messages(self, chat_room_id):
-        # Call the subscribe_chat_room_messages function
-        await subscribe_chat_room_messages(self, chat_room_id)
 
     async def new_chat_message(self, chat_room_id, payload):
         # Send the new chat message to the WebSocket client
