@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',  # Re-add auth middleware
+    'django.contrib.messages.middleware.MessageMiddleware',  # Add MessageMiddleware
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'main_service.api.middleware.authMiddleware.AuthMiddleware',
 ]
@@ -145,19 +146,19 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',  # Change to INFO to reduce clutter
             'class': 'logging.StreamHandler',
         },
     },
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',  # Change to INFO to reduce clutter
             'propagate': True,
         },
         'grpc': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': 'INFO',  # Change to INFO to reduce clutter
             'propagate': True,
         },
     },

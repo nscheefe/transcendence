@@ -175,7 +175,7 @@ services:
         context: ./django_service/main_service
         dockerfile: Dockerfile
       container_name: main_service
-      command: sh -c "python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 main_service.asgi:application"
+      command: sh -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
       ports:
         - '8001:8000'
       volumes:
@@ -187,6 +187,7 @@ services:
         - django_network
       environment:
         - DEBUG=True
+        - DEVELOPMENT=True
         - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
 ##########################################
   frontend_service:

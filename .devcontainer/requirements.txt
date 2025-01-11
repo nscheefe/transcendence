@@ -19,4 +19,4 @@ graphene>=3,<4
 graphql-core==3.2.3
 msgpack==1.1.0
 django-socio-grpc==0.24.1
-
+Twisted[tls,http2]
