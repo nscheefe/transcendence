@@ -1,5 +1,4 @@
 import grpc
-from django.utils.deprecation import MiddlewareMixin
 from django.http import JsonResponse
 from main_service.protos.auth_pb2_grpc import AuthServiceStub
 from main_service.protos.auth_pb2 import GetUserIDFromJwtTokenRequest, GetUserIDFromJwtTokenResponse
@@ -8,11 +7,13 @@ GRPC_HOST = "auth_service"
 GRPC_PORT = "50051"
 GRPC_TARGET = f"{GRPC_HOST}:{GRPC_PORT}"
 
-class AuthMiddleware(MiddlewareMixin):
-    def process_request(self, request):
-        # Skip authentication for auth endpoint
-        if not request.path.startswith('/graphql/'):
-            return None
+class AuthMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.path.startswith('/auth/'):
+            return self.get_response(request)
 
         jwt_token = request.COOKIES.get('jwt_token')
 
@@ -44,4 +45,4 @@ class AuthMiddleware(MiddlewareMixin):
                 status=500
             )
 
-        return None
+        return self.get_response(request)

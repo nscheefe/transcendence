@@ -35,8 +35,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'chat_service.chat.apps.ChatConfig',
     'django_socio_grpc',
+    'chat_service.chat.apps.ChatConfig',  # Use the custom app configuration
 ]
 
 MIDDLEWARE = [
@@ -49,11 +49,13 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'chat_service.urls'
+# Comment out ROOT_URLCONF if you don't want to use URLs
+# ROOT_URLCONF = 'chat_service.urls'
 
 GRPC_FRAMEWORK = {
-  "GRPC_ASYNC": True,
-  "GRPC_CHANNEL_PORT": 50051,
+    "GRPC_ASYNC": True,
+    "GRPC_CHANNEL_PORT": 50051,
+    "ROOT_HANDLERS_HOOK": 'chat_service.chat.handlers.grpc_handlers',
 }
 
 TEMPLATES = [
@@ -90,8 +92,6 @@ DATABASES = {
         'PORT': url.port,
     }
 }
-
-
 
 
 # Password validation

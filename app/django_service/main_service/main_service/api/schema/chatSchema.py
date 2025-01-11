@@ -1,32 +1,13 @@
-from email import message
-from email.policy import default
-from hmac import new
 import logging
-from re import sub
-from tokenize import group
 import asyncio
 import grpc
 from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime
 import graphene
 import channels_graphql_ws
-#from main_service.api.subscriptions.chat_subscription import subscribe_chat_room_messages
 
-from main_service.protos.chat_pb2 import (
-    GetChatRoomByUserIdRequest,
-    GetUsersByChatRoomIdRequest,
-    GetMessagesByChatRoomIdRequest,
-    GetChatRoomRequest,
-    AddUserToChatRoomRequest,
-    CreateChatRoomMessageRequest,
-    CreateChatRoomRequest,
-    SubscribeChatRoomMessagesRequest,
-)
-from main_service.protos.chat_pb2_grpc import (
-    ChatRoomUserServiceStub,
-    ChatRoomMessageServiceStub,
-    ChatServiceStub,
-)
+from main_service.protos.chat_pb2_grpc import ChatRoomUserControllerStub, ChatRoomMessageControllerStub, ChatRoomControllerStub
+from main_service.protos.chat_pb2 import ChatRoomUserGetChatRoomByUserIdRequest, ChatRoomMessageListRequest, ChatRoomUserListRequest, ChatRoomUserRequest, ChatRoomMessageRequest, ChatRoomRequest, ChatRoomMessageSubscribeChatRoomMessagesRequest
 
 # Set up the gRPC target for Chat Service
 GRPC_CHAT_HOST = "chat_service"
@@ -41,13 +22,11 @@ class ChatRoomMessageType(graphene.ObjectType):
     chat_room_id = graphene.Int()
     timestamp = graphene.DateTime()
 
-
 class ChatRoomUserType(graphene.ObjectType):
     id = graphene.Int()
     user_id = graphene.Int()
     chat_room_id = graphene.Int()
     joined_at = graphene.DateTime()
-
 
 class ChatRoomType(graphene.ObjectType):
     id = graphene.Int()
@@ -62,10 +41,10 @@ class ChatRoomType(graphene.ObjectType):
         try:
             # Establish gRPC channel for user service
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
-            client = ChatRoomUserServiceStub(channel)
+            client = ChatRoomUserControllerStub(channel)
 
             # Prepare and send the request
-            request = GetUsersByChatRoomIdRequest(chat_room_id=self.id)
+            request = ChatRoomUserListRequest(chat_room_id=self.id)
             response = client.GetUsersByChatRoomId(request)
 
             # Process and return the response
@@ -76,7 +55,7 @@ class ChatRoomType(graphene.ObjectType):
                     chat_room_id=user.chat_room_id,
                     joined_at=datetime.fromtimestamp(user.joined_at.seconds)
                 )
-                for user in response.users
+                for user in response.results
             ]
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
@@ -90,10 +69,10 @@ class ChatRoomType(graphene.ObjectType):
         try:
             # Establish gRPC channel for message service
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
-            client = ChatRoomMessageServiceStub(channel)
+            client = ChatRoomMessageControllerStub(channel)
 
             # Prepare and send the request
-            request = GetMessagesByChatRoomIdRequest(chat_room_id=self.id)
+            request = ChatRoomMessageListRequest(chat_room_id=self.id)
             response = client.GetMessagesByChatRoomId(request)
 
             return [
@@ -104,7 +83,7 @@ class ChatRoomType(graphene.ObjectType):
                     chat_room_id=msg.chat_room_id,
                     timestamp=datetime.fromtimestamp(msg.timestamp.seconds)
                 )
-                for msg in response.messages
+                for msg in response.results
             ]
         except grpc.RpcError as e:
             if e.code() == grpc.StatusCode.NOT_FOUND:
@@ -123,10 +102,10 @@ class Query(graphene.ObjectType):
         try:
             # Establish connection to gRPC service
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
-            user_client = ChatRoomUserServiceStub(channel)
+            user_client = ChatRoomUserControllerStub(channel)
 
             # Fetch users in the chat room
-            user_request = GetUsersByChatRoomIdRequest(chat_room_id=id)
+            user_request = ChatRoomUserListRequest(chat_room_id=id)
             user_response = user_client.GetUsersByChatRoomId(user_request)
             users = [
                 ChatRoomUserType(
@@ -135,7 +114,7 @@ class Query(graphene.ObjectType):
                     chat_room_id=user.chat_room_id,
                     joined_at=datetime.fromtimestamp(user.joined_at.seconds)
                 )
-                for user in user_response.users
+                for user in user_response.results
             ]
 
             return users
@@ -154,13 +133,13 @@ class Query(graphene.ObjectType):
         """
         try:
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
-            client = ChatRoomUserServiceStub(channel)
+            client = ChatRoomUserControllerStub(channel)
 
-            grpc_request = GetChatRoomByUserIdRequest(user_id=info.context.user_id)
+            grpc_request = ChatRoomUserGetChatRoomByUserIdRequest(user_id=info.context.user_id)
             chat_rooms_response = client.GetChatRoomByUserId(grpc_request)
 
             chat_rooms = []
-            for chat_room in chat_rooms_response.rooms:
+            for chat_room in chat_rooms_response.results:
                 chat_rooms.append(
                     ChatRoomType(
                         id=chat_room.id,
@@ -198,9 +177,9 @@ class AddUserToChatRoomMutation(graphene.Mutation):
         try:
             # Connect to gRPC ChatRoomUserService
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
-            stub = ChatRoomUserServiceStub(channel)
+            stub = ChatRoomUserControllerStub(channel)
 
-            request = AddUserToChatRoomRequest(
+            request = ChatRoomUserRequest(
                 chat_room_id=input["chat_room_id"],
                 user_id=input["user_id"]
             )
@@ -222,13 +201,9 @@ class AddUserToChatRoomMutation(graphene.Mutation):
                 message=f"Unexpected error: {str(ex)}"
             )
 
-
-
 class CreateMessageInput(graphene.InputObjectType):
     chat_room_id = graphene.Int(required=True)
     content = graphene.String(required=True)
-
-
 
 class CreateChatRoomInput(graphene.InputObjectType):
     name = graphene.String(required=True)
@@ -246,16 +221,16 @@ class CreateChatRoomMessageMutation(graphene.Mutation):
         try:
             # Connect to gRPC ChatRoomMessageService
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
-            stub = ChatRoomMessageServiceStub(channel)
+            stub = ChatRoomMessageControllerStub(channel)
 
             # Prepare the gRPC CreateChatRoomMessage request
-            request = CreateChatRoomMessageRequest(
+            request = ChatRoomMessageRequest(
                 chat_room_id=input["chat_room_id"],
                 content=input["content"],
                 sender_id=info.context.user_id
             )
 
-            stub.CreateMessage(request)
+            stub.Create(request)
 
             return CreateChatRoomMessageMutation(
                 success=True,
@@ -287,14 +262,14 @@ class CreateChatRoomMutation(graphene.Mutation):
         try:
             # Connect to gRPC ChatService
             channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
-            stub = ChatServiceStub(channel)
+            stub = ChatRoomControllerStub(channel)
 
-            request = CreateChatRoomRequest(
+            request = ChatRoomRequest(
                 name=input["name"],
                 game_id=input.get("game_id")
             )
 
-            response = stub.CreateChatRoom(request)
+            response = stub.Create(request)
 
             created_chat_room = ChatRoomType(
                 id=response.id,
@@ -302,8 +277,8 @@ class CreateChatRoomMutation(graphene.Mutation):
                 created_at=response.created_at.ToDatetime(),
                 game_id=response.game_id
             )
-            chatRoomUserstub = ChatRoomUserServiceStub(channel)
-            request = AddUserToChatRoomRequest(
+            chatRoomUserstub = ChatRoomUserControllerStub(channel)
+            request = ChatRoomUserRequest(
                 chat_room_id=created_chat_room.id,
                 user_id=info.context.user_id,
             )
@@ -327,7 +302,6 @@ class CreateChatRoomMutation(graphene.Mutation):
                 message=f"Unexpected error: {str(ex)}"
             )
 
-
 class Mutation(graphene.ObjectType):
     manage_chat = CreateChatRoomMutation.Field()
     add_user_to_chat_room = AddUserToChatRoomMutation.Field()
@@ -343,8 +317,8 @@ async def subscribe_chat_room_messages(cls, chat_room_id):
     logger.debug(f"Subscribing to chat room messages for chat room ID: {chat_room_id}")
     try:
         async with grpc.aio.insecure_channel(GRPC_CHAT_TARGET) as channel:
-            stub = ChatServiceStub(channel)
-            request = SubscribeChatRoomMessagesRequest(chat_room_id=chat_room_id)
+            stub = ChatRoomMessageControllerStub(channel)
+            request = ChatRoomMessageSubscribeChatRoomMessagesRequest(chat_room_id=chat_room_id)
             async for response in stub.SubscribeChatRoomMessages(request):
                 timestamp = Timestamp()
                 timestamp.FromDatetime(response.timestamp.ToDatetime())

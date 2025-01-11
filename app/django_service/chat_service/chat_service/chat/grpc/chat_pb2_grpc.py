@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import chat_pb2 as chat__pb2
+from chat_service.chat.grpc import chat_pb2 as chat__service_dot_chat_dot_grpc_dot_chat__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 GRPC_GENERATED_VERSION = '1.69.0'
@@ -19,7 +19,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in chat_pb2_grpc.py depends on'
+        + f' but the generated code in chat_service/chat/grpc/chat_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -37,38 +37,38 @@ class ChatRoomControllerStub(object):
         """
         self.Create = channel.unary_unary(
                 '/chat_service.chat.ChatRoomController/Create',
-                request_serializer=chat__pb2.ChatRoomRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
                 _registered_method=True)
         self.Destroy = channel.unary_unary(
                 '/chat_service.chat.ChatRoomController/Destroy',
-                request_serializer=chat__pb2.ChatRoomDestroyRequest.SerializeToString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomDestroyRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
         self.List = channel.unary_unary(
                 '/chat_service.chat.ChatRoomController/List',
-                request_serializer=chat__pb2.ChatRoomListRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomListResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListResponse.FromString,
                 _registered_method=True)
         self.ListChatRooms = channel.unary_stream(
                 '/chat_service.chat.ChatRoomController/ListChatRooms',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomResponse.FromString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
                 _registered_method=True)
         self.PartialUpdate = channel.unary_unary(
                 '/chat_service.chat.ChatRoomController/PartialUpdate',
-                request_serializer=chat__pb2.ChatRoomPartialUpdateRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomPartialUpdateRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
                 _registered_method=True)
         self.Retrieve = channel.unary_unary(
                 '/chat_service.chat.ChatRoomController/Retrieve',
-                request_serializer=chat__pb2.ChatRoomRetrieveRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomRetrieveRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
                 _registered_method=True)
         self.Update = channel.unary_unary(
                 '/chat_service.chat.ChatRoomController/Update',
-                request_serializer=chat__pb2.ChatRoomRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
                 _registered_method=True)
 
 
@@ -122,38 +122,38 @@ def add_ChatRoomControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Create': grpc.unary_unary_rpc_method_handler(
                     servicer.Create,
-                    request_deserializer=chat__pb2.ChatRoomRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.SerializeToString,
             ),
             'Destroy': grpc.unary_unary_rpc_method_handler(
                     servicer.Destroy,
-                    request_deserializer=chat__pb2.ChatRoomDestroyRequest.FromString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomDestroyRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'List': grpc.unary_unary_rpc_method_handler(
                     servicer.List,
-                    request_deserializer=chat__pb2.ChatRoomListRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomListResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListResponse.SerializeToString,
             ),
             'ListChatRooms': grpc.unary_stream_rpc_method_handler(
                     servicer.ListChatRooms,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=chat__pb2.ChatRoomResponse.SerializeToString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.SerializeToString,
             ),
             'PartialUpdate': grpc.unary_unary_rpc_method_handler(
                     servicer.PartialUpdate,
-                    request_deserializer=chat__pb2.ChatRoomPartialUpdateRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomPartialUpdateRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.SerializeToString,
             ),
             'Retrieve': grpc.unary_unary_rpc_method_handler(
                     servicer.Retrieve,
-                    request_deserializer=chat__pb2.ChatRoomRetrieveRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomRetrieveRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.SerializeToString,
             ),
             'Update': grpc.unary_unary_rpc_method_handler(
                     servicer.Update,
-                    request_deserializer=chat__pb2.ChatRoomRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -181,8 +181,8 @@ class ChatRoomController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomController/Create',
-            chat__pb2.ChatRoomRequest.SerializeToString,
-            chat__pb2.ChatRoomResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -208,7 +208,7 @@ class ChatRoomController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomController/Destroy',
-            chat__pb2.ChatRoomDestroyRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomDestroyRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
@@ -235,8 +235,8 @@ class ChatRoomController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomController/List',
-            chat__pb2.ChatRoomListRequest.SerializeToString,
-            chat__pb2.ChatRoomListResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -263,7 +263,7 @@ class ChatRoomController(object):
             target,
             '/chat_service.chat.ChatRoomController/ListChatRooms',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            chat__pb2.ChatRoomResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -289,8 +289,8 @@ class ChatRoomController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomController/PartialUpdate',
-            chat__pb2.ChatRoomPartialUpdateRequest.SerializeToString,
-            chat__pb2.ChatRoomResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomPartialUpdateRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -316,8 +316,8 @@ class ChatRoomController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomController/Retrieve',
-            chat__pb2.ChatRoomRetrieveRequest.SerializeToString,
-            chat__pb2.ChatRoomResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomRetrieveRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -343,8 +343,8 @@ class ChatRoomController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomController/Update',
-            chat__pb2.ChatRoomRequest.SerializeToString,
-            chat__pb2.ChatRoomResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -367,38 +367,38 @@ class ChatRoomMessageControllerStub(object):
         """
         self.Create = channel.unary_unary(
                 '/chat_service.chat.ChatRoomMessageController/Create',
-                request_serializer=chat__pb2.ChatRoomMessageRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomMessageResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.FromString,
                 _registered_method=True)
         self.Destroy = channel.unary_unary(
                 '/chat_service.chat.ChatRoomMessageController/Destroy',
-                request_serializer=chat__pb2.ChatRoomMessageDestroyRequest.SerializeToString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageDestroyRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
         self.List = channel.unary_unary(
                 '/chat_service.chat.ChatRoomMessageController/List',
-                request_serializer=chat__pb2.ChatRoomMessageListRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomMessageListResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageListRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageListResponse.FromString,
                 _registered_method=True)
         self.PartialUpdate = channel.unary_unary(
                 '/chat_service.chat.ChatRoomMessageController/PartialUpdate',
-                request_serializer=chat__pb2.ChatRoomMessagePartialUpdateRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomMessageResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessagePartialUpdateRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.FromString,
                 _registered_method=True)
         self.Retrieve = channel.unary_unary(
                 '/chat_service.chat.ChatRoomMessageController/Retrieve',
-                request_serializer=chat__pb2.ChatRoomMessageRetrieveRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomMessageResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageRetrieveRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.FromString,
                 _registered_method=True)
         self.SubscribeChatRoomMessages = channel.unary_stream(
                 '/chat_service.chat.ChatRoomMessageController/SubscribeChatRoomMessages',
-                request_serializer=chat__pb2.ChatRoomMessageSubscribeChatRoomMessagesRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomMessageResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageSubscribeChatRoomMessagesRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.FromString,
                 _registered_method=True)
         self.Update = channel.unary_unary(
                 '/chat_service.chat.ChatRoomMessageController/Update',
-                request_serializer=chat__pb2.ChatRoomMessageRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomMessageResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.FromString,
                 _registered_method=True)
 
 
@@ -452,38 +452,38 @@ def add_ChatRoomMessageControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Create': grpc.unary_unary_rpc_method_handler(
                     servicer.Create,
-                    request_deserializer=chat__pb2.ChatRoomMessageRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomMessageResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.SerializeToString,
             ),
             'Destroy': grpc.unary_unary_rpc_method_handler(
                     servicer.Destroy,
-                    request_deserializer=chat__pb2.ChatRoomMessageDestroyRequest.FromString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageDestroyRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'List': grpc.unary_unary_rpc_method_handler(
                     servicer.List,
-                    request_deserializer=chat__pb2.ChatRoomMessageListRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomMessageListResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageListRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageListResponse.SerializeToString,
             ),
             'PartialUpdate': grpc.unary_unary_rpc_method_handler(
                     servicer.PartialUpdate,
-                    request_deserializer=chat__pb2.ChatRoomMessagePartialUpdateRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomMessageResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessagePartialUpdateRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.SerializeToString,
             ),
             'Retrieve': grpc.unary_unary_rpc_method_handler(
                     servicer.Retrieve,
-                    request_deserializer=chat__pb2.ChatRoomMessageRetrieveRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomMessageResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageRetrieveRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.SerializeToString,
             ),
             'SubscribeChatRoomMessages': grpc.unary_stream_rpc_method_handler(
                     servicer.SubscribeChatRoomMessages,
-                    request_deserializer=chat__pb2.ChatRoomMessageSubscribeChatRoomMessagesRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomMessageResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageSubscribeChatRoomMessagesRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.SerializeToString,
             ),
             'Update': grpc.unary_unary_rpc_method_handler(
                     servicer.Update,
-                    request_deserializer=chat__pb2.ChatRoomMessageRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomMessageResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -511,8 +511,8 @@ class ChatRoomMessageController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomMessageController/Create',
-            chat__pb2.ChatRoomMessageRequest.SerializeToString,
-            chat__pb2.ChatRoomMessageResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -538,7 +538,7 @@ class ChatRoomMessageController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomMessageController/Destroy',
-            chat__pb2.ChatRoomMessageDestroyRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageDestroyRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
@@ -565,8 +565,8 @@ class ChatRoomMessageController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomMessageController/List',
-            chat__pb2.ChatRoomMessageListRequest.SerializeToString,
-            chat__pb2.ChatRoomMessageListResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageListRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageListResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -592,8 +592,8 @@ class ChatRoomMessageController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomMessageController/PartialUpdate',
-            chat__pb2.ChatRoomMessagePartialUpdateRequest.SerializeToString,
-            chat__pb2.ChatRoomMessageResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessagePartialUpdateRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -619,8 +619,8 @@ class ChatRoomMessageController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomMessageController/Retrieve',
-            chat__pb2.ChatRoomMessageRetrieveRequest.SerializeToString,
-            chat__pb2.ChatRoomMessageResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageRetrieveRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -646,8 +646,8 @@ class ChatRoomMessageController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomMessageController/SubscribeChatRoomMessages',
-            chat__pb2.ChatRoomMessageSubscribeChatRoomMessagesRequest.SerializeToString,
-            chat__pb2.ChatRoomMessageResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageSubscribeChatRoomMessagesRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -673,8 +673,8 @@ class ChatRoomMessageController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomMessageController/Update',
-            chat__pb2.ChatRoomMessageRequest.SerializeToString,
-            chat__pb2.ChatRoomMessageResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomMessageResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -697,38 +697,38 @@ class ChatRoomUserControllerStub(object):
         """
         self.Create = channel.unary_unary(
                 '/chat_service.chat.ChatRoomUserController/Create',
-                request_serializer=chat__pb2.ChatRoomUserRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomUserResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.FromString,
                 _registered_method=True)
         self.Destroy = channel.unary_unary(
                 '/chat_service.chat.ChatRoomUserController/Destroy',
-                request_serializer=chat__pb2.ChatRoomUserDestroyRequest.SerializeToString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserDestroyRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
         self.GetChatRoomByUserId = channel.unary_stream(
                 '/chat_service.chat.ChatRoomUserController/GetChatRoomByUserId',
-                request_serializer=chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
                 _registered_method=True)
         self.List = channel.unary_unary(
                 '/chat_service.chat.ChatRoomUserController/List',
-                request_serializer=chat__pb2.ChatRoomUserListRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomUserListResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserListRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserListResponse.FromString,
                 _registered_method=True)
         self.PartialUpdate = channel.unary_unary(
                 '/chat_service.chat.ChatRoomUserController/PartialUpdate',
-                request_serializer=chat__pb2.ChatRoomUserPartialUpdateRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomUserResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserPartialUpdateRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.FromString,
                 _registered_method=True)
         self.Retrieve = channel.unary_unary(
                 '/chat_service.chat.ChatRoomUserController/Retrieve',
-                request_serializer=chat__pb2.ChatRoomUserRetrieveRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomUserResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserRetrieveRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.FromString,
                 _registered_method=True)
         self.Update = channel.unary_unary(
                 '/chat_service.chat.ChatRoomUserController/Update',
-                request_serializer=chat__pb2.ChatRoomUserRequest.SerializeToString,
-                response_deserializer=chat__pb2.ChatRoomUserResponse.FromString,
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.FromString,
                 _registered_method=True)
 
 
@@ -782,38 +782,38 @@ def add_ChatRoomUserControllerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'Create': grpc.unary_unary_rpc_method_handler(
                     servicer.Create,
-                    request_deserializer=chat__pb2.ChatRoomUserRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomUserResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.SerializeToString,
             ),
             'Destroy': grpc.unary_unary_rpc_method_handler(
                     servicer.Destroy,
-                    request_deserializer=chat__pb2.ChatRoomUserDestroyRequest.FromString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserDestroyRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'GetChatRoomByUserId': grpc.unary_stream_rpc_method_handler(
                     servicer.GetChatRoomByUserId,
-                    request_deserializer=chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.SerializeToString,
             ),
             'List': grpc.unary_unary_rpc_method_handler(
                     servicer.List,
-                    request_deserializer=chat__pb2.ChatRoomUserListRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomUserListResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserListRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserListResponse.SerializeToString,
             ),
             'PartialUpdate': grpc.unary_unary_rpc_method_handler(
                     servicer.PartialUpdate,
-                    request_deserializer=chat__pb2.ChatRoomUserPartialUpdateRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomUserResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserPartialUpdateRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.SerializeToString,
             ),
             'Retrieve': grpc.unary_unary_rpc_method_handler(
                     servicer.Retrieve,
-                    request_deserializer=chat__pb2.ChatRoomUserRetrieveRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomUserResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserRetrieveRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.SerializeToString,
             ),
             'Update': grpc.unary_unary_rpc_method_handler(
                     servicer.Update,
-                    request_deserializer=chat__pb2.ChatRoomUserRequest.FromString,
-                    response_serializer=chat__pb2.ChatRoomUserResponse.SerializeToString,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -841,8 +841,8 @@ class ChatRoomUserController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomUserController/Create',
-            chat__pb2.ChatRoomUserRequest.SerializeToString,
-            chat__pb2.ChatRoomUserResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -868,7 +868,7 @@ class ChatRoomUserController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomUserController/Destroy',
-            chat__pb2.ChatRoomUserDestroyRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserDestroyRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options,
             channel_credentials,
@@ -895,8 +895,8 @@ class ChatRoomUserController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomUserController/GetChatRoomByUserId',
-            chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.SerializeToString,
-            chat__pb2.ChatRoomResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -922,8 +922,8 @@ class ChatRoomUserController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomUserController/List',
-            chat__pb2.ChatRoomUserListRequest.SerializeToString,
-            chat__pb2.ChatRoomUserListResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserListRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserListResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -949,8 +949,8 @@ class ChatRoomUserController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomUserController/PartialUpdate',
-            chat__pb2.ChatRoomUserPartialUpdateRequest.SerializeToString,
-            chat__pb2.ChatRoomUserResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserPartialUpdateRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -976,8 +976,8 @@ class ChatRoomUserController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomUserController/Retrieve',
-            chat__pb2.ChatRoomUserRetrieveRequest.SerializeToString,
-            chat__pb2.ChatRoomUserResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserRetrieveRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -1003,8 +1003,8 @@ class ChatRoomUserController(object):
             request,
             target,
             '/chat_service.chat.ChatRoomUserController/Update',
-            chat__pb2.ChatRoomUserRequest.SerializeToString,
-            chat__pb2.ChatRoomUserResponse.FromString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserResponse.FromString,
             options,
             channel_credentials,
             insecure,

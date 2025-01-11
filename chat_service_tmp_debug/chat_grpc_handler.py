@@ -13,7 +13,7 @@ from asgiref.sync import async_to_sync
 from google.protobuf.timestamp_pb2 import Timestamp
 from rest_framework import serializers
 from chat_service.protos import chat_pb2, chat_pb2_grpc
-from chat_service.chat.models import ChatRoom, ChatRoomMessage
+from app.django_service.chat_service.chat_service.chat.models import ChatRoom, ChatRoomMessage
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 import threading

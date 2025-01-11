@@ -54,15 +54,17 @@ GRAPHENE = {
 }
 
 MIDDLEWARE = [
-    'main_service.api.middleware.authMiddleware.AuthMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',  # Re-add session middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Re-add auth middleware
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'main_service.api.middleware.authMiddleware.AuthMiddleware',
 ]
+
+# Use signed cookies for session storage
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 ROOT_URLCONF = 'main_service.urls'
 
@@ -88,8 +90,10 @@ ASGI_APPLICATION = "main_service.asgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.dummy',
+    }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
