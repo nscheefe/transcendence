@@ -2,6 +2,7 @@ from django_socio_grpc import generics, mixins
 from .models import ChatRoom, ChatRoomMessage, ChatRoomUser
 from .serializers import ChatRoomProtoSerializer, ChatRoomMessageProtoSerializer, ChatRoomUserProtoSerializer
 from django_socio_grpc.decorators import grpc_action
+from asgiref.sync import sync_to_async
 
 class ChatRoomService(generics.AsyncModelService):
     queryset = ChatRoom.objects.all()
@@ -30,6 +31,6 @@ class ChatRoomUserService(generics.AsyncModelService):
     @grpc_action(request=[{"name": "user_id", "type": "int32"}], response=ChatRoomProtoSerializer, response_stream=True)
     async def GetChatRoomByUserId(self, request, context):
         user_id = request.user_id
-        chat_rooms = ChatRoom.objects.filter(participants__user_id=user_id)
-        for chat_room in chat_rooms:
+        chat_rooms = await sync_to_async(ChatRoom.objects.filter)(participants__user_id=user_id)
+        for chat_room in await sync_to_async(list)(chat_rooms):
             yield ChatRoomProtoSerializer(chat_room).data
