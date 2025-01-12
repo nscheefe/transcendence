@@ -1,10 +1,8 @@
 package game
 
 import (
-	"sync"
+	"server-side-pong/websockets"
 	"time"
-
-	"github.com/gorilla/websocket"
 )
 
 type position struct {
@@ -42,11 +40,16 @@ type state struct {
 	Direction int                     `json:"direction"`
 }
 
+type Clients struct {
+	msgReceived  chan websockets.MsgReceived
+	connected    chan int
+	disconnected chan int
+}
+
 type Game struct {
 	id           int
-	Mu           sync.Mutex
-	Clients      map[int]*websocket.Conn
 	State        GameState
 	loopInterval *time.Ticker
 	state        state
+	Clients      map[int]Clients
 }

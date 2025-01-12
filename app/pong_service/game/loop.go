@@ -1,17 +1,16 @@
 package game
 
 import (
-	"fmt"
 	"math"
 	"math/rand/v2"
+	"server-side-pong/websockets"
+	"strconv"
 )
 
 func gameLoop(game *Game) {
-	game.Mu.Lock()
+	updateClients(game)
 
-	if len(game.Clients) != 2 || game.State != GameStateInProgress {
-		game.loopInterval.Stop()
-		game.Mu.Unlock()
+	if game.State != GameStateInProgress {
 		return
 	}
 
@@ -53,8 +52,6 @@ func gameLoop(game *Game) {
 		checkWinner(game)
 	}
 
-	game.Mu.Unlock()
-
 	broadcast(game, map[string]interface{}{
 		"type":      "updateState",
 		"ball":      game.state.Ball,
@@ -63,6 +60,47 @@ func gameLoop(game *Game) {
 		"points":    game.state.Points,
 		"direction": game.state.Direction,
 	})
+}
+
+func updateClients(game *Game) {
+	for _, client := range game.Clients {
+		select {
+		case msg := <-client.msgReceived:
+			handleInput(msg.Id, game, msg.Msg)
+		case id := <-client.connected:
+			logGame(game, "client "+strconv.Itoa(id)+" connected")
+			startGame(game)
+		case id := <-client.disconnected:
+			logGame(game, "client "+strconv.Itoa(id)+" disconnected")
+			delete(game.Clients, id)
+		default:
+		}
+	}
+}
+
+func startGame(game *Game) {
+	if len(game.Clients) != 2 {
+		logGame(game, "not enough clients to start game")
+		return
+	}
+	game.State = GameStateInProgress
+	broadcast(game, map[string]interface{}{
+		"type": "gameStarted",
+	})
+	logGame(game, "started")
+}
+
+func broadcast(game *Game, msg map[string]interface{}) {
+	for user_id := range game.Clients {
+		select {
+		case MsgToSend <- websockets.MsgToSend{
+			Id:  user_id,
+			Msg: msg,
+		}:
+		default:
+			logGame(game, "error sending message to client ", user_id)
+		}
+	}
 }
 
 func updatePaddlePositions(game *Game) {
@@ -106,20 +144,26 @@ func resetBall(game *Game) {
 func checkWinner(game *Game) {
 	if game.state.Points.Player1 >= winningPoints || game.state.Points.Player2 >= winningPoints {
 		game.State = GameStateFinished
-		game.Mu.Unlock()
 		broadcast(game, map[string]interface{}{
 			"type":   "gameOver",
 			"winner": 1,
 		})
-		game.Mu.Lock()
 		if game.state.Points.Player2 >= winningPoints {
-			game.Mu.Unlock()
 			broadcast(game, map[string]interface{}{
 				"type":   "gameOver",
 				"winner": 2,
 			})
-			game.Mu.Lock()
 		}
-		fmt.Println("Game over")
+		logGame(game, "game over")
+		stopGame(game)
 	}
+}
+
+func stopGame(game *Game) {
+	for _, client := range game.Clients {
+		close(client.msgReceived)
+		close(client.connected)
+		close(client.disconnected)
+	}
+	game.loopInterval.Stop()
 }

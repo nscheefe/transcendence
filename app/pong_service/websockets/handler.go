@@ -1,7 +1,6 @@
 package websockets
 
 import (
-	"fmt"
 	"net/http"
 	"sync"
 
@@ -32,33 +31,35 @@ func HandleConnection(w http.ResponseWriter, r *http.Request, id int, msgReceive
 	}
 	defer ws.Close()
 
+	logWebsocket("Client connected: ", id)
+
 	mu.Lock()
 	clients[id] = ws
 	mu.Unlock()
 	connected <- id
-	fmt.Println("Client connected: ", id)
 
 	for {
 		var msg map[string]interface{}
 		err := ws.ReadJSON(&msg)
 		if err != nil {
-			fmt.Println("Error reading message from client", id, ":", err.Error())
+			logWebsocket("Error reading message from client ", id, ": ", err.Error())
 			break
 		}
 
 		select {
 		case msgReceived <- MsgReceived{Id: id, Msg: msg}:
 		default:
-			fmt.Println("Error sending message to recieved channel", id, ":", err.Error())
+			logWebsocket("Error sending message to recieved channel ", id)
 			return
 		}
 	}
+
+	logWebsocket("Client disconnected: ", id)
 
 	mu.Lock()
 	delete(clients, id)
 	mu.Unlock()
 	disconnected <- id
-	fmt.Println("Client disconnected: ", id)
 }
 
 func StartBroadcast(messages <-chan MsgToSend) {
@@ -71,7 +72,7 @@ func HandleBroadcast(messages <-chan MsgToSend) {
 		if conn, exists := clients[msg.Id]; exists {
 			err := conn.WriteJSON(msg.Msg)
 			if err != nil {
-				fmt.Println("Error sending message to client", msg.Id, ":", err.Error())
+				logWebsocket("Error sending message to client ", msg.Id, ": ", err.Error())
 			}
 		}
 		mu.Unlock()

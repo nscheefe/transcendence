@@ -10,3 +10,7 @@ func errorResponse(w http.ResponseWriter, message string, err error, statusCode 
 	w.WriteHeader(statusCode)
 	w.Write([]byte(message))
 }
+
+func logWebsocket(message ...any) {
+	fmt.Println("Websocket: " + fmt.Sprint(message...))
+}

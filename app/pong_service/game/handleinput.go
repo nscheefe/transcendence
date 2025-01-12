@@ -1,9 +1,6 @@
 package game
 
 func handleInput(user_id int, game *Game, message map[string]interface{}) {
-	game.Mu.Lock()
-	defer game.Mu.Unlock()
-
 	switch message["type"] {
 	case "keyState":
 		key := message["key"].(string)
