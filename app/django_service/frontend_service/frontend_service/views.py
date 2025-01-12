@@ -6,7 +6,7 @@ from .logic.auth.utils import jwt_required, isJwtSet
 from .logic.auth.sign_in import signIn, exchange_code_for_token
 from .logic.gql.query.get_user_data import getUserProfileData
 from .logic.gql.query.get_user_chat import getDetailedChatRoomData
-
+from .logic.gql.query.get_profile_data import getProfileData
 from .logic.gql.mutation.update_user_profile import update_user_profile
 from django.core.files.storage import default_storage
 
@@ -96,9 +96,11 @@ def stats(request):
 
 @jwt_required
 def friends(request):
+    user_data = getUserProfileData(request)
     context = {
-        'user_name': request.user.username,
-        'friends_data': get_user_friends(request.user),  # Example function for getting friends data
+        'show_nav': True,
+        'user': user_data,
+        #'friends_data': get_user_friends(request.user),  # Example function for getting friends data
     }
     return render(request, 'frontend/friends.html', context)
 
@@ -117,8 +119,22 @@ def chat(request):
     context = {
         'show_nav': True,
         'user': user_data,
-        'chatRooms':ChatRooms
     }
     pprint(ChatRooms)
 
     return render(request, 'frontend/chat.html', context)
+
+@jwt_required
+def publicProfile(request, user_id):
+    # Example: Fetch data or log the user_id
+    referrer = request.META.get('HTTP_REFERER', None)
+    print(f"User ID is: {user_id}")
+    profile_data = getProfileData(request, user_id)
+    user_data = getUserProfileData(request)
+    context = {
+        'show_nav': True,
+        'user': user_data,
+        'profile': profile_data,
+        'referrer': referrer,  # Add referrer to the context if needed
+    }
+    return render(request, 'frontend/publicProfile.html', context)

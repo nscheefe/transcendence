@@ -243,7 +243,7 @@ class UserType(graphene.ObjectType):
 # Define the GraphQL query type
 class Query(graphene.ObjectType):
     user = graphene.Field(UserType)
-    profile = graphene.Field(ProfileType, user_id=graphene.ID(required=True))
+    profile = graphene.Field(ProfileType, user_id=graphene.Int(required=True))
 
     def resolve_user(self, info):
         user_id = info.context.user_id
@@ -313,7 +313,7 @@ class Query(graphene.ObjectType):
             raise Exception(f"Error occurred while fetching profiles: {str(ex)}")
 
     @staticmethod
-    def resolve_profile(self, info, user_id):
+    def resolve_profile(self, info, user_id:int):
         """Fetch the user's profile."""
         try:
             channel = grpc.insecure_channel(GRPC_TARGET)
