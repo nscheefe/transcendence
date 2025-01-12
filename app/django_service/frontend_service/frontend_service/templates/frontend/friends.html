@@ -1,0 +1,72 @@
+{% extends "frontend/base.html" %}
+
+{% block title %}Friends{% endblock %}
+
+{% block content %}
+    {% include "frontend/chatWidget.html" %}
+    <section class="section community">
+        <div class="container">
+            <div class="row">
+                <!-- Left Navigation Sidebar -->
+                <div class="col-md-3">
+                    <nav id="onpage-nav" class="nav flex-column nav-pills shadow-sm rounded p-3">
+                        <a href="#profile" class="nav-link active" data-bs-toggle="tab">
+                            Profile
+                        </a>
+                        <a href="#friends" class="nav-link" data-bs-toggle="tab">
+                            Friends
+                        </a>
+                        <a href="#add-friend" class="nav-link" data-bs-toggle="tab">
+                            Add Friend
+                        </a>
+                    </nav>
+                </div>
+
+                <!-- Right Content Area -->
+                <div class="col-md-9">
+                    <div class="tab-content">
+                        <!-- Profile Tab -->
+                        <div class="tab-pane fade show active text-light p-4 rounded" id="profile"
+                             style="background-color: #181818">
+                            <h3 class="mb-3">Profile</h3>
+                            <p id="profile-loading">Loading your profile...</p>
+                        </div>
+
+                        <!-- Friends Tab -->
+                        <div class="tab-pane fade text-light p-4 rounded" id="friends"
+                             style="background-color: #181818">
+                            <h3 class="mb-3">Your Friends</h3>
+                            <ul class="list-group shadow-sm">
+                                <p class="text-light">Loading friends...</p>
+                            </ul>
+                        </div>
+
+                        <!-- Add Friend Tab -->
+                        <div class="tab-pane fade text-light p-4 rounded" id="add-friend"
+                             style="background-color: #181818">
+                            <h3 class="mb-3">Add Friend</h3>
+                            <ul id="profilesContainer" class="list-group shadow-sm mb-3">
+                                <p id="loadingProfiles" class="text-light">Loading profiles...</p>
+                            </ul>
+
+                            <!-- Pagination controls -->
+                            <div id="paginationControls" class="d-flex justify-content-between">
+                                <button id="prevPageBtn" class="btn btn-secondary btn-sm" disabled>Previous</button>
+                                <button id="nextPageBtn" class="btn btn-primary btn-sm">Next</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+    const userId = {{ user.id }};
+    </script>
+    {% load static %}
+        <script src="{% static 'js/community.js' %}"></script>
+
+{% endblock extra_js %}
