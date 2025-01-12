@@ -21,7 +21,20 @@ services:
       retries: 3
       start_period: 5s
       start_interval: 1s
-
+  reverse_proxy:
+       image: nginx:latest
+       container_name: reverse_proxy
+       depends_on:
+         - main_service
+         - frontend_service
+       volumes:
+         - ./certs:/etc/nginx/certs:ro        # Mount certificates
+         - ./nginx_proxy/nginx.conf:/etc/nginx/nginx.conf:ro
+       ports:
+         - "443:443"  # HTTPS
+         - "80:80"    # HTTP (optional)
+       networks:
+         - django_network
 ##############################################
 ## DJANGO SERVICES WITH DATABASE CONNECTION ##
   user_service:
@@ -199,8 +212,6 @@ services:
       - ./django_service/frontend_service:/usr/src/app
     networks:
       - django_network
-    ports:
-      - '80:80'
     env_file:
       - .env
 ##########################################
