@@ -323,18 +323,18 @@ function updatePaddlePosition() {
         if (keyState['ArrowRight'] && paddle1.position.x < 4.5) {
             paddle1.position.x += 0.1;
         }
-        if (keyState['a'] && paddle2.position.x > -4.5) {
+        if (keyState['a'] && paddle1.position.x > -4.5) {
             paddle1.position.x -= 0.1;
         }
-        if (keyState['d'] && paddle2.position.x < 4.5) {
+        if (keyState['d'] && paddle1.position.x < 4.5) {
             paddle1.position.x += 0.1;
         }
     }
     if (player === 'player_b') {
-        if (keyState['ArrowLeft'] && paddle1.position.x > -4.5) {
+        if (keyState['ArrowLeft'] && paddle2.position.x > -4.5) {
             paddle2.position.x -= 0.1;
         }
-        if (keyState['ArrowRight'] && paddle1.position.x < 4.5) {
+        if (keyState['ArrowRight'] && paddle2.position.x < 4.5) {
             paddle2.position.x += 0.1;
         }
         if (keyState['a'] && paddle2.position.x > -4.5) {
