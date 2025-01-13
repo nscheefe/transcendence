@@ -29,6 +29,7 @@ let direction = 1;
 let socket = null;
 let isConnecting = false;
 let player;
+let scene, camera, renderer, ball, paddle1, paddle2;
 
 function createTextMesh(text, size, color, position) {
     const geometry = new THREE.TextGeometry(text, {
@@ -54,7 +55,7 @@ function gameOver(winner) {
 }
 
 // WebSocket setup
-function createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMesh, scene, camera) {
+function createWebSocket() {
     if (socket && socket.readyState !== WebSocket.CLOSED) {
         console.log('WebSocket connection already exists');
         return;
@@ -80,6 +81,7 @@ function createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMes
         if (state.type === 'gameStarted') {
             player = state.player;
             console.log('Game started');
+            updateScene(); // Reinitialize the scene
         }
         if (state.type === 'updateState') {
             if (state.paddle1 !== undefined) {
@@ -109,7 +111,7 @@ function createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMes
         console.log('Disconnected from the server', event);
         isConnecting = false;
         // Attempt to reconnect after 1 second
-        setTimeout(() => createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMesh, scene, camera), 1000);
+        setTimeout(() => createWebSocket(), 1000);
     };
 
     socket.onerror = (error) => {
@@ -344,7 +346,7 @@ function updatePaddlePosition() {
     }
 }
 
-function animate(renderer, scene, camera) {
+function animate() {
     if (isAnimating) return;
     const clock = new THREE.Clock();
     isAnimating = true;
@@ -366,7 +368,7 @@ function animate(renderer, scene, camera) {
     render();
 }
 
-function main() {
+function updateScene() {
     // Sizes
     const sizes = {
         width: window.innerWidth,
@@ -374,17 +376,17 @@ function main() {
     };
 
     // Scene setup
-    let scene = createScene();
-    let camera = createCamera();
-    let renderer = createRenderer();
+    scene = createScene();
+    camera = createCamera();
+    renderer = createRenderer();
     createLights(scene);
     initVaporwaveScene(scene, camera, renderer, sizes);
 
     // Create game objects
     const table = createTable();
-    const ball = createBall();
-    const paddle1 = createPaddle(0x00babc, 0, -9);
-    const paddle2 = createPaddle(0x00babc, 0, 9);
+    ball = createBall();
+    paddle1 = createPaddle(0x00babc, 0, -9);
+    paddle2 = createPaddle(0x00babc, 0, 9);
 
     window.paddle1 = paddle1;
     window.paddle2 = paddle2;
@@ -393,21 +395,6 @@ function main() {
     scene.add(ball);
     scene.add(paddle1);
     scene.add(paddle2);
-
-    // Handle window resize
-    window.addEventListener("resize", () => {
-        sizes.width = window.innerWidth;
-        sizes.height = window.innerHeight;
-
-        camera.aspect = sizes.width / sizes.height;
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(sizes.width, sizes.height);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-        effectComposer.setSize(sizes.width, sizes.height);
-        effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    });
 
     // Load font and start game
     const loader = new THREE.FontLoader();
@@ -419,11 +406,13 @@ function main() {
         window.addEventListener('keydown', handleKeyState);
         window.addEventListener('keyup', handleKeyState);
 
-        // Initialize WebSocket connection
-        createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMesh, scene, camera);
-
-        animate(renderer, scene, camera);
+        animate();
     });
+}
+
+function main() {
+    updateScene();
+    createWebSocket();
 }
 
 // Start the game
