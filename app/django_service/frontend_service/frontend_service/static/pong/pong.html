@@ -46,7 +46,7 @@ function createTextMesh(text, size, color, position) {
 
 function gameOver(winner) {
     const gameOverText = createTextMesh('Game Over', 2, 0xff0000, {
-        x: -2,
+        x: -4,
         y: 1,
         z: 0
     });
@@ -321,8 +321,20 @@ function updatePaddlePosition() {
         if (keyState['ArrowRight'] && paddle1.position.x < 4.5) {
             paddle1.position.x += 0.1;
         }
+        if (keyState['a'] && paddle2.position.x > -4.5) {
+            paddle1.position.x -= 0.1;
+        }
+        if (keyState['d'] && paddle2.position.x < 4.5) {
+            paddle1.position.x += 0.1;
+        }
     }
     if (player === 'player_b') {
+        if (keyState['ArrowLeft'] && paddle1.position.x > -4.5) {
+            paddle2.position.x -= 0.1;
+        }
+        if (keyState['ArrowRight'] && paddle1.position.x < 4.5) {
+            paddle2.position.x += 0.1;
+        }
         if (keyState['a'] && paddle2.position.x > -4.5) {
             paddle2.position.x -= 0.1;
         }
