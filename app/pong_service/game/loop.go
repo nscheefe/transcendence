@@ -10,7 +10,17 @@ import (
 func gameLoop(game *Game) {
 	updateClients(game)
 
+	if len(game.Clients) == 0 {
+		stopGame(game)
+		return
+	}
+
 	if game.State != GameStateInProgress {
+		return
+	}
+
+	if len(game.Clients) < 2 {
+		stopGame(game)
 		return
 	}
 
@@ -154,7 +164,6 @@ func checkWinner(game *Game) {
 				"winner": 2,
 			})
 		}
-		logGame(game, "game over")
 		stopGame(game)
 	}
 }
@@ -166,4 +175,6 @@ func stopGame(game *Game) {
 		close(client.disconnected)
 	}
 	game.loopInterval.Stop()
+	delete(games, game.id)
+	logGame(game, "stopped")
 }

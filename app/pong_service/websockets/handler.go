@@ -36,7 +36,11 @@ func HandleConnection(w http.ResponseWriter, r *http.Request, id int, msgReceive
 	mu.Lock()
 	clients[id] = ws
 	mu.Unlock()
-	connected <- id
+	select {
+	case connected <- id:
+	default:
+		logWebsocket("Error sending message to connected channel ", id)
+	}
 
 	for {
 		var msg map[string]interface{}
@@ -59,7 +63,11 @@ func HandleConnection(w http.ResponseWriter, r *http.Request, id int, msgReceive
 	mu.Lock()
 	delete(clients, id)
 	mu.Unlock()
-	disconnected <- id
+	select {
+	case disconnected <- id:
+	default:
+		logWebsocket("Error sending message to disconnected channel ", id)
+	}
 }
 
 func StartBroadcast(messages <-chan MsgToSend) {

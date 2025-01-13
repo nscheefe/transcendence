@@ -14,19 +14,22 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 
 	game.Clients[user_id] = Clients{
 		msgReceived:  make(chan websockets.MsgReceived, 100),
-		connected:    make(chan int),
-		disconnected: make(chan int),
+		connected:    make(chan int, 1),
+		disconnected: make(chan int, 1),
 	}
 
 	websockets.HandleConnection(w, r, user_id, game.Clients[user_id].msgReceived, game.Clients[user_id].connected, game.Clients[user_id].disconnected)
 }
 
-var game *Game = initGame(1)
+var games = make(map[int]*Game)
 var user_id_int int = 0
 
 func handshake(r *http.Request) (int, *Game, error) {
 	user_id_int++
-	return user_id_int, game, nil
+	if games[1] == nil {
+		games[1] = initGame(1)
+	}
+	return user_id_int, games[1], nil
 	// _, err_token := r.Cookie("jwt_token")
 	// _, err_game_id := r.Cookie("game_id")
 

@@ -7,7 +7,7 @@ import (
 func initGame(id int) *Game {
 	game := &Game{
 		id:           id,
-		loopInterval: time.NewTicker(time.Second / 20),
+		loopInterval: time.NewTicker(time.Second / 80),
 		state: state{
 			Ball:      position{X: 0, Y: 0, Z: 0},
 			BallSpeed: speed{X: initialBallSpeed, Z: initialBallSpeed},
