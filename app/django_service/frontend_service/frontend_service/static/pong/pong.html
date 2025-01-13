@@ -125,20 +125,21 @@ function updateTextMesh(mesh, text, camera) {
         console.log("text mesh is null");
         return;
     }
-    const loader = new THREE.FontLoader();
-    loader.load('https://threejs.org/examples/fonts/helvetiker_regular.typeface.json', (font) => {
-        const geometry = new THREE.TextGeometry(text, {
-            font: font,
-            size: 1,
-            height: 0.1,
-        });
-        geometry.computeBoundingBox();
-        const boundingBox = geometry.boundingBox;
-        const textWidth = boundingBox.max.x - boundingBox.min.x;
-        mesh.geometry.dispose();
-        mesh.geometry = geometry;
-        updateTextMeshOrientation(mesh, camera);
+    if (!font) {
+        console.log("Font not loaded yet");
+        return;
+    }
+    const geometry = new THREE.TextGeometry(text, {
+        font: font,
+        size: 1,
+        height: 0.1,
     });
+    geometry.computeBoundingBox();
+    const boundingBox = geometry.boundingBox;
+    const textWidth = boundingBox.max.x - boundingBox.min.x;
+    mesh.geometry.dispose();
+    mesh.geometry = geometry;
+    updateTextMeshOrientation(mesh, camera);
 }
 
 function updateTextMeshOrientation(textMesh, camera) {

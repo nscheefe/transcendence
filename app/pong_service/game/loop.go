@@ -131,18 +131,31 @@ func broadcast(game *Game, msg map[string]interface{}) {
 }
 
 func updatePaddlePositions(game *Game) {
-	for _, keyState := range game.state.KeyState {
-		if keyState["ArrowLeft"] && game.state.Paddle1.X > -4.5 {
-			game.state.Paddle1.X -= 0.1
-		}
-		if keyState["ArrowRight"] && game.state.Paddle1.X < 4.5 {
-			game.state.Paddle1.X += 0.1
-		}
-		if keyState["a"] && game.state.Paddle2.X > -4.5 {
-			game.state.Paddle2.X -= 0.1
-		}
-		if keyState["d"] && game.state.Paddle2.X < 4.5 {
-			game.state.Paddle2.X += 0.1
+	for user_id, keyState := range game.state.KeyState {
+		if user_id == int(game.info.PlayerAId) {
+			if keyState["ArrowLeft"] && game.state.Paddle1.X > -4.5 {
+				game.state.Paddle1.X -= 0.1
+			} else if keyState["a"] && game.state.Paddle1.X > -4.5 {
+				game.state.Paddle1.X -= 0.1
+			}
+
+			if keyState["ArrowRight"] && game.state.Paddle1.X < 4.5 {
+				game.state.Paddle1.X += 0.1
+			} else if keyState["d"] && game.state.Paddle1.X < 4.5 {
+				game.state.Paddle1.X += 0.1
+			}
+		} else {
+			if keyState["ArrowLeft"] && game.state.Paddle2.X > -4.5 {
+				game.state.Paddle2.X -= 0.1
+			} else if keyState["a"] && game.state.Paddle2.X > -4.5 {
+				game.state.Paddle2.X -= 0.1
+			}
+
+			if keyState["ArrowRight"] && game.state.Paddle2.X < 4.5 {
+				game.state.Paddle2.X += 0.1
+			} else if keyState["d"] && game.state.Paddle2.X < 4.5 {
+				game.state.Paddle2.X += 0.1
+			}
 		}
 	}
 }
