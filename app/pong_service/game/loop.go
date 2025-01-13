@@ -174,6 +174,8 @@ func resetBall(game *Game) {
 	if game.state.BallSpeed.Z < 0 {
 		game.state.Direction = -1
 	}
+	game.state.Paddle1.X = 0
+	game.state.Paddle2.X = 0
 }
 
 func checkWinner(game *Game) {
