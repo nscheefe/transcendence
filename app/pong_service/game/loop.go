@@ -20,11 +20,6 @@ func gameLoop(game *Game) {
 		return
 	}
 
-	if len(game.Clients) < 2 {
-		stopGame(game)
-		return
-	}
-
 	updatePaddlePositions(game)
 
 	game.state.Ball.X += game.state.BallSpeed.X
@@ -133,16 +128,16 @@ func broadcast(game *Game, msg map[string]interface{}) {
 func updatePaddlePositions(game *Game) {
 	for user_id, keyState := range game.state.KeyState {
 		if user_id == int(game.info.PlayerAId) {
-			if keyState["ArrowLeft"] && game.state.Paddle1.X > -4.5 {
-				game.state.Paddle1.X -= 0.1
-			} else if keyState["a"] && game.state.Paddle1.X > -4.5 {
-				game.state.Paddle1.X -= 0.1
+			if keyState["ArrowLeft"] && game.state.Paddle1.X < 4.5 {
+				game.state.Paddle1.X += 0.1
+			} else if keyState["a"] && game.state.Paddle1.X < 4.5 {
+				game.state.Paddle1.X += 0.1
 			}
 
-			if keyState["ArrowRight"] && game.state.Paddle1.X < 4.5 {
-				game.state.Paddle1.X += 0.1
-			} else if keyState["d"] && game.state.Paddle1.X < 4.5 {
-				game.state.Paddle1.X += 0.1
+			if keyState["ArrowRight"] && game.state.Paddle1.X > -4.5 {
+				game.state.Paddle1.X -= 0.1
+			} else if keyState["d"] && game.state.Paddle1.X > -4.5 {
+				game.state.Paddle1.X -= 0.1
 			}
 		} else {
 			if keyState["ArrowLeft"] && game.state.Paddle2.X > -4.5 {
