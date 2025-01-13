@@ -50,11 +50,9 @@ func HandleConnection(w http.ResponseWriter, r *http.Request, id int, msgReceive
 			break
 		}
 
-		select {
-		case msgReceived <- MsgReceived{Id: id, Msg: msg}:
-		default:
+		if !sendMessageSafely(msgReceived, MsgReceived{Id: id, Msg: msg}) {
 			logWebsocket("Error sending message to recieved channel ", id)
-			return
+			break
 		}
 	}
 
@@ -63,9 +61,8 @@ func HandleConnection(w http.ResponseWriter, r *http.Request, id int, msgReceive
 	mu.Lock()
 	delete(clients, id)
 	mu.Unlock()
-	select {
-	case disconnected <- id:
-	default:
+
+	if !sendMessageSafelyInt(disconnected, id) {
 		logWebsocket("Error sending message to disconnected channel ", id)
 	}
 }
@@ -84,5 +81,37 @@ func HandleBroadcast(messages <-chan MsgToSend) {
 			}
 		}
 		mu.Unlock()
+	}
+}
+
+func sendMessageSafely(ch chan<- MsgReceived, msg MsgReceived) bool {
+	defer func() {
+		if r := recover(); r != nil {
+			// Channel was closed
+			return
+		}
+	}()
+
+	select {
+	case ch <- msg:
+		return true
+	default:
+		return false
+	}
+}
+
+func sendMessageSafelyInt(ch chan<- int, msg int) bool {
+	defer func() {
+		if r := recover(); r != nil {
+			// Channel was closed
+			return
+		}
+	}()
+
+	select {
+	case ch <- msg:
+		return true
+	default:
+		return false
 	}
 }
