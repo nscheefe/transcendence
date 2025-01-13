@@ -64,7 +64,7 @@ func handshake(r *http.Request) (int, *Game, error) {
 
 	gameID := int(game.Id)
 	if games[gameID] == nil {
-		games[gameID] = initGame(gameID)
+		games[gameID] = initGame(gameID, game)
 	}
 
 	return int(userID), games[gameID], nil

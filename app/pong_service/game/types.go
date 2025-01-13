@@ -1,6 +1,7 @@
 package game
 
 import (
+	"server-side-pong/grpc/protos"
 	"server-side-pong/websockets"
 	"time"
 )
@@ -52,4 +53,5 @@ type Game struct {
 	loopInterval *time.Ticker
 	state        state
 	Clients      map[int]Clients
+	info         *protos.Game
 }

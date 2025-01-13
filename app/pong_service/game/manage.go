@@ -1,10 +1,11 @@
 package game
 
 import (
+	"server-side-pong/grpc/protos"
 	"time"
 )
 
-func initGame(id int) *Game {
+func initGame(id int, gameInfo *protos.Game) *Game {
 	game := &Game{
 		id:           id,
 		loopInterval: time.NewTicker(time.Second / 80),
@@ -17,6 +18,7 @@ func initGame(id int) *Game {
 			KeyState:  make(map[int]map[string]bool),
 			Direction: 1,
 		},
+		info:    gameInfo,
 		Clients: make(map[int]Clients, 10),
 		State:   GameStatePending,
 	}

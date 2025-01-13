@@ -95,8 +95,14 @@ func startGame(game *Game) {
 		return
 	}
 	game.State = GameStateInProgress
-	broadcast(game, map[string]interface{}{
-		"type": "gameStarted",
+
+	sendIndividually(game, int(game.info.PlayerAId), map[string]interface{}{
+		"type":   "gameStarted",
+		"player": "player_a",
+	})
+	sendIndividually(game, int(game.info.PlayerBId), map[string]interface{}{
+		"type":   "gameStarted",
+		"player": "player_b",
 	})
 
 	_, err := grpc.GameCon.StartGame(int32(game.id))
@@ -107,16 +113,20 @@ func startGame(game *Game) {
 	logGame(game, "started")
 }
 
+func sendIndividually(game *Game, user_id int, msg map[string]interface{}) {
+	select {
+	case MsgToSend <- websockets.MsgToSend{
+		Id:  user_id,
+		Msg: msg,
+	}:
+	default:
+		logGame(game, "error sending message to client ", user_id)
+	}
+}
+
 func broadcast(game *Game, msg map[string]interface{}) {
 	for user_id := range game.Clients {
-		select {
-		case MsgToSend <- websockets.MsgToSend{
-			Id:  user_id,
-			Msg: msg,
-		}:
-		default:
-			logGame(game, "error sending message to client ", user_id)
-		}
+		sendIndividually(game, user_id, msg)
 	}
 }
 
