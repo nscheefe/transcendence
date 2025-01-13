@@ -81,7 +81,7 @@ function createWebSocket() {
         if (state.type === 'gameStarted') {
             player = state.player;
             console.log('Game started');
-            updateScene(); // Reinitialize the scene
+            updateCamera(); // Update the camera position
         }
         if (state.type === 'updateState') {
             if (state.paddle1 !== undefined) {
@@ -366,6 +366,15 @@ function animate() {
         requestAnimationFrame(render);
     }
     render();
+}
+
+function updateCamera() {
+    if (player === 'player_a') {
+        camera.position.set(0, 10, -15);
+    } else {
+        camera.position.set(0, 10, 15);
+    }
+    camera.lookAt(0, 0, 0);
 }
 
 function updateScene() {
