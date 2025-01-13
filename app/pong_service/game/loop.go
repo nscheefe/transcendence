@@ -3,6 +3,7 @@ package game
 import (
 	"math"
 	"math/rand/v2"
+	"server-side-pong/grpc"
 	"server-side-pong/websockets"
 	"strconv"
 )
@@ -97,6 +98,12 @@ func startGame(game *Game) {
 	broadcast(game, map[string]interface{}{
 		"type": "gameStarted",
 	})
+
+	_, err := grpc.GameCon.StartGame(int32(game.id))
+	if err != nil {
+		logGame(game, "GRPCerror starting game: "+err.Error())
+	}
+
 	logGame(game, "started")
 }
 
@@ -154,15 +161,20 @@ func resetBall(game *Game) {
 func checkWinner(game *Game) {
 	if game.state.Points.Player1 >= winningPoints || game.state.Points.Player2 >= winningPoints {
 		game.State = GameStateFinished
-		broadcast(game, map[string]interface{}{
-			"type":   "gameOver",
-			"winner": 1,
-		})
-		if game.state.Points.Player2 >= winningPoints {
+		if game.state.Points.Player1 >= winningPoints {
+			broadcast(game, map[string]interface{}{
+				"type":   "gameOver",
+				"winner": 1,
+			})
+		} else if game.state.Points.Player2 >= winningPoints {
 			broadcast(game, map[string]interface{}{
 				"type":   "gameOver",
 				"winner": 2,
 			})
+		}
+		err := grpc.GameCon.HandleGameFinished(int32(game.id), int32(game.state.Points.Player1), int32(game.state.Points.Player2), int32(game.state.Direction))
+		if err != nil {
+			logGame(game, "GRPC error handling game finished: "+err.Error())
 		}
 		stopGame(game)
 	}
