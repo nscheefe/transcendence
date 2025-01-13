@@ -20,10 +20,17 @@ message Game {
     google.protobuf.Timestamp updated_at = 9; // Timestamp of last update
 }
 
+message GameReadyRequest {
+    int32 game_id = 1; // ID of the game to track readiness
+}
+
 // Service definition for Games
 service GameService {
     // Get a specific game by its ID
     rpc GetGame (GetGameRequest) returns (Game);
+
+    // Get an on going game by user
+    rpc GetOnGoingGameByUser (GetOnGoingGameByUserRequest) returns (Game);
 
     // Get a list of ongoing games (not finished)
     rpc GetOngoingGames (GetOngoingGamesRequest) returns (GetOngoingGamesResponse);
@@ -33,6 +40,7 @@ service GameService {
 
     rpc StartGame (StartGameRequest) returns (StartGameResponse); // Start a game and provide WebSocket updates URL
     rpc HandleGameFinished (GameFinishedRequest) returns (google.protobuf.Empty); // Receive update if the game is finished
+    rpc GameReady (GameReadyRequest) returns (stream Game);
 }
 
 // Requests and Responses for RPCs
@@ -40,6 +48,11 @@ service GameService {
 // Request to get a specific game by ID
 message GetGameRequest {
     int32 game_id = 1;
+}
+
+// Request to get an on going game by user
+message GetOnGoingGameByUserRequest {
+    int32 user_id = 1;
 }
 
 // Request to get ongoing games (not finished)
@@ -52,11 +65,7 @@ message GetOngoingGamesResponse {
 
 // Request to create a new game
 message CreateGameRequest {
-    string state = 1;                // Initial game state
-    int32 points_player_a = 2;       // Initial points for player A
-    int32 points_player_b = 3;       // Initial points for player B
-    int32 player_a_id = 4;           // FK to User for Player A
-    int32 player_b_id = 5;           // FK to User for Player B
+    int32 player_id = 1;
 }
 
 // Request to start a game

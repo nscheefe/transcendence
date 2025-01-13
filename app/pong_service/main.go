@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"server-side-pong/game"
+	"server-side-pong/grpc"
 )
 
 const (
@@ -12,6 +13,8 @@ const (
 
 func main() {
 	game.StartSender()
+	grpc.InitClients()
+	defer grpc.CloseClients()
 
 	http.HandleFunc("/", game.HandleConnection)
 	fmt.Println("WebSocket server is running on ws://localhost" + port)
