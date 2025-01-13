@@ -59,7 +59,7 @@ func handshake(r *http.Request) (int, *Game, error) {
 
 	game, err := grpc.GameCon.GetOnGoingGameByUser(int32(userID))
 	if err != nil {
-		return 0, nil, errors.New("no ongoing game found for user " + strconv.Itoa(int(userID)))
+		return 0, nil, errors.New("no ongoing game found for user " + strconv.Itoa(int(userID)) + ": " + err.Error())
 	}
 
 	gameID := int(game.Id)

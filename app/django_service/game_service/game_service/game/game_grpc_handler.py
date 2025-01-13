@@ -36,13 +36,13 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         try:
             # Fetch the game from the database
             game = (
-                Game.objects.filter(player_a_id=request.player_id, finished=False).first() or
-                Game.objects.filter(player_b_id=request.player_id, finished=False).first()
+                Game.objects.filter(player_a_id=request.user_id, finished=False).first() or
+                Game.objects.filter(player_b_id=request.user_id, finished=False).first()
             )
 
             if not game:
                 context.set_code(grpc.StatusCode.NOT_FOUND)
-                context.set_details(f"No game found for player ID {request.player_id}")
+                context.set_details(f"No game found for player ID {request.user_id}")
                 return game_pb2.Game()
 
             response = game_pb2.Game(
