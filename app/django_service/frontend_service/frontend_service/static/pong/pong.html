@@ -47,10 +47,21 @@ function createTextMesh(text, size, color, position) {
 
 function gameOver(winner) {
     const gameOverText = createTextMesh('Game Over', 2, 0xff0000, {
-        x: -4,
+        x: 0,
         y: 1,
         z: 0
     });
+
+    // Center the text
+    gameOverText.geometry.computeBoundingBox();
+    const textWidth = gameOverText.geometry.boundingBox.max.x - gameOverText.geometry.boundingBox.min.x;
+    gameOverText.position.x = -textWidth / 2;
+
+    // Rotate the text based on the player
+    if (player === 'player_b') {
+        gameOverText.rotation.y = Math.PI; // Rotate 180 degrees for player_b
+    }
+
     return gameOverText;
 }
 
@@ -319,16 +330,16 @@ function handleKeyState(event) {
 function updatePaddlePosition() {
     if (player === 'player_a') {
         if (keyState['ArrowLeft'] && paddle1.position.x > -4.5) {
-            paddle1.position.x -= 0.1;
+            paddle1.position.x += 0.1;
         }
         if (keyState['ArrowRight'] && paddle1.position.x < 4.5) {
-            paddle1.position.x += 0.1;
-        }
-        if (keyState['a'] && paddle1.position.x > -4.5) {
             paddle1.position.x -= 0.1;
         }
-        if (keyState['d'] && paddle1.position.x < 4.5) {
+        if (keyState['a'] && paddle1.position.x > -4.5) {
             paddle1.position.x += 0.1;
+        }
+        if (keyState['d'] && paddle1.position.x < 4.5) {
+            paddle1.position.x -= 0.1;
         }
     }
     if (player === 'player_b') {
