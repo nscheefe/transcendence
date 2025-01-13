@@ -28,6 +28,7 @@ let isAnimating = false;
 let direction = 1;
 let socket = null;
 let isConnecting = false;
+let player;
 
 function createTextMesh(text, size, color, position) {
     const geometry = new THREE.TextGeometry(text, {
@@ -75,7 +76,11 @@ function createWebSocket(ball, paddle1, paddle2, player1TextMesh, player2TextMes
 
     socket.onmessage = (event) => {
         const state = JSON.parse(event.data);
-        // console.log('Received state:', state);
+        // console.log('Received state:', state)
+        if (state.type === 'GameStarted') {
+            player = state.player;
+            console.log('Game started');
+        }
         if (state.type === 'updateState') {
             if (state.paddle1 !== undefined) {
                 paddle1.position.x = state.paddle1.x;
@@ -155,7 +160,11 @@ function createScene() {
 
 function createCamera() {
     const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-    camera.position.set(0, 20, 15);
+    if (player === 'player_a') {
+        camera.position.set(0, 10, -15);
+    } else {
+        camera.position.set(0, 10, 15);
+    }
     camera.lookAt(0, 0, 0);
     return camera;
 }
@@ -305,17 +314,21 @@ function handleKeyState(event) {
 }
 
 function updatePaddlePosition() {
-    if (keyState['ArrowLeft'] && paddle1.position.x > -4.5) {
-        paddle1.position.x -= 0.1;
+    if (player === 'player_a') {
+        if (keyState['ArrowLeft'] && paddle1.position.x > -4.5) {
+            paddle1.position.x -= 0.1;
+        }
+        if (keyState['ArrowRight'] && paddle1.position.x < 4.5) {
+            paddle1.position.x += 0.1;
+        }
     }
-    if (keyState['ArrowRight'] && paddle1.position.x < 4.5) {
-        paddle1.position.x += 0.1;
-    }
-    if (keyState['a'] && paddle2.position.x > -4.5) {
-        paddle2.position.x -= 0.1;
-    }
-    if (keyState['d'] && paddle2.position.x < 4.5) {
-        paddle2.position.x += 0.1;
+    if (player === 'player_b') {
+        if (keyState['a'] && paddle2.position.x > -4.5) {
+            paddle2.position.x -= 0.1;
+        }
+        if (keyState['d'] && paddle2.position.x < 4.5) {
+            paddle2.position.x += 0.1;
+        }
     }
 }
 
@@ -328,7 +341,7 @@ function animate(renderer, scene, camera) {
     function render() {
         const elapsedTime = clock.getDelta();
         timer += (direction * elapsedTime);
-        
+
         // Update vaporwave planes
         vaporPlane.position.z = (timer * 3) % 40;
         vaporPlane2.position.z = ((timer * 3) % 40) - 40;
@@ -360,7 +373,7 @@ function main() {
     const ball = createBall();
     const paddle1 = createPaddle(0x0000ff, 0, -9);
     const paddle2 = createPaddle(0x0000ff, 0, 9);
-    
+
     window.paddle1 = paddle1;
     window.paddle2 = paddle2;
 
