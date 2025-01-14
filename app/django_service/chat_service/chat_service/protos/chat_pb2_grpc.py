@@ -50,7 +50,7 @@ class ChatRoomControllerStub(object):
                 request_serializer=chat__pb2.ChatRoomListRequest.SerializeToString,
                 response_deserializer=chat__pb2.ChatRoomListResponse.FromString,
                 _registered_method=True)
-        self.ListChatRooms = channel.unary_stream(
+        self.ListChatRooms = channel.unary_unary(
                 '/chat_service.chat.ChatRoomController/ListChatRooms',
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=chat__pb2.ChatRoomResponse.FromString,
@@ -135,7 +135,7 @@ def add_ChatRoomControllerServicer_to_server(servicer, server):
                     request_deserializer=chat__pb2.ChatRoomListRequest.FromString,
                     response_serializer=chat__pb2.ChatRoomListResponse.SerializeToString,
             ),
-            'ListChatRooms': grpc.unary_stream_rpc_method_handler(
+            'ListChatRooms': grpc.unary_unary_rpc_method_handler(
                     servicer.ListChatRooms,
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=chat__pb2.ChatRoomResponse.SerializeToString,
@@ -258,7 +258,7 @@ class ChatRoomController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(
+        return grpc.experimental.unary_unary(
             request,
             target,
             '/chat_service.chat.ChatRoomController/ListChatRooms',
@@ -705,7 +705,7 @@ class ChatRoomUserControllerStub(object):
                 request_serializer=chat__pb2.ChatRoomUserDestroyRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
-        self.GetChatRoomByUserId = channel.unary_stream(
+        self.GetChatRoomByUserId = channel.unary_unary(
                 '/chat_service.chat.ChatRoomUserController/GetChatRoomByUserId',
                 request_serializer=chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.SerializeToString,
                 response_deserializer=chat__pb2.ChatRoomResponse.FromString,
@@ -790,7 +790,7 @@ def add_ChatRoomUserControllerServicer_to_server(servicer, server):
                     request_deserializer=chat__pb2.ChatRoomUserDestroyRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
-            'GetChatRoomByUserId': grpc.unary_stream_rpc_method_handler(
+            'GetChatRoomByUserId': grpc.unary_unary_rpc_method_handler(
                     servicer.GetChatRoomByUserId,
                     request_deserializer=chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.FromString,
                     response_serializer=chat__pb2.ChatRoomResponse.SerializeToString,
@@ -891,7 +891,7 @@ class ChatRoomUserController(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(
+        return grpc.experimental.unary_unary(
             request,
             target,
             '/chat_service.chat.ChatRoomUserController/GetChatRoomByUserId',

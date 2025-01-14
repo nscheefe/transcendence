@@ -8,7 +8,7 @@ service ChatRoomController {
     rpc Create(ChatRoomRequest) returns (ChatRoomResponse) {}
     rpc Destroy(ChatRoomDestroyRequest) returns (google.protobuf.Empty) {}
     rpc List(ChatRoomListRequest) returns (ChatRoomListResponse) {}
-    rpc ListChatRooms(google.protobuf.Empty) returns (stream ChatRoomResponse) {}
+    rpc ListChatRooms(google.protobuf.Empty) returns (ChatRoomResponse) {}
     rpc PartialUpdate(ChatRoomPartialUpdateRequest) returns (ChatRoomResponse) {}
     rpc Retrieve(ChatRoomRetrieveRequest) returns (ChatRoomResponse) {}
     rpc Update(ChatRoomRequest) returns (ChatRoomResponse) {}

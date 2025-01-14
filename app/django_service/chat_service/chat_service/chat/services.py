@@ -1,22 +1,30 @@
 import asyncio
+import grp
 from urllib import response
 from django_socio_grpc import generics, mixins
 from .models import ChatRoom, ChatRoomMessage, ChatRoomUser
 from .serializers import ChatRoomProtoSerializer, ChatRoomMessageProtoSerializer, ChatRoomUserProtoSerializer
 from django_socio_grpc.decorators import grpc_action
+from django_socio_grpc.protobuf.generation_plugin import ListGenerationPlugin
 from asgiref.sync import sync_to_async
 from google.protobuf.json_format import ParseDict
 from chat_service.chat.grpc import chat_pb2, chat_pb2_grpc
-from chat_service.chat.grpc.chat_pb2 import ChatRoomMessageResponse  # Import the correct gRPC message class
+from chat_service.chat.grpc.chat_pb2 import ChatRoomMessageResponse, ChatRoomResponse  # Import the correct gRPC message class
+import logging
+from django_socio_grpc.exceptions import NotFound
+
+logger = logging.getLogger('django_socio_grpc')
+
 
 class ChatRoomService(generics.AsyncModelService):
     queryset = ChatRoom.objects.all()
     serializer_class = ChatRoomProtoSerializer
 
-    @grpc_action(request=[], response=ChatRoomProtoSerializer, response_stream=True)
-    async def ListChatRooms(self, request, context):
-        for chat_room in self.queryset:
+    @grpc_action(request=[], response=ChatRoomProtoSerializer)
+    def ListChatRooms(self, request, context):
+        for chat_room in self.get_queryset():
             yield self.serializer_class(chat_room).data
+
 
 class ChatRoomMessageService(generics.AsyncModelService):
     queryset = ChatRoomMessage.objects.all()
@@ -55,9 +63,27 @@ class ChatRoomUserService(generics.AsyncModelService):
     queryset = ChatRoomUser.objects.all()
     serializer_class = ChatRoomUserProtoSerializer
 
-    @grpc_action(request=[{"name": "user_id", "type": "int32"}], response=ChatRoomProtoSerializer, response_stream=True)
+    @grpc_action(request=[{"name": "user_id", "type": "int32"}],
+                 response=ChatRoomProtoSerializer,
+                 response_stream=True)
     async def GetChatRoomByUserId(self, request, context):
+        """
+        gRPC action to retrieve chat rooms associated with a specific user.
+
+        Args:
+            request: The request object containing the user_id for which to fetch chat rooms.
+            context: The gRPC context for the call.
+
+        Yields:
+            Serialized chat room data for each chat room associated with the specified user.
+        """
         user_id = request.user_id
-        chat_rooms = await sync_to_async(ChatRoom.objects.filter)(participants__user_id=user_id)
-        for chat_room in await sync_to_async(list)(chat_rooms):
-            yield ChatRoomProtoSerializer(chat_room).data
+
+        # Fetch chat rooms where the specified user is a participant
+        chat_rooms = await sync_to_async(ChatRoom.objects.filter)(
+            participants__user_id=user_id
+        )
+
+        # Yield each chat room's serialized data
+        async for chat_room in chat_rooms:
+            yield ParseDict(ChatRoomProtoSerializer(chat_room).data, ChatRoomResponse())
