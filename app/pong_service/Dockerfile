@@ -1,18 +1,10 @@
-FROM golang:1.23.3 AS builder
+FROM golang:1.23.3
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
 RUN go mod download
+RUN go install github.com/mitranim/gow@latest
 COPY . .
 
-RUN go build -o main *.go
-
-# Use a minimal base image to run the application
-FROM gcr.io/distroless/base-debian12
-
-WORKDIR /app
-
-COPY --from=builder /app/main .
-
-CMD ["./main"]
+ENTRYPOINT ["gow", "run", "main.go"]
