@@ -39,18 +39,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'graphene_django',
+    "ariadne_django",
 ]
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels.layers.InMemoryChannelLayer",
     },
-}
-
-GRAPHENE = {
-    'SCHEMA': 'main_service.api.schema.Schema.schema',
-    "GRAPHIQL": True,  # Ensure GraphiQL debug tool is enabled
-    'MIDDLEWARE': []
 }
 
 MIDDLEWARE = [
@@ -146,7 +140,7 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'console': {
-            'level': 'INFO',  # Change to INFO to reduce clutter
+            'level': 'DEBUG',  # Change to INFO to reduce clutter
             'class': 'logging.StreamHandler',
         },
     },
@@ -158,7 +152,7 @@ LOGGING = {
         },
         'grpc': {
             'handlers': ['console'],
-            'level': 'INFO',  # Change to INFO to reduce clutter
+            'level': 'DEBUG',  # Change to INFO to reduce clutter
             'propagate': True,
         },
     },

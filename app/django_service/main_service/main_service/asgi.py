@@ -6,7 +6,7 @@ from channels.routing import ProtocolTypeRouter, URLRouter
 from channels.auth import AuthMiddlewareStack
 from django.urls import path
 from main_service.consumer import MyGraphqlWsConsumer
-from main_service.api.schema.chatSchema import ChatRoomMessageSubscription
+#from main_service.api.schema.chatSchema import ChatRoomMessageSubscription
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'main_service.settings')
 
@@ -20,9 +20,23 @@ application = channels.routing.ProtocolTypeRouter(
         "websocket": AuthMiddlewareStack(
             channels.routing.URLRouter(
                 [
-                    path("graphql/", MyGraphqlWsConsumer.as_asgi()),
+                    django.urls.path("graphql/", MyGraphqlWsConsumer.as_asgi()),
                 ]
             )
         ),
     }
 )
+
+#from ariadne.asgi import GraphQL
+#from channels.http import AsgiHandler
+#from channels.routing import URLRouter
+#from django.urls import path, re_path
+
+
+#schema = ...
+
+
+#application = URLRouter([
+#    path("graphql/", GraphQL(schema, debug=True)),
+#    re_path(r"", AsgiHandler),
+#])

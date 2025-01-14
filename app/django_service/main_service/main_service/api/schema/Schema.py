@@ -1,23 +1,23 @@
 # app/django_service/main_service/main_service/api/schema/combinedSchema.py
-import graphene
-from .userSchema import Query as UserQuery, Mutation as UserMutation
-from .statSchema import Query as StatQuery, Mutation as StatMutation
-from .gameSchema import Query as gameQuery, Mutation as gameMutation, Subscription as gameSubscription, PingSubscription
-from .chatSchema import Query as chatQuery, Mutation as chatMutation, Subscription as chatSubscription
+from ariadne import QueryType, MutationType, make_executable_schema, ScalarType
+from datetime import datetime
+from .userSchema import type_defs as user_type_defs, query as user_query, mutation as user_mutation
 
-from .authSchema import Mutation as authMutation
-from .adminSchema import Query as adminQuery, Mutation as adminMutation
-from .chatSchema import Mutation
 
-class Query(UserQuery, StatQuery, gameQuery, chatQuery, adminQuery, graphene.ObjectType):
-    pass
+# Define the DateTime scalar type
+datetime_scalar = ScalarType("DateTime")
 
-class Mutation(UserMutation, StatMutation, gameMutation, chatMutation, adminMutation, graphene.ObjectType):
-    pass
+@datetime_scalar.serializer
+def serialize_datetime(value):
+    return value.isoformat()
 
-class Subscription(gameSubscription, chatSubscription, graphene.ObjectType):
-    pass
+@datetime_scalar.value_parser
+def parse_datetime_value(value):
+    return datetime.fromisoformat(value)
 
-schema = graphene.Schema(query=Query, mutation=Mutation, subscription=Subscription)
-schemaAuth = graphene.Schema(mutation=authMutation)
+@datetime_scalar.literal_parser
+def parse_datetime_literal(ast):
+    return datetime.fromisoformat(ast.value)
 
+# Create the executable schema
+schema = make_executable_schema(user_type_defs, [user_query, user_mutation, datetime_scalar])

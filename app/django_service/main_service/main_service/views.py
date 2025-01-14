@@ -7,6 +7,22 @@ from django.conf import settings
 class CustomGraphQLView(GraphQLView):
     graphiql_template = 'graphene-ws/graphiql.html'
 
+    async def get_response(self, request, data, show_graphiql):
+        # Execute the GraphQL query
+        execution_result = await self.schema.execute_async(
+            data.get('query'),
+            variable_values=data.get('variables'),
+            context_value=request,
+            operation_name=data.get('operationName'),
+        )
+
+        # Check for errors in the execution result
+        if execution_result.errors:
+            return self.handle_errors(execution_result.errors)
+
+        return self.format_response(execution_result)
+
+
 
 def graphiql(request):
     """Trivial view to serve the `graphiql.html` file."""
