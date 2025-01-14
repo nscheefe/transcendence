@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	pb "server-side-pong/protos"
+	pb "server-side-pong/grpc/protos"
 )
 
 type AuthClient struct {
