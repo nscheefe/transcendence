@@ -1,4 +1,8 @@
+from asyncio.log import logger
+import logging
+from math import log
 from pydoc import resolve
+#from tkinter import NO
 from ariadne import ObjectType, MutationType, make_executable_schema, ScalarType
 import grpc
 from datetime import datetime
@@ -26,6 +30,9 @@ from main_service.protos.userAchievement_pb2 import GetUserAchievementsByUserIdR
 GRPC_HOST = "user_service"
 GRPC_PORT = "50051"
 GRPC_TARGET = f"{GRPC_HOST}:{GRPC_PORT}"
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Define the DateTime scalar type
 datetime_scalar = ScalarType("DateTime")
@@ -83,6 +90,7 @@ type_defs = """
     }
 
     type Profile {
+        id: Int!
         userId: Int!
         avatarUrl: String!
         nickname: String!
@@ -93,6 +101,12 @@ type_defs = """
     type GetAllProfilesResponse {
         profiles: [Profile]
         totalCount: Int!
+    }
+
+    type Query {
+        user: User
+        profile(userId: Int!): Profile
+        getAllProfiles(limit: Int!, offset: Int!): GetAllProfilesResponse
     }
 
     type Role {
@@ -118,11 +132,6 @@ type_defs = """
         unlockedAt: DateTime
     }
 
-    type Query {
-        user: User
-        profile(userId: ID!): Profile
-        getAllProfiles(limit: Int!, offset: Int!): GetAllProfilesResponse
-    }
 
     input FriendshipInput {
         friendId: Int!
@@ -205,59 +214,110 @@ mutation = MutationType()
 
 @query.field("user")
 def resolve_user(_, info):
-    user_id = info.context["request"].user_id
-    if not user_id:
-        raise Exception("Authentication required: user_id is missing")
-
-    channel = grpc.insecure_channel(GRPC_TARGET)
-    client = UserServiceStub(channel)
-    request = GetUserRequest(id=user_id)
-    response = client.GetUser(request)
-    return {
-        "id": response.id,
-        "name": response.name,
-        "mail": response.mail,
-        "blocked": response.blocked,
-        "createdAt": datetime.fromtimestamp(response.created_at.seconds) if response.HasField("created_at") else None,
-        "updatedAt": datetime.fromtimestamp(response.updated_at.seconds) if response.HasField("updated_at") else None,
-        "roleId": response.role_id,
-        "lastLogin": datetime.fromtimestamp(response.last_login.seconds) if response.HasField("last_login") else None,
-        "lastLoginIp": response.last_login_ip
-    }
-
-user_type = ObjectType("User")
-@user_type.field("profile")
-def resolve_profile(self, info):
-    return resolve_profile(self, info, self.id)
-
-@query.field("profile")
-def resolve_profile(self , info, user_id):
-    if not user_id:
-        user_id = info.context["request"].user_id
-    if not user_id:
-        user_id = self.id
+    logger.info("Fetching user")
     try:
+        user_id = info.context["request"].user_id
+        if not user_id:
+            raise Exception("Authentication required: user_id is missing")
+
         channel = grpc.insecure_channel(GRPC_TARGET)
-        client = ProfileServiceStub(channel)
-        request = GetProfileByUserIdRequest(user_id=user_id)
-        response = client.GetProfileByUserId(request)
-
+        client = UserServiceStub(channel)
+        request = GetUserRequest(id=user_id)
+        response = client.GetUser(request)
         return {
-            "userId": response.user_id,
-            "avatarUrl": response.avatar_url,
-            "nickname": response.nickname,
-            "bio": response.bio,
-            "additionalInfo": response.additional_info,
+            "id": response.id,
+            "name": response.name,
+            "mail": response.mail,
+            "blocked": response.blocked,
+            "createdAt": datetime.fromtimestamp(response.created_at.seconds) if response.HasField("created_at") else None,
+            "updatedAt": datetime.fromtimestamp(response.updated_at.seconds) if response.HasField("updated_at") else None,
+            "roleId": response.role_id,
+            "lastLogin": datetime.fromtimestamp(response.last_login.seconds) if response.HasField("last_login") else None,
+            "lastLoginIp": response.last_login_ip
         }
-
     except grpc.RpcError as e:
         if e.code() == grpc.StatusCode.NOT_FOUND:
             return None
         else:
             raise e
 
+user = ObjectType("User")
+
+@user.field("profile")
+def resolve_user_profile(obj, *_):
+    logger.info(f"Fetching profile for user {obj['id']}")
+    user_id = obj['id']
+    try:
+        channel = grpc.insecure_channel(GRPC_TARGET)
+        client = ProfileServiceStub(channel)
+        request = GetProfileByUserIdRequest(user_id=user_id)
+        response = client.GetProfileByUserId(request)
+        return {
+            "id": response.id,
+            "userId": response.user_id,
+            "avatarUrl": response.avatar_url,
+            "nickname": response.nickname,
+            "bio": response.bio,
+            "additionalInfo": response.additional_info,
+        }
+    except grpc.RpcError as e:
+        if e.code() == grpc.StatusCode.NOT_FOUND:
+            logger.error(f"Profile not found for user {user_id}")
+            return None
+        else:
+            raise e
+
+@query.field("profile")
+def resolve_profile(_, info, userId):
+    logger.info(f"Fetching profile for user ID {userId}")
+    try:
+        userId = int(userId)
+        if not userId:
+            raise Exception("Authentication required: user_id is missing")
+
+        channel = grpc.insecure_channel(GRPC_TARGET)
+        client = ProfileServiceStub(channel)
+        request = GetProfileByUserIdRequest(user_id=userId)
+        response = client.GetProfileByUserId(request)
+        return {
+            "id": response.id,
+            "userId": response.user_id,
+            "avatarUrl": response.avatar_url,
+            "nickname": response.nickname,
+            "bio": response.bio,
+            "additionalInfo": response.additional_info,
+        }
+    except grpc.RpcError as e:
+        if e.code() == grpc.StatusCode.NOT_FOUND:
+            return None
+        else:
+            raise e
+
+#def resolve_profile(_ , info, userId):
+#    userId = int(userId)
+#    try:
+#        channel = grpc.insecure_channel(GRPC_TARGET)
+#        client = ProfileServiceStub(channel)
+#        request = GetProfileByUserIdRequest(user_id=userId)
+#        response = client.GetProfileByUserId(request)
+
+#        return {
+#            "userId": response.user_id,
+#            "avatarUrl": response.avatar_url,
+#            "nickname": response.nickname,
+#            "bio": response.bio,
+#            "additionalInfo": response.additional_info,
+#        }
+
+#    except grpc.RpcError as e:
+#        if e.code() == grpc.StatusCode.NOT_FOUND:
+#            return None
+#        else:
+#            raise e
+
 @query.field("getAllProfiles")
 def resolve_get_all_profiles(_, info, limit, offset):
+    del info
     try:
         with grpc.insecure_channel(GRPC_TARGET) as channel:
             stub = ProfileServiceStub(channel)
@@ -512,4 +572,4 @@ def resolve_manage_user_achievement(_, info, achievementData):
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
 
 # Define the schema
-schema = make_executable_schema(type_defs, query, mutation, datetime_scalar)
+schema = make_executable_schema(type_defs, [query, user, mutation, datetime_scalar])

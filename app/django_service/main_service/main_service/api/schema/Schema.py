@@ -1,7 +1,9 @@
 # app/django_service/main_service/main_service/api/schema/combinedSchema.py
 from ariadne import QueryType, MutationType, make_executable_schema, ScalarType
 from datetime import datetime
-from .userSchema import type_defs as user_type_defs, query as user_query, mutation as user_mutation
+
+#from app.django_service.user_service.user_service import user
+from .userSchema import schema as user_schema
 
 
 # Define the DateTime scalar type
@@ -20,4 +22,4 @@ def parse_datetime_literal(ast):
     return datetime.fromisoformat(ast.value)
 
 # Create the executable schema
-schema = make_executable_schema(user_type_defs, [user_query, user_mutation, datetime_scalar])
+schema = user_schema
