@@ -26,6 +26,7 @@ from main_service.protos.settings_pb2_grpc import SettingServiceStub
 from main_service.protos.settings_pb2 import GetSettingsByUserIdRequest, CreateSettingRequest, UpdateSettingRequest
 from main_service.protos.userAchievement_pb2_grpc import UserAchievementServiceStub
 from main_service.protos.userAchievement_pb2 import GetUserAchievementsByUserIdRequest, CreateUserAchievementRequest, UpdateUserAchievementRequest
+from main_service.api.schema.objectTypes import query, mutation, subscription
 
 GRPC_HOST = "user_service"
 GRPC_PORT = "50051"
@@ -34,183 +35,8 @@ GRPC_TARGET = f"{GRPC_HOST}:{GRPC_PORT}"
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Define the DateTime scalar type
-datetime_scalar = ScalarType("DateTime")
-
-@datetime_scalar.serializer
-def serialize_datetime(value):
-    return value.isoformat()
-
-@datetime_scalar.value_parser
-def parse_datetime_value(value):
-    return datetime.fromisoformat(value)
-
-@datetime_scalar.literal_parser
-def parse_datetime_literal(ast):
-    return datetime.fromisoformat(ast.value)
-
-type_defs = """
-    scalar DateTime
-
-    type User {
-        id: Int!
-        name: String!
-        mail: String!
-        blocked: Boolean!
-        createdAt: DateTime
-        updatedAt: DateTime
-        roleId: Int!
-        lastLogin: DateTime
-        lastLoginIp: String
-        profile: Profile
-        friendships: [Friendship]
-        notifications: [Notification]
-        settings: [Setting]
-        achievements: [UserAchievement]
-        role: Role
-    }
-
-    type Friendship {
-        userId: Int!
-        friendId: Int!
-        establishedAt: DateTime
-        accepted: Boolean!
-    }
-
-    type Notification {
-        userId: Int!
-        message: String!
-        read: Boolean!
-        sentAt: DateTime
-    }
-
-    type Permission {
-        name: String!
-        description: String!
-    }
-
-    type Profile {
-        id: Int!
-        userId: Int!
-        avatarUrl: String!
-        nickname: String!
-        bio: String!
-        additionalInfo: String!
-    }
-
-    type GetAllProfilesResponse {
-        profiles: [Profile]
-        totalCount: Int!
-    }
-
-    type Query {
-        user: User
-        profile(userId: Int!): Profile
-        getAllProfiles(limit: Int!, offset: Int!): GetAllProfilesResponse
-    }
-
-    type Role {
-        name: String!
-        rolePermissions: [RolePermission]
-    }
-
-    type RolePermission {
-        roleId: Int!
-        permissionId: Int!
-        permission: Permission
-    }
-
-    type Setting {
-        userId: Int!
-        name: String!
-        data: String!
-    }
-
-    type UserAchievement {
-        userId: Int!
-        achievementId: Int!
-        unlockedAt: DateTime
-    }
-
-
-    input FriendshipInput {
-        friendId: Int!
-        establishedAt: DateTime
-        accepted: Boolean!
-    }
-
-    input NotificationInput {
-        message: String!
-        read: Boolean!
-        sentAt: DateTime
-    }
-
-    input SettingInput {
-        name: String!
-        data: String!
-    }
-
-    input UserAchievementInput {
-        achievementId: Int!
-        unlockedAt: DateTime
-    }
-
-    input ProfileInput {
-        avatarUrl: String!
-        nickname: String!
-        bio: String!
-        additionalInfo: String!
-    }
-
-    input UserInput {
-        id: Int
-        name: String!
-        mail: String!
-        blocked: Boolean
-        createdAt: DateTime
-        updatedAt: DateTime
-        roleId: Int
-        lastLogin: DateTime
-        lastLoginIp: String
-    }
-
-    type Mutation {
-        createUser(input: UserInput!): User
-        manageProfile(profileData: ProfileInput!): ProfileMutationResponse
-        manageFriendship(friendshipData: FriendshipInput!): FriendshipMutationResponse
-        manageNotification(notificationData: NotificationInput!): NotificationMutationResponse
-        manageSetting(settingData: SettingInput!): SettingMutationResponse
-        manageUserAchievement(achievementData: UserAchievementInput!): UserAchievementMutationResponse
-    }
-
-    type ProfileMutationResponse {
-        success: Boolean!
-        message: String!
-    }
-
-    type FriendshipMutationResponse {
-        success: Boolean!
-        message: String!
-    }
-
-    type NotificationMutationResponse {
-        success: Boolean!
-        message: String!
-    }
-
-    type SettingMutationResponse {
-        success: Boolean!
-        message: String!
-    }
-
-    type UserAchievementMutationResponse {
-        success: Boolean!
-        message: String!
-    }
-"""
-
-query = ObjectType("Query")
-mutation = MutationType()
+#query = ObjectType("Query")
+#mutation = MutationType()
 
 @query.field("user")
 def resolve_user(_, info):
@@ -292,28 +118,6 @@ def resolve_profile(_, info, userId):
             return None
         else:
             raise e
-
-#def resolve_profile(_ , info, userId):
-#    userId = int(userId)
-#    try:
-#        channel = grpc.insecure_channel(GRPC_TARGET)
-#        client = ProfileServiceStub(channel)
-#        request = GetProfileByUserIdRequest(user_id=userId)
-#        response = client.GetProfileByUserId(request)
-
-#        return {
-#            "userId": response.user_id,
-#            "avatarUrl": response.avatar_url,
-#            "nickname": response.nickname,
-#            "bio": response.bio,
-#            "additionalInfo": response.additional_info,
-#        }
-
-#    except grpc.RpcError as e:
-#        if e.code() == grpc.StatusCode.NOT_FOUND:
-#            return None
-#        else:
-#            raise e
 
 @query.field("getAllProfiles")
 def resolve_get_all_profiles(_, info, limit, offset):
@@ -572,5 +376,4 @@ def resolve_manage_user_achievement(_, info, achievementData):
     except Exception as e:
         return {"success": False, "message": f"Unexpected error: {str(e)}"}
 
-# Define the schema
-schema = make_executable_schema(type_defs, [query, user, mutation, datetime_scalar])
+resolver = [query, mutation, subscription, user]
