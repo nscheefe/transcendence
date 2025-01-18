@@ -1,6 +1,6 @@
 import asyncio
+from asyncio.log import logger
 from datetime import datetime
-from venv import logger
 import grpc
 from ariadne import QueryType, MutationType, SubscriptionType, make_executable_schema, gql
 from ariadne.asgi import GraphQL
@@ -15,8 +15,10 @@ GRPC_CHAT_TARGET = f"{GRPC_CHAT_HOST}:{GRPC_CHAT_PORT}"
 
 @subscription.source("chatRoomsForUser")
 async def chat_rooms_for_user_source(_, info):
-    user_id = info.context["request"].user_id
-    logger.info(f"User ID: {user_id}")
+    user_id = info.context["request"].scope.get("user_id")
+    if user_id is None:
+        raise Exception("Authentication required")
+    logger.info(f"User {user_id} is subscribing to chat rooms")
     async with grpc.aio.insecure_channel(GRPC_CHAT_TARGET) as channel:
         stub = chat_pb2_grpc.ChatRoomUserControllerStub(channel)
         grpc_request = chat_pb2.ChatRoomUserGetChatRoomByUserIdRequest(user_id=user_id)
@@ -43,8 +45,7 @@ def ping_test_resolver(message, info):
     return message
 
 @subscription.source("chat_room_message")
-async def chat_room_message_source(_, info, args):
-    chat_room_id = args["chat_room_id"]
+async def chat_room_message_source(_, info, chat_room_id):
     async with grpc.aio.insecure_channel(GRPC_CHAT_TARGET) as channel:
         stub = chat_pb2_grpc.ChatRoomMessageControllerStub(channel)
         async for response_message in stub.SubscribeChatRoomMessages(chat_pb2.ChatRoomMessageSubscribeChatRoomMessagesRequest(chat_room_id=chat_room_id)):
