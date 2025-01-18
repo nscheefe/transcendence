@@ -1,5 +1,5 @@
 {
-    "name": "Python 3.8",
+    "name": "Python 3.10",
     "build": {
         "dockerfile": "Dockerfile",
         "context": ".."
@@ -15,8 +15,12 @@
                 "ms-python.python",
                 "zxh404.vscode-proto3",
                 "bierner.markdown-mermaid",
-                "golang.go"
+                "golang.go",
+                "ms-azuretools.vscode-docker",
+                "monosans.djlint",
+                "batisteo.vscode-django",
+                "ms-python.vscode-pylance"
             ]
         }
     }
-} 
+}

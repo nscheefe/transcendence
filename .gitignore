@@ -18,3 +18,5 @@ node_modules/
 
 # Secrets
 .env
+
+app/django_service/main_service/main_service/staticfiles/

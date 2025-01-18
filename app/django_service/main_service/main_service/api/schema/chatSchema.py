@@ -2,6 +2,8 @@ import grpc
 from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime
 import graphene
+import channels_graphql_ws
+import asyncio
 
 from main_service.protos.ChatRoomMessage_pb2_grpc import ChatRoomMessageServiceStub
 from main_service.protos.ChatRoomMessage_pb2 import GetMessagesByChatRoomIdRequest, CreateChatRoomMessageRequest
@@ -173,7 +175,6 @@ class Query(graphene.ObjectType):
         except Exception as ex:
             raise Exception(f"Unexpected error: {str(ex)}")
 
-
 ########################################################################################################################
 
 # Mutation for managing chat operations
@@ -330,3 +331,29 @@ class Mutation(graphene.ObjectType):
 
 # GraphQL Schema
 schema = graphene.Schema(query=Query, mutation=Mutation)
+
+class ChatRoomMessageSubscription(channels_graphql_ws.Subscription):
+    """GraphQL subscription for chat room messages."""
+    message = graphene.Field(ChatRoomMessageType)
+
+    class Arguments:
+        chat_room_id = graphene.Int(required=True)
+
+    @staticmethod
+    def subscribe(root, info, chat_room_id):
+        return [f"chat_room_{chat_room_id}"]
+
+    @staticmethod
+    def publish(payload, info, chat_room_id):
+        return ChatRoomMessageSubscription(message=payload)
+
+    @classmethod
+    async def send_message_update(cls, chat_room_id, message):
+        await cls.broadcast(
+            group=f"chat_room_{chat_room_id}",
+            payload=message,
+        )
+
+# Add the subscription to the schema
+class Subscription(graphene.ObjectType):
+    chat_room_message = ChatRoomMessageSubscription.Field()

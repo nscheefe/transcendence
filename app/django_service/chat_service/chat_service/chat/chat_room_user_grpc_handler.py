@@ -1,12 +1,12 @@
 import google
 import grpc
 from django.utils.timezone import now
-from chat_service.protos import ChatRoomUser_pb2_grpc, ChatRoomUser_pb2
+from chat_service.protos import chat_pb2, chat_pb2_grpc
 from chat_service.chat.models import ChatRoom, ChatRoomUser
 
 from google.protobuf.timestamp_pb2 import Timestamp
 
-class ChatRoomUserServiceHandler(ChatRoomUser_pb2_grpc.ChatRoomUserServiceServicer):
+class ChatRoomUserServiceHandler(chat_pb2_grpc.ChatRoomUserServiceServicer):
     """Implementation of ChatRoomUserService."""
 
     def __init__(self):
@@ -31,7 +31,7 @@ class ChatRoomUserServiceHandler(ChatRoomUser_pb2_grpc.ChatRoomUserServiceServic
             joined_at = google.protobuf.timestamp_pb2.Timestamp()
             joined_at.FromDatetime(chat_room_user.joined_at)
 
-            return ChatRoomUser_pb2.ChatRoomUser(
+            return chat_pb2.ChatRoomUser(
                 id=chat_room_user.id,
                 user_id=chat_room_user.user_id,
                 chat_room_id=chat_room_user.chat_room.id,
@@ -40,11 +40,11 @@ class ChatRoomUserServiceHandler(ChatRoomUser_pb2_grpc.ChatRoomUserServiceServic
         except ChatRoom.DoesNotExist:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Chat room not found")
-            return ChatRoomUser_pb2.ChatRoomUser()
+            return chat_pb2.ChatRoomUser()
         except Exception as e:
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(f"Error adding user to chat room: {str(e)}")
-            return ChatRoomUser_pb2.ChatRoomUser()
+            return chat_pb2.ChatRoomUser()
 
     def GetUsersByChatRoomId(self, request, context):
         """
@@ -58,7 +58,7 @@ class ChatRoomUserServiceHandler(ChatRoomUser_pb2_grpc.ChatRoomUserServiceServic
             chat_room_users = ChatRoomUser.objects.filter(chat_room=chat_room)
 
             # Build response protobuf
-            response = ChatRoomUser_pb2.ListChatRoomUsersResponse()
+            response = chat_pb2.ListChatRoomUsersResponse()
             for user in chat_room_users:
                 joined_at = google.protobuf.timestamp_pb2.Timestamp()
                 joined_at.FromDatetime(user.joined_at)
@@ -74,11 +74,11 @@ class ChatRoomUserServiceHandler(ChatRoomUser_pb2_grpc.ChatRoomUserServiceServic
         except ChatRoom.DoesNotExist:
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details("Chat room not found")
-            return ChatRoomUser_pb2.ListChatRoomUsersResponse()
+            return chat_pb2.ListChatRoomUsersResponse()
         except Exception as e:
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(f"Error fetching users in chat room: {str(e)}")
-            return ChatRoomUser_pb2.ListChatRoomUsersResponse()
+            return chat_pb2.ListChatRoomUsersResponse()
 
     def GetChatRoomByUserId(self, request, context):
         """
@@ -87,7 +87,7 @@ class ChatRoomUserServiceHandler(ChatRoomUser_pb2_grpc.ChatRoomUserServiceServic
         try:
             chat_room_users = ChatRoomUser.objects.select_related('chat_room').filter(user_id=request.user_id)
 
-            response = ChatRoomUser_pb2.ListChatRoomUsersResponse()
+            response = chat_pb2.ListChatRoomUsersResponse()
 
             if not chat_room_users.exists():
                 return response

@@ -1,5 +1,5 @@
-# Use a base image with Python 3.8 installed (adjust as needed)
-FROM python:3.8-slim
+# Use a base image with Python 3.10 installed (adjust as needed)
+FROM python:3.10-slim
 
 # Install build dependencies and necessary libraries
 RUN apt-get update && \
@@ -33,10 +33,8 @@ COPY . /usr/src/app/
 # Ensure the protos directory exists in the desired location
 RUN mkdir -p chat_service/protos
 
-# Generate gRPC files from proto files
-RUN python -m grpc_tools.protoc -I./protos --python_out=./chat_service/protos --grpc_python_out=./chat_service/protos ./protos/*.proto
 # Expose the port for the gRPC server
 EXPOSE 50051
 
 # Command to run the gRPC server
-CMD ["python", "manage.py", "grpcrunserver", "--dev"]
+CMD ["python", "manage.py", "grpcrunaioserver", "--dev"]

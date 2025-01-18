@@ -1,13 +1,16 @@
+import time
 from datetime import datetime
 
 import grpc
 import google
 from game_service.protos import game_pb2_grpc, game_pb2
+from google.protobuf.empty_pb2 import Empty
 from .models import Game
 
 
 class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
     def __init__(self):
+        self.game_ready_subscribers = {}
         pass
 
     def GetGame(self, request, context):
@@ -30,6 +33,36 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details(f"Game with ID {request.game_id} not found")
             return game_pb2.Game()  # Return empty Game proto on failure
+
+    def GetOnGoingGameByUser(self, request, context):
+        try:
+            # Fetch the game from the database
+            game = (
+                Game.objects.filter(player_a_id=request.user_id, finished=False).first() or
+                Game.objects.filter(player_b_id=request.user_id, finished=False).first()
+            )
+
+            if not game:
+                context.set_code(grpc.StatusCode.NOT_FOUND)
+                context.set_details(f"No game found for player ID {request.user_id}")
+                return game_pb2.Game()
+
+            response = game_pb2.Game(
+                id=game.id,
+                state=game.state,
+                points_player_a=game.points_player_a,
+                points_player_b=game.points_player_b,
+                player_a_id=game.player_a_id,
+                player_b_id=game.player_b_id,
+                finished=game.finished,
+                created_at=google.protobuf.timestamp_pb2.Timestamp(seconds=int(game.created_at.timestamp())),
+                updated_at=google.protobuf.timestamp_pb2.Timestamp(seconds=int(game.updated_at.timestamp()))
+            )
+            return response
+        except Exception as e:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Error fetching game for player ID {request.player_id}: {str(e)}")
+            return game_pb2.Game()
 
     def CreateGame(self, request, context):
         try:
@@ -224,6 +257,71 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             context.set_code(grpc.StatusCode.NOT_FOUND)
             context.set_details(f"Game with ID {request.game_id} not found")
             return Empty()
+
+    def GameReady(self, request, context):
+        """
+        Server-Streaming RPC to notify clients when a game is "READY."
+        Clients subscribe via GameReadyRequest containing the `game_id`.
+        """
+
+        # Extract game_id from the request
+        game_id = request.game_id
+
+        try:
+            # Ensure the game exists in the database.
+            game = Game.objects.get(id=game_id)
+        except Game.DoesNotExist:
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details(f"Game with ID {game_id} not found")
+            return
+
+        # Notify client when the game's state transitions to "READY."
+        # This is a **server-streaming RPC**, so we will stream updates to the client.
+        try:
+            # Simulate an async subscription
+            while True:
+                # Fetch the latest game state from the DB
+                logging.debug("Fetching the latest state for the game with ID: %s", game.id)
+                game.refresh_from_db()
+
+                # Prepare debug message for the WebSocket client
+                debug_message = f"Game ID {game.id}: state={game.state}"
+                # Only send a notification if the game is ready
+                #if game.state == "READY":
+                response = game_pb2.Game(
+                    id=game.id,
+                    state=game.state,
+                    points_player_a=game.points_player_a,
+                    points_player_b=game.points_player_b,
+                    player_a_id=game.player_a_id,
+                    player_b_id=game.player_b_id,
+                    finished=game.finished,
+                    created_at=game_pb2.google_dot_protobuf_dot_timestamp__pb2.Timestamp(
+                        seconds=int(game.created_at.timestamp())),
+                    updated_at=game_pb2.google_dot_protobuf_dot_timestamp__pb2.Timestamp(
+                        seconds=int(game.updated_at.timestamp())),
+                )
+                yield {
+                    "debug": f"Game is READY. Notification sent. {debug_message}",
+                    "data": response,
+                }
+
+                # After notification, break the loop as no more updates are needed
+                logging.debug("Stopping stream after game state READY for game ID: %s", game.id)
+                break
+
+                # Send a "heartbeat" to keep the connection alive (optional)
+                time.sleep(1)
+        except Exception as e:
+            # Handle issues such as database errors or network failures
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Error monitoring game readiness: {str(e)}")
+            return
+        except Exception as e:
+            # Handle issues such as database errors or network failures
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Error monitoring game readiness: {str(e)}")
+            return
 
     @classmethod
     def as_servicer(cls):

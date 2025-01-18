@@ -1,5 +1,5 @@
 # Use a base image with Python 3.8 installed
-FROM python:3.8-slim
+FROM python:3.10
 
 # Install build dependencies and necessary libraries
 RUN apt-get update && \
@@ -45,3 +45,5 @@ ENV PATH=$PATH:$GOPATH/bin
 # Install protoc/grpc
 RUN go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
 RUN go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+
+RUN go install github.com/mitranim/gow@latest

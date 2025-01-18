@@ -2,7 +2,7 @@
 import graphene
 from .userSchema import Query as UserQuery, Mutation as UserMutation
 from .statSchema import Query as StatQuery, Mutation as StatMutation
-from .gameSchema import Query as gameQuery, Mutation as gameMutation
+from .gameSchema import Query as gameQuery, Mutation as gameMutation, Subscription as gameSubscription, PingSubscription
 from .chatSchema import Query as chatQuery, Mutation as chatMutation
 
 from .authSchema import Mutation as authMutation
@@ -14,5 +14,9 @@ class Query(UserQuery, StatQuery, gameQuery, chatQuery, adminQuery, graphene.Obj
 class Mutation(UserMutation, StatMutation, gameMutation, chatMutation, adminMutation, graphene.ObjectType):
     pass
 
-schema = graphene.Schema(query=Query, mutation=Mutation)
+class Subscription(gameSubscription, graphene.ObjectType):
+    pass
+
+schema = graphene.Schema(query=Query, mutation=Mutation, subscription=Subscription)
 schemaAuth = graphene.Schema(mutation=authMutation)
+

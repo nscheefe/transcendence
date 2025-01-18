@@ -1,10 +1,8 @@
 from datetime import datetime
-from xxlimited import Null
-
 import google
 import grpc
 from django.utils.timezone import now
-from chat_service.protos import chat_pb2_grpc, chat_pb2
+from chat_service.protos import chat_pb2, chat_pb2_grpc
 from chat_service.chat.models import ChatRoom, ChatRoomMessage
 
 
