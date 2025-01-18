@@ -4,7 +4,6 @@ from datetime import datetime
 import grpc
 import google
 from game_service.protos import game_pb2_grpc, game_pb2
-from google.protobuf.empty_pb2 import Empty
 from .models import Game
 
 
@@ -241,16 +240,24 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
 
             # Determine the winner and save it as part of the game's state
             if request.winner_player_id == game.player_a_id:
-                game.state = "finished - Player A won"
+                winner_id = game.player_a_id
+                loser_id = game.player_b_id
             elif request.winner_player_id == game.player_b_id:
-                game.state = "finished - Player B won"
+                winner_id = game.player_b_id
+                loser_id = game.player_a_id
             else:
-                game.state = "finished - Draw"
+                game.save()
+                return Empty()
 
             # Save updates to the database
             game.save()
+            create_stat_request = stat_pb2.CreateStatRequest(
+                game_id=request.game_id,
+                winner_id=winner_id,
+                loser_id=loser_id
+            )
+            create_stat_response = StatServiceStub.CreateStat(create_stat_request)
 
-            # Return empty response as acknowledgment
             return Empty()
         except Game.DoesNotExist:
             # If the game doesn't exist, return an error
