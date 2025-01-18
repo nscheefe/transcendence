@@ -81,11 +81,11 @@ type_defs = """
         user: User
         profile(userId: Int!): Profile
         getAllProfiles(limit: Int!, offset: Int!): GetAllProfilesResponse
-        chat_rooms_for_user(user_id: Int!): [ChatRoom!]
     }
 
     type Subscription {
         ping_test: Ping!
+        chatRoomsForUser: [ChatRoom!]
         chat_room_message(chat_room_id: Int!): ChatRoomMessage!
     }
 
