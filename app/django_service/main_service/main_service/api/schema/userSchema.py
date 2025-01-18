@@ -326,6 +326,7 @@ def resolve_get_all_profiles(_, info, limit, offset):
 
             profiles = [
                 {
+                    "id": profile.id,
                     "userId": profile.user_id,
                     "avatarUrl": profile.avatar_url,
                     "nickname": profile.nickname,
@@ -378,7 +379,7 @@ def resolve_create_user(_, info, input):
 
 @mutation.field("manageProfile")
 def resolve_manage_profile(_, info, profileData):
-    user_id = info.context.user_id
+    user_id = info.context["request"].user_id
     if not user_id:
         raise Exception("Authentication required: user_id is missing")
 
@@ -413,7 +414,7 @@ def resolve_manage_profile(_, info, profileData):
 
 @mutation.field("manageFriendship")
 def resolve_manage_friendship(_, info, friendshipData):
-    user_id = info.context.user_id
+    user_id = info.context["request"].user_id
     if not user_id:
         raise Exception("Authentication required: user_id is missing")
 
@@ -465,7 +466,7 @@ def resolve_manage_friendship(_, info, friendshipData):
 
 @mutation.field("manageNotification")
 def resolve_manage_notification(_, info, notificationData):
-    user_id = info.context.user_id
+    user_id = info.context["request"].user_id
     if not user_id:
         raise Exception("Authentication required: user_id is missing")
 
@@ -507,7 +508,7 @@ def resolve_manage_notification(_, info, notificationData):
 
 @mutation.field("manageSetting")
 def resolve_manage_setting(_, info, settingData):
-    user_id = info.context.user_id
+    user_id = info.context["request"].user_id
     if not user_id:
         raise Exception("Authentication required: user_id is missing")
 
@@ -540,7 +541,7 @@ def resolve_manage_setting(_, info, settingData):
 
 @mutation.field("manageUserAchievement")
 def resolve_manage_user_achievement(_, info, achievementData):
-    user_id = info.context.user_id
+    user_id = info.context["request"].user_id
     if not user_id:
         raise Exception("Authentication required: user_id is missing")
 
