@@ -98,6 +98,7 @@ type_defs = """
 
     type Subscription {
         ping_test: Ping!
+        chatRoomsForUser: [ChatRoom!]
         chat_room_message(chat_room_id: Int!): ChatRoomMessage!
     }
 
