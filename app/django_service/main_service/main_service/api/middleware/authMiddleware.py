@@ -11,38 +11,43 @@ class AuthMiddleware:
     def __init__(self, inner):
         self.inner = inner
 
-    def __call__(self, request):
-        if request.path.startswith('/auth/'):
+    def __call__(self, request, receive=None, send=None):
+        if receive is None and send is None:
+            # WSGI context
+            if request.path.startswith('/auth/'):
+                return self.inner(request)
+
+            jwt_token = request.COOKIES.get('jwt_token')
+
+            if not jwt_token:
+                return JsonResponse(
+                    {'error': 'No authentication cookie found'},
+                    status=401
+                )
+
+            try:
+                with grpc.insecure_channel(GRPC_TARGET) as channel:
+                    stub = AuthServiceStub(channel)
+                    request_message = GetUserIDFromJwtTokenRequest(jwt_token=jwt_token)
+                    response = stub.GetUserIDFromJwtToken(request_message)
+                    request.user_id = response.user_id
+            except grpc.RpcError as e:
+                return JsonResponse(
+                    {'error': 'Authentication failed', 'details': str(e)},
+                    status=401
+                )
+            except Exception as e:
+                return JsonResponse(
+                    {'error': 'Internal server error', 'details': str(e)},
+                    status=500
+                )
+
             return self.inner(request)
+        else:
+            # ASGI context
+            return self.__call_async__(request, receive, send)
 
-        jwt_token = request.COOKIES.get('jwt_token')
-
-        if not jwt_token:
-            return JsonResponse(
-                {'error': 'No authentication cookie found'},
-                status=401
-            )
-
-        try:
-            with grpc.insecure_channel(GRPC_TARGET) as channel:
-                stub = AuthServiceStub(channel)
-                request_message = GetUserIDFromJwtTokenRequest(jwt_token=jwt_token)
-                response = stub.GetUserIDFromJwtToken(request_message)
-                request.user_id = response.user_id
-        except grpc.RpcError as e:
-            return JsonResponse(
-                {'error': 'Authentication failed', 'details': str(e)},
-                status=401
-            )
-        except Exception as e:
-            return JsonResponse(
-                {'error': 'Internal server error', 'details': str(e)},
-                status=500
-            )
-
-        return self.inner(request)
-
-    async def __call__(self, scope, receive, send):
+    async def __call_async__(self, scope, receive, send):
         if scope["type"] == "http":
             return await self.__call__(scope["asgi"]["http.request"])
 
