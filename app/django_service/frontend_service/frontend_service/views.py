@@ -48,7 +48,7 @@ def oauth_callback(request):
 
     # Store the JWT as a cookie
     response = redirect('home')
-    response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='Lax')
+    response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='None')
     return response
 
 @jwt_required
