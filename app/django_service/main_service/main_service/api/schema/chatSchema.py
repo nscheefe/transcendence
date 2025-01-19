@@ -53,12 +53,12 @@ async def chat_room_message_source(_, info, chat_room_id):
                 "id": response_message.id,
                 "content": response_message.content,
                 "sender_id": response_message.sender_id,
-                "chat_room_id": response_message.chat_room_id,
-                "timestamp": response_message.timestamp.ToDatetime().isoformat(),
+                "chat_room_id": response_message.chat_room,
+                "timestamp": datetime.fromtimestamp(response_message.timestamp.seconds).isoformat() if hasattr(response_message.timestamp, 'seconds') else response_message.timestamp,
             }
 
 @subscription.field("chat_room_message")
-def chat_room_message_resolver(message, info):
+def chat_room_message_resolver(message, info, chat_room_id):
     return message
 
 resolver = [query, mutation, subscription]
