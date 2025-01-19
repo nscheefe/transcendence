@@ -144,3 +144,6 @@ def upload_avatar(request):
         file_url = default_storage.url(file_name)
         return JsonResponse({'success': True, 'url': file_url})
     return JsonResponse({'success': False, 'message': 'File upload failed'}, status=400)
+
+def pong_view(request):
+    return render(request, 'frontend/pong.html')
