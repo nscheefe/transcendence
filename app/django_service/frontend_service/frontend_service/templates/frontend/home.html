@@ -1,6 +1,56 @@
 {% extends "frontend/base.html" %}
+{% load static %}
 
 {% block title %}Home{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('search-game-btn').addEventListener('click', function() {
+    fetch("{% url 'pong' %}")
+      .then(response => response.text())
+      .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        document.querySelector('[data-dynamic-windows]').innerHTML = doc.body.innerHTML;
+
+        // Add event listener for the close button after content is injected
+        document.getElementById('close-btn').addEventListener('click', function() {
+          document.getElementById('pong-container').style.display = 'none';
+        });
+
+        // Function to load scripts sequentially
+        function loadScripts(scripts, callback) {
+          if (scripts.length === 0) {
+            callback();
+            return;
+          }
+          const script = document.createElement('script');
+          script.src = scripts.shift();
+          script.onload = () => loadScripts(scripts, callback);
+          document.head.appendChild(script);
+        }
+
+        // List of scripts to load
+        const scripts = [
+          "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js",
+          "https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js",
+          "https://unpkg.com/three@0.128.0/examples/js/postprocessing/EffectComposer.js",
+          "https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js",
+          "https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js",
+          "https://unpkg.com/three@0.128.0/examples/js/shaders/RGBShiftShader.js",
+          "https://unpkg.com/three@0.128.0/examples/js/shaders/GammaCorrectionShader.js",
+          "{% static 'js/pong.js' %}"
+        ];
+
+        // Load scripts and initialize the game
+        loadScripts(scripts, () => {
+          console.log("All scripts loaded");
+          window.initPongGame();
+        });
+      });
+  });
+</script>
+{% endblock %}
 
 {% block content %}
   <section class="section">
@@ -19,5 +69,10 @@
       <div class="grid-overlay"></div>
     </div>
     <div class="backround-m42"></div>
+    <button id="search-game-btn" class="nav-link w-nav-link">Search Game</button>
+    <div data-dynamic-windows>
+      {% block dynamic_windows %}{% endblock %}
+    </div>
   </section>
 {% endblock %}
+
