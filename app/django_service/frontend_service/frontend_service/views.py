@@ -48,7 +48,7 @@ def oauth_callback(request):
 
     # Store the JWT as a cookie
     response = redirect('home')
-    response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='Lax')
+    response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='None')
     return response
 
 @jwt_required
@@ -144,3 +144,6 @@ def upload_avatar(request):
         file_url = default_storage.url(file_name)
         return JsonResponse({'success': True, 'url': file_url})
     return JsonResponse({'success': False, 'message': 'File upload failed'}, status=400)
+
+def pong_view(request):
+    return render(request, 'frontend/pong.html')

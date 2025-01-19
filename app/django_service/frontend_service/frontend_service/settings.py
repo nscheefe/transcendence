@@ -36,7 +36,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
-SECURE_COOKIE = os.getenv('SECURE_COOKIE', 'False').lower() in ['true', '1', 't']
+SECURE_COOKIE = os.getenv('SECURE_COOKIE', 'True').lower() in ['true', '1', 't']
 
 # Application definition
 

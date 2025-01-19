@@ -38,18 +38,7 @@ func handshake(r *http.Request) (int, *Game, error) {
 	// _, err_game_id := r.Cookie("game_id")
 
 	if err_token != nil {
-		// if err_user_id == nil && err_game_id == nil {
-		// 	user_id, _ := strconv.Atoi(user_id.Value)
-		// 	// Ensure game is initialized
-		// 	if game == nil {
-		// 		game = initGame(1) // or appropriate initialization
-		// 		if game == nil {
-		// 			return 0, nil, errors.New("failed to initialize game")
-		// 		}
-		// 	}
-		// 	return user_id, game, nil
-		// }
-		return 0, nil, errors.New("jwt_token is required")
+		return 0, nil, errors.New("jwt_token is required: " + err_token.Error())
 	}
 
 	userID, err := grpc.AuthCon.GetUserIDFromJwtToken(token.Value)
