@@ -1,4 +1,4 @@
-# Use a base image with Python 3.8 installed
+# Use a base image with Python 3.10 installed
 FROM python:3.10
 
 # Install build dependencies and necessary libraries
@@ -14,14 +14,13 @@ RUN apt-get update && \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-
-
 # Set environment variables to prevent .pyc files and buffer stdout/stderr
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
 # Install virtualenv
 RUN pip install virtualenv
+
 
 # Install go
 # Set architecture variable first

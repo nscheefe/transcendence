@@ -12,8 +12,6 @@ services:
       - ./DB:/var/lib/postgresql/data
     networks:
       - db_network
-    ports:
-      - 5432:5432
     healthcheck:
       test: [ "CMD", "pg_isready", "-q", "-d", "django_db", "-U", "django_user" ]
       interval: 30s
@@ -118,6 +116,8 @@ services:
     command: sh -c "python manage.py migrate && python manage.py grpcrunaioserver --dev"
     volumes:
       - ./django_service/chat_service:/usr/src/app
+    ports:
+      - '50051:50051'
     depends_on:
       postgres:
         condition: service_started
@@ -188,7 +188,7 @@ services:
         context: ./django_service/main_service
         dockerfile: Dockerfile
       container_name: main_service
-      command: sh -c "python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p 8000 main_service.asgi:application"
+      command: sh -c "python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8000"
       ports:
         - '8001:8000'
       volumes:
@@ -200,6 +200,7 @@ services:
         - django_network
       environment:
         - DEBUG=True
+        - DEVELOPMENT=True
         - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
 ##########################################
   frontend_service:
