@@ -20,11 +20,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	GameService_GetGame_FullMethodName            = "/transcendence.GameService/GetGame"
-	GameService_GetOngoingGames_FullMethodName    = "/transcendence.GameService/GetOngoingGames"
-	GameService_CreateGame_FullMethodName         = "/transcendence.GameService/CreateGame"
-	GameService_StartGame_FullMethodName          = "/transcendence.GameService/StartGame"
-	GameService_HandleGameFinished_FullMethodName = "/transcendence.GameService/HandleGameFinished"
+	GameService_GetGame_FullMethodName              = "/transcendence.GameService/GetGame"
+	GameService_GetOnGoingGameByUser_FullMethodName = "/transcendence.GameService/GetOnGoingGameByUser"
+	GameService_GetOngoingGames_FullMethodName      = "/transcendence.GameService/GetOngoingGames"
+	GameService_CreateGame_FullMethodName           = "/transcendence.GameService/CreateGame"
+	GameService_StartGame_FullMethodName            = "/transcendence.GameService/StartGame"
+	GameService_HandleGameFinished_FullMethodName   = "/transcendence.GameService/HandleGameFinished"
+	GameService_GameReady_FullMethodName            = "/transcendence.GameService/GameReady"
 )
 
 // GameServiceClient is the client API for GameService service.
@@ -35,12 +37,15 @@ const (
 type GameServiceClient interface {
 	// Get a specific game by its ID
 	GetGame(ctx context.Context, in *GetGameRequest, opts ...grpc.CallOption) (*Game, error)
+	// Get an on going game by user
+	GetOnGoingGameByUser(ctx context.Context, in *GetOnGoingGameByUserRequest, opts ...grpc.CallOption) (*Game, error)
 	// Get a list of ongoing games (not finished)
 	GetOngoingGames(ctx context.Context, in *GetOngoingGamesRequest, opts ...grpc.CallOption) (*GetOngoingGamesResponse, error)
 	// Create a new game
 	CreateGame(ctx context.Context, in *CreateGameRequest, opts ...grpc.CallOption) (*Game, error)
 	StartGame(ctx context.Context, in *StartGameRequest, opts ...grpc.CallOption) (*StartGameResponse, error)
 	HandleGameFinished(ctx context.Context, in *GameFinishedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	GameReady(ctx context.Context, in *GameReadyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Game], error)
 }
 
 type gameServiceClient struct {
@@ -55,6 +60,16 @@ func (c *gameServiceClient) GetGame(ctx context.Context, in *GetGameRequest, opt
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(Game)
 	err := c.cc.Invoke(ctx, GameService_GetGame_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *gameServiceClient) GetOnGoingGameByUser(ctx context.Context, in *GetOnGoingGameByUserRequest, opts ...grpc.CallOption) (*Game, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Game)
+	err := c.cc.Invoke(ctx, GameService_GetOnGoingGameByUser_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,6 +116,25 @@ func (c *gameServiceClient) HandleGameFinished(ctx context.Context, in *GameFini
 	return out, nil
 }
 
+func (c *gameServiceClient) GameReady(ctx context.Context, in *GameReadyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Game], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &GameService_ServiceDesc.Streams[0], GameService_GameReady_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[GameReadyRequest, Game]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type GameService_GameReadyClient = grpc.ServerStreamingClient[Game]
+
 // GameServiceServer is the server API for GameService service.
 // All implementations must embed UnimplementedGameServiceServer
 // for forward compatibility.
@@ -109,12 +143,15 @@ func (c *gameServiceClient) HandleGameFinished(ctx context.Context, in *GameFini
 type GameServiceServer interface {
 	// Get a specific game by its ID
 	GetGame(context.Context, *GetGameRequest) (*Game, error)
+	// Get an on going game by user
+	GetOnGoingGameByUser(context.Context, *GetOnGoingGameByUserRequest) (*Game, error)
 	// Get a list of ongoing games (not finished)
 	GetOngoingGames(context.Context, *GetOngoingGamesRequest) (*GetOngoingGamesResponse, error)
 	// Create a new game
 	CreateGame(context.Context, *CreateGameRequest) (*Game, error)
 	StartGame(context.Context, *StartGameRequest) (*StartGameResponse, error)
 	HandleGameFinished(context.Context, *GameFinishedRequest) (*emptypb.Empty, error)
+	GameReady(*GameReadyRequest, grpc.ServerStreamingServer[Game]) error
 	mustEmbedUnimplementedGameServiceServer()
 }
 
@@ -128,6 +165,9 @@ type UnimplementedGameServiceServer struct{}
 func (UnimplementedGameServiceServer) GetGame(context.Context, *GetGameRequest) (*Game, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGame not implemented")
 }
+func (UnimplementedGameServiceServer) GetOnGoingGameByUser(context.Context, *GetOnGoingGameByUserRequest) (*Game, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetOnGoingGameByUser not implemented")
+}
 func (UnimplementedGameServiceServer) GetOngoingGames(context.Context, *GetOngoingGamesRequest) (*GetOngoingGamesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetOngoingGames not implemented")
 }
@@ -139,6 +179,9 @@ func (UnimplementedGameServiceServer) StartGame(context.Context, *StartGameReque
 }
 func (UnimplementedGameServiceServer) HandleGameFinished(context.Context, *GameFinishedRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HandleGameFinished not implemented")
+}
+func (UnimplementedGameServiceServer) GameReady(*GameReadyRequest, grpc.ServerStreamingServer[Game]) error {
+	return status.Errorf(codes.Unimplemented, "method GameReady not implemented")
 }
 func (UnimplementedGameServiceServer) mustEmbedUnimplementedGameServiceServer() {}
 func (UnimplementedGameServiceServer) testEmbeddedByValue()                     {}
@@ -175,6 +218,24 @@ func _GameService_GetGame_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(GameServiceServer).GetGame(ctx, req.(*GetGameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GameService_GetOnGoingGameByUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetOnGoingGameByUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GameServiceServer).GetOnGoingGameByUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GameService_GetOnGoingGameByUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GameServiceServer).GetOnGoingGameByUser(ctx, req.(*GetOnGoingGameByUserRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -251,6 +312,17 @@ func _GameService_HandleGameFinished_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GameService_GameReady_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GameReadyRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(GameServiceServer).GameReady(m, &grpc.GenericServerStream[GameReadyRequest, Game]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type GameService_GameReadyServer = grpc.ServerStreamingServer[Game]
+
 // GameService_ServiceDesc is the grpc.ServiceDesc for GameService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -261,6 +333,10 @@ var GameService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetGame",
 			Handler:    _GameService_GetGame_Handler,
+		},
+		{
+			MethodName: "GetOnGoingGameByUser",
+			Handler:    _GameService_GetOnGoingGameByUser_Handler,
 		},
 		{
 			MethodName: "GetOngoingGames",
@@ -279,6 +355,12 @@ var GameService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _GameService_HandleGameFinished_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GameReady",
+			Handler:       _GameService_GameReady_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "grpc/protos/game.proto",
 }

@@ -4,6 +4,7 @@ package transcendence;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
+
 // Message to define a Game
 message Game {
     int32 id = 1;
@@ -26,6 +27,9 @@ service GameService {
     // Get a specific game by its ID
     rpc GetGame (GetGameRequest) returns (Game);
 
+    // Get an on going game by user
+    rpc GetOnGoingGameByUser (GetOnGoingGameByUserRequest) returns (Game);
+
     // Get a list of ongoing games (not finished)
     rpc GetOngoingGames (GetOngoingGamesRequest) returns (GetOngoingGamesResponse);
 
@@ -35,7 +39,6 @@ service GameService {
     rpc StartGame (StartGameRequest) returns (StartGameResponse); // Start a game and provide WebSocket updates URL
     rpc HandleGameFinished (GameFinishedRequest) returns (google.protobuf.Empty); // Receive update if the game is finished
     rpc GameReady (GameReadyRequest) returns (stream Game);
-
 }
 
 // Requests and Responses for RPCs
@@ -43,6 +46,11 @@ service GameService {
 // Request to get a specific game by ID
 message GetGameRequest {
     int32 game_id = 1;
+}
+
+// Request to get an on going game by user
+message GetOnGoingGameByUserRequest {
+    int32 user_id = 1;
 }
 
 // Request to get ongoing games (not finished)
