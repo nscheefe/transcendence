@@ -7,7 +7,6 @@ import (
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type GameClient struct {
@@ -30,18 +29,6 @@ func NewGameClient(address string) (*GameClient, error) {
 
 func (c *GameClient) Close() error {
 	return c.conn.Close()
-}
-
-func (c *GameClient) CreateGame(playerAID, playerBID int32) (*pb.Game, error) {
-	req := &pb.CreateGameRequest{
-		State:         "initial",
-		PointsPlayerA: 0,
-		PointsPlayerB: 0,
-		PlayerAId:     playerAID,
-		PlayerBId:     playerBID,
-	}
-
-	return c.client.CreateGame(context.Background(), req)
 }
 
 func (c *GameClient) StartGame(gameID int32) (*pb.StartGameResponse, error) {
@@ -83,21 +70,10 @@ func (c *GameClient) HandleGameFinished(gameID int32, pointsA, pointsB, winnerID
 	return err
 }
 
-func (c *GameClient) GetGameEvent(eventID int32) (*pb.GameEvent, error) {
-	req := &pb.GetGameEventRequest{
-		GameEventId: eventID,
+func (c *GameClient) GetOnGoingGameByUser(userID int32) (*pb.Game, error) {
+	req := &pb.GetOnGoingGameByUserRequest{
+		UserId: userID,
 	}
 
-	return c.client.GetGameEvent(context.Background(), req)
-}
-
-func (c *GameClient) CreateGameEvent(gameID int32, eventType string, eventData string, timestamp *timestamppb.Timestamp) (*pb.GameEvent, error) {
-	req := &pb.CreateGameEventRequest{
-		GameId:    gameID,
-		EventType: eventType,
-		EventData: eventData,
-		Timestamp: timestamp,
-	}
-
-	return c.client.CreateGameEvent(context.Background(), req)
+	return c.client.GetOnGoingGameByUser(context.Background(), req)
 }

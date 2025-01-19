@@ -1,17 +1,15 @@
 from django.db import models
 from django.utils.timezone import now
 
-
 # ChatRoom model
 class ChatRoom(models.Model):
     id = models.AutoField(primary_key=True)  # Auto-generated primary key
     name = models.CharField(max_length=255)  # Name of the chat room
     created_at = models.DateTimeField(default=now)  # Timestamp for when the room was created
-    game_id = models.IntegerField(null=True, blank=True)
+    game_id = models.IntegerField(null=True, blank=True)  # Foreign key to the game (optional)
 
     def __str__(self):
         return self.name
-
 
 # ChatRoomMessage model
 class ChatRoomMessage(models.Model):
@@ -25,7 +23,6 @@ class ChatRoomMessage(models.Model):
 
     def __str__(self):
         return f"Message {self.id} in ChatRoom {self.chat_room}"
-
 
 # ChatRoomUser model
 class ChatRoomUser(models.Model):

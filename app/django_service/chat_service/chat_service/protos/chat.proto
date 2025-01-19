@@ -1,118 +1,158 @@
 syntax = "proto3";
 
-package chat;
+package chat_service.chat;
 
-// Import Timestamp from Protobuf for timestamps
-import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 
-// ChatMessage definition
-message ChatMessage {
-  int32 id = 1;
-  string content = 2;
-  int32 sender_id = 3;
-  int32 chat_room_id = 4;
-  google.protobuf.Timestamp timestamp = 5;
+service ChatRoomController {
+    rpc Create(ChatRoomRequest) returns (ChatRoomResponse) {}
+    rpc Destroy(ChatRoomDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(ChatRoomListRequest) returns (ChatRoomListResponse) {}
+    rpc ListChatRooms(google.protobuf.Empty) returns (ChatRoomResponse) {}
+    rpc PartialUpdate(ChatRoomPartialUpdateRequest) returns (ChatRoomResponse) {}
+    rpc Retrieve(ChatRoomRetrieveRequest) returns (ChatRoomResponse) {}
+    rpc Update(ChatRoomRequest) returns (ChatRoomResponse) {}
 }
 
-// ChatRoom definition
-message ChatRoom {
-  int32 id = 1;
-  string name = 2;
-  google.protobuf.Timestamp created_at = 3;
-  int32 game_id = 4;
+service ChatRoomMessageController {
+    rpc Create(ChatRoomMessageRequest) returns (ChatRoomMessageResponse) {}
+    rpc Destroy(ChatRoomMessageDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(ChatRoomMessageListRequest) returns (ChatRoomMessageListResponse) {}
+    rpc PartialUpdate(ChatRoomMessagePartialUpdateRequest) returns (ChatRoomMessageResponse) {}
+    rpc Retrieve(ChatRoomMessageRetrieveRequest) returns (ChatRoomMessageResponse) {}
+    rpc SubscribeChatRoomMessages(ChatRoomMessageSubscribeChatRoomMessagesRequest) returns (stream ChatRoomMessageResponse) {}
+    rpc Update(ChatRoomMessageRequest) returns (ChatRoomMessageResponse) {}
 }
 
-// CreateChatRoomRequest definition
-message CreateChatRoomRequest {
-  string name = 1;
-  int32 game_id = 2;
+service ChatRoomUserController {
+    rpc Create(ChatRoomUserRequest) returns (ChatRoomUserResponse) {}
+    rpc Destroy(ChatRoomUserDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc GetChatRoomByUserId(ChatRoomUserGetChatRoomByUserIdRequest) returns (ChatRoomResponse) {}
+    rpc List(ChatRoomUserListRequest) returns (ChatRoomUserListResponse) {}
+    rpc PartialUpdate(ChatRoomUserPartialUpdateRequest) returns (ChatRoomUserResponse) {}
+    rpc Retrieve(ChatRoomUserRetrieveRequest) returns (ChatRoomUserResponse) {}
+    rpc Update(ChatRoomUserRequest) returns (ChatRoomUserResponse) {}
 }
 
-// GetChatRoomRequest definition
-message GetChatRoomRequest {
-  int32 id = 1;
+message ChatRoomDestroyRequest {
+    int32 id = 1;
 }
 
-// Empty message definition
-message Empty {}
-
-// SubscribeChatRoomMessagesRequest definition
-message SubscribeChatRoomMessagesRequest {
-  int32 chat_room_id = 1;
+message ChatRoomListRequest {
 }
 
-// ChatRoomUser definition
-message ChatRoomUser {
-  int32 id = 1;
-  int32 user_id = 2;
-  int32 chat_room_id = 3;
-  google.protobuf.Timestamp joined_at = 4;
+message ChatRoomListResponse {
+    repeated ChatRoomResponse results = 1;
 }
 
-// GetUsersByChatRoomIdRequest definition
-message GetUsersByChatRoomIdRequest {
-  int32 chat_room_id = 1;
+message ChatRoomMessageDestroyRequest {
+    int32 id = 1;
 }
 
-// AddUserToChatRoomRequest definition
-message AddUserToChatRoomRequest {
-  int32 user_id = 1;
-  int32 chat_room_id = 2;
+message ChatRoomMessageListRequest {
 }
 
-// ListChatRoomUsersResponse definition
-message ListChatRoomUsersResponse {
-  repeated ChatRoomUser users = 1;
+message ChatRoomMessageListResponse {
+    repeated ChatRoomMessageResponse results = 1;
 }
 
-// GetChatRoomByUserIdRequest definition
-message GetChatRoomByUserIdRequest {
-  int32 user_id = 1;
+message ChatRoomMessagePartialUpdateRequest {
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string content = 3;
+    int32 sender_id = 4;
+    optional string timestamp = 5;
+    int32 chat_room = 6;
 }
 
-// ChatRoomMessage definition
-message ChatRoomMessage {
-  int32 id = 1;
-  string content = 2;
-  int32 sender_id = 3;
-  int32 chat_room_id = 4;
-  google.protobuf.Timestamp timestamp = 5;
+message ChatRoomMessageRequest {
+    optional int32 id = 1;
+    string content = 2;
+    int32 sender_id = 3;
+    optional string timestamp = 4;
+    int32 chat_room = 5;
 }
 
-// GetMessagesByChatRoomIdRequest definition
-message GetMessagesByChatRoomIdRequest {
-  int32 chat_room_id = 1;
+message ChatRoomMessageResponse {
+    optional int32 id = 1;
+    string content = 2;
+    int32 sender_id = 3;
+    optional string timestamp = 4;
+    int32 chat_room = 5;
 }
 
-// CreateChatRoomMessageRequest definition
-message CreateChatRoomMessageRequest {
-  string content = 1;
-  int32 sender_id = 2;
-  int32 chat_room_id = 3;
+message ChatRoomMessageRetrieveRequest {
+    int32 id = 1;
 }
 
-// ListChatRoomMessagesResponse definition
-message ListChatRoomMessagesResponse {
-  repeated ChatRoomMessage messages = 1;
+message ChatRoomMessageSubscribeChatRoomMessagesRequest {
+    int32 chat_room_id = 1;
 }
 
-// ChatService definition
-service ChatService {
-  rpc CreateChatRoom(CreateChatRoomRequest) returns (ChatRoom);
-  rpc GetChatRoomById(GetChatRoomRequest) returns (ChatRoom);
-  rpc ListChatRooms(Empty) returns (stream ChatRoom);
-  rpc SubscribeChatRoomMessages(SubscribeChatRoomMessagesRequest) returns (stream ChatMessage);
+message ChatRoomPartialUpdateRequest {
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string name = 3;
+    optional string created_at = 4;
+    optional int32 game_id = 5;
 }
 
-// ChatRoomUserService definition
-service ChatRoomUserService {
-  rpc GetUsersByChatRoomId(GetUsersByChatRoomIdRequest) returns (ListChatRoomUsersResponse);
-  rpc AddUserToChatRoom(AddUserToChatRoomRequest) returns (ChatRoomUser);
-  rpc GetChatRoomByUserId(GetChatRoomByUserIdRequest) returns (ListChatRoomUsersResponse);
+message ChatRoomRequest {
+    optional int32 id = 1;
+    string name = 2;
+    optional string created_at = 3;
+    optional int32 game_id = 4;
 }
 
-// ChatRoomMessageService definition
-service ChatRoomMessageService {
-  rpc GetMessagesByChatRoomId(GetMessagesByChatRoomIdRequest) returns (ListChatRoomMessagesResponse);
-  rpc CreateMessage(CreateChatRoomMessageRequest) returns (ChatRoomMessage);
+message ChatRoomResponse {
+    optional int32 id = 1;
+    string name = 2;
+    optional string created_at = 3;
+    optional int32 game_id = 4;
 }
+
+message ChatRoomRetrieveRequest {
+    int32 id = 1;
+}
+
+message ChatRoomUserDestroyRequest {
+    int32 id = 1;
+}
+
+message ChatRoomUserGetChatRoomByUserIdRequest {
+    int32 user_id = 1;
+}
+
+message ChatRoomUserListRequest {
+}
+
+message ChatRoomUserListResponse {
+    repeated ChatRoomUserResponse results = 1;
+}
+
+message ChatRoomUserPartialUpdateRequest {
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    int32 user_id = 3;
+    optional string joined_at = 4;
+    int32 chat_room = 5;
+}
+
+message ChatRoomUserRequest {
+    optional int32 id = 1;
+    int32 user_id = 2;
+    optional string joined_at = 3;
+    int32 chat_room = 4;
+}
+
+message ChatRoomUserResponse {
+    optional int32 id = 1;
+    int32 user_id = 2;
+    optional string joined_at = 3;
+    int32 chat_room = 4;
+}
+
+message ChatRoomUserRetrieveRequest {
+    int32 id = 1;
+}
+

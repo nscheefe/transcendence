@@ -1,0 +1,127 @@
+syntax = "proto3";
+
+package transcendence;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+message TournamentRoom {
+    int32 id = 1;
+    string name = 2;                          // Name of the tournament room
+    bool is_active = 3;                       // Whether the tournament room is active
+    google.protobuf.Timestamp created_at = 4; // Timestamp of creation
+    google.protobuf.Timestamp updated_at = 5; // Timestamp of last update
+}
+
+message TournamentUser {
+    int32 id = 1;
+    int32 tournament_room_id = 2;             // FK to TournamentRoom
+    int32 user_id = 3;                        // FK to User
+    int32 play_order = 4;                     // Order in which the user plays
+    int32 games_played = 5;                   // Number of games played by the user
+    google.protobuf.Timestamp created_at = 6; // Timestamp of creation
+    google.protobuf.Timestamp updated_at = 7; // Timestamp of last update
+}
+
+message TournamentGameMapping {
+    int32 id = 1;
+    int32 tournament_room_id = 2;             // FK to TournamentRoom
+    int32 game_id = 3;                        // FK to Game
+    int32 user_id = 4;                        // FK to User (via TournamentUser)
+    google.protobuf.Timestamp created_at = 5; // Timestamp of creation
+}
+
+message GetTournamentRoomRequest {
+    int32 tournament_room_id = 1; // ID of the tournament room to retrieve
+}
+
+message ListTournamentRoomsRequest {} // No parameters required for listing all rooms
+
+message ListTournamentRoomsResponse {
+    repeated TournamentRoom tournament_rooms = 1;
+}
+
+message CreateTournamentRoomRequest {
+    string name = 1; // Name of the tournament room to create
+}
+
+message UpdateTournamentRoomRequest {
+    int32 tournament_room_id = 1;
+    string name = 2;
+    bool is_active = 3;
+}
+
+message DeleteTournamentRoomRequest {
+    int32 tournament_room_id = 1;
+}
+
+message GetTournamentUserRequest {
+    int32 tournament_user_id = 1;
+}
+
+message ListTournamentUsersRequest {
+    int32 tournament_room_id = 1;
+}
+
+message ListTournamentUsersResponse {
+    repeated TournamentUser tournament_users = 1;
+}
+
+message CreateTournamentUserRequest {
+    int32 tournament_room_id = 1;
+    int32 user_id = 2;
+    int32 play_order = 3;
+}
+
+message UpdateTournamentUserRequest {
+    int32 tournament_user_id = 1;
+    int32 play_order = 2;
+    int32 games_played = 3;
+}
+
+message DeleteTournamentUserRequest {
+    int32 tournament_user_id = 1;
+}
+
+message GetTournamentGameMappingRequest {
+    int32 tournament_game_mapping_id = 1;
+}
+
+message ListTournamentGameMappingsRequest {
+    int32 tournament_room_id = 1;
+    }
+
+message ListTournamentGameMappingsResponse {
+    repeated TournamentGameMapping tournament_game_mappings = 1;
+}
+
+message CreateTournamentGameMappingRequest {
+    int32 tournament_room_id = 1;
+    int32 game_id = 2;
+    int32 user_id = 3;
+}
+
+message DeleteTournamentGameMappingRequest {
+    int32 tournament_game_mapping_id = 1;
+}
+service TournamentService {
+    // Tournament Room RPCs
+    rpc GetTournamentRoom (GetTournamentRoomRequest) returns (TournamentRoom);
+    rpc ListTournamentRooms (ListTournamentRoomsRequest) returns (ListTournamentRoomsResponse);
+    rpc CreateTournamentRoom (CreateTournamentRoomRequest) returns (TournamentRoom);
+    rpc UpdateTournamentRoom (UpdateTournamentRoomRequest) returns (TournamentRoom);
+    rpc DeleteTournamentRoom (DeleteTournamentRoomRequest) returns (google.protobuf.Empty);
+
+    // Tournament User RPCs
+    rpc GetTournamentUser (GetTournamentUserRequest) returns (TournamentUser);
+    rpc ListTournamentUsers (ListTournamentUsersRequest) returns (ListTournamentUsersResponse);
+    rpc CreateTournamentUser (CreateTournamentUserRequest) returns (TournamentUser);
+    rpc UpdateTournamentUser (UpdateTournamentUserRequest) returns (TournamentUser);
+    rpc DeleteTournamentUser (DeleteTournamentUserRequest) returns (google.protobuf.Empty);
+
+    // Tournament Game Mapping RPCs
+    rpc GetTournamentGameMapping (GetTournamentGameMappingRequest) returns (TournamentGameMapping);
+    rpc ListTournamentGameMappings (ListTournamentGameMappingsRequest) returns (ListTournamentGameMappingsResponse);
+    rpc CreateTournamentGameMapping (CreateTournamentGameMappingRequest) returns (TournamentGameMapping);
+    rpc DeleteTournamentGameMapping (DeleteTournamentGameMappingRequest) returns (google.protobuf.Empty);
+}
