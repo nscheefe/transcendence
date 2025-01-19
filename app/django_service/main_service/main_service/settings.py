@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'graphene_django',
+    "ariadne_django",
 ]
 CHANNEL_LAYERS = {
     "default": {
@@ -47,23 +47,19 @@ CHANNEL_LAYERS = {
     },
 }
 
-GRAPHENE = {
-    'SCHEMA': 'main_service.api.schema.Schema.schema',
-    "GRAPHIQL": True,  # Ensure GraphiQL debug tool is enabled
-    "SUBSCRIPTION_PATH": "/graphql-ws/",
-    'MIDDLEWARE': []
-}
-
 MIDDLEWARE = [
-    'main_service.api.middleware.authMiddleware.AuthMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',  # Re-add session middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',  # Re-add auth middleware
+    'django.contrib.messages.middleware.MessageMiddleware',  # Add MessageMiddleware
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'main_service.api.middleware.authMiddleware.AuthMiddleware',
 ]
+
+# Use signed cookies for session storage
+SESSION_ENGINE = 'django.contrib.sessions.backends.signed_cookies'
 
 ROOT_URLCONF = 'main_service.urls'
 
@@ -89,8 +85,10 @@ ASGI_APPLICATION = "main_service.asgi.application"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.dummy',
+    }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
@@ -135,3 +133,27 @@ print("STATIC_ROOT:", STATIC_ROOT)
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',  # Change to INFO to reduce clutter
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',  # Change to INFO to reduce clutter
+            'propagate': True,
+        },
+        'grpc': {
+            'handlers': ['console'],
+            'level': 'DEBUG',  # Change to INFO to reduce clutter
+            'propagate': True,
+        },
+    },
+}

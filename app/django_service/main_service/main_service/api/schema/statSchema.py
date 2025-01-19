@@ -1,169 +1,130 @@
-import graphene
-import grpc
-
 from datetime import datetime
-from google.protobuf.timestamp_pb2 import Timestamp
 
-from main_service.protos.stat_pb2_grpc import StatServiceStub
+import grpc
+from ariadne import ObjectType
+from main_service.api.schema.objectTypes import query, mutation, subscription  # Shared objects
 from main_service.protos.stat_pb2 import (
     GetStatRequest,
     CreateStatRequest,
     GetStatsByUserIdRequest,
-    CalculateStatsRequest
+    CalculateStatsRequest,
 )
+from main_service.protos.stat_pb2_grpc import StatServiceStub
 
+# gRPC connection setup to stat service
 GRPC_STAT_HOST = "stat_service"
 GRPC_STAT_PORT = "50051"
 GRPC_STAT_TARGET = f"{GRPC_STAT_HOST}:{GRPC_STAT_PORT}"
+stat_channel = grpc.insecure_channel(GRPC_STAT_TARGET)
+stat_stub = StatServiceStub(stat_channel)
+
+# Create custom object for Stat type (if needed)
+
+# --- Query Resolvers ---
+
+@query.field("stat")
+def resolve_stat(_, info, id):
+    """
+    Fetch a Stat by its ID from the StatService.
+    """
+    try:
+        request = GetStatRequest(id=id)
+        response = stat_stub.GetStat(request)
+        return {
+            "id": response.stat.id,
+            "gameId": response.stat.game_id,
+            "winnerId": response.stat.winner_id,
+            "loserId": response.stat.loser_id,
+            "createdAt": datetime.fromtimestamp(response.stat.created_at.seconds).isoformat()
+            if response.stat.HasField("created_at")
+            else None,
+        }
+    except grpc.RpcError as e:
+        if e.code() == grpc.StatusCode.NOT_FOUND:
+            return None
+        else:
+            raise e
 
 
-class StatType(graphene.ObjectType):
-    id = graphene.Int()
-    game_id = graphene.Int()
-    winner_id = graphene.Int()
-    loser_id = graphene.Int()
-    created_at = graphene.DateTime()
+@query.field("statsByUser")
+def resolve_stats_by_user(_, info, userId):
+    """
+    Fetch UserStats by the User ID from the StatService.
+    """
+    try:
+        request = GetStatsByUserIdRequest(user_id=userId)
+        response = stat_stub.GetStatsByUserId(request)
+        return [
+            {
+                "id": user_stat.id,
+                "userId": user_stat.user_id,
+                "statId": user_stat.stat_id,
+                "didWin": user_stat.did_win,
+            }
+            for user_stat in response.user_stats
+        ]
+    except grpc.RpcError as e:
+        if e.code() == grpc.StatusCode.NOT_FOUND:
+            return []
+        else:
+            raise e
 
 
-class UserStatType(graphene.ObjectType):
-    id = graphene.Int()
-    user_id = graphene.Int()
-    stat_id = graphene.Int()
-    did_win = graphene.Boolean()
+@query.field("calculateUserStats")
+def resolve_calculate_user_stats(_, info, userId):
+    """
+    Calculate aggregate statistics for a specific user.
+    """
+    try:
+        request = CalculateStatsRequest(user_id=userId)
+        response = stat_stub.CalculateStats(request)
+        return {
+            "totalGames": response.total_games,
+            "totalWins": response.total_wins,
+            "totalLosses": response.total_losses,
+        }
+    except grpc.RpcError as e:
+        raise Exception(f"gRPC error: {e.details()} (Code: {e.code()})")
 
 
-class CalculateStatsResponseType(graphene.ObjectType):
-    total_games = graphene.Int()
-    total_wins = graphene.Int()
-    total_losses = graphene.Int()
+# --- Mutation Resolvers ---
+
+@mutation.field("createStat")
+def resolve_create_stat(_, info, input):
+    """
+    Create a new Stat for a game with the provided details.
+    """
+    try:
+        request = CreateStatRequest(
+            game_id=input["gameId"],
+            winner_id=input["winnerId"],
+            loser_id=input["loserId"],
+        )
+        response = stat_stub.CreateStat(request)
+        return {
+            "success": True,
+            "stat": {
+                "id": response.stat.id,
+                "gameId": response.stat.game_id,
+                "winnerId": response.stat.winner_id,
+                "loserId": response.stat.loser_id,
+                "createdAt": datetime.fromtimestamp(response.stat.created_at.seconds).isoformat()
+                if response.stat.HasField("created_at")
+                else None,
+            },
+            "message": "Stat successfully created.",
+        }
+    except grpc.RpcError as e:
+        return {
+            "success": False,
+            "stat": None,
+            "message": f"Failed to create stat: {e.details()}",
+        }
 
 
-class Query(graphene.ObjectType):
-    stat = graphene.Field(StatType, id=graphene.Int(required=True))
-    stats_by_user = graphene.List(UserStatType, user_id=graphene.Int(required=True))
-    calculate_user_stats = graphene.Field(
-        CalculateStatsResponseType, user_id=graphene.Int(required=True)
-    )
+# --- Custom Object Resolvers (if needed) ---
 
-    def resolve_stat(self, info, id):
-        try:
-            channel = grpc.insecure_channel(GRPC_STAT_TARGET)
-            client = StatServiceStub(channel)
+# --- Integration with Other Schemas ---
 
-            request = GetStatRequest(id=id)
-            response = client.GetStat(request)
-
-            if not response.stat.id:
-                raise Exception(f"Stat with ID {id} not found.")
-
-            return StatType(
-                id=response.stat.id,
-                game_id=response.stat.game_id,
-                winner_id=response.stat.winner_id,
-                loser_id=response.stat.loser_id,
-                created_at=datetime.fromtimestamp(response.stat.created_at.seconds),
-            )
-        except grpc.RpcError as e:
-            raise Exception(f"gRPC error: {e.details()} (Code: {e.code().name})")
-        except Exception as ex:
-            raise Exception(f"Unexpected error: {str(ex)}")
-
-    def resolve_stats_by_user(self, info, user_id):
-        try:
-            channel = grpc.insecure_channel(GRPC_STAT_TARGET)
-            client = StatServiceStub(channel)
-
-            request = GetStatsByUserIdRequest(user_id=user_id)
-            response = client.GetStatsByUserId(request)
-
-            return [
-                UserStatType(
-                    id=stat.id,
-                    user_id=stat.user_id,
-                    stat_id=stat.stat_id,
-                    did_win=stat.did_win
-                )
-                for stat in response.user_stats
-            ]
-        except grpc.RpcError as e:
-            raise Exception(f"gRPC error: {e.details()} (Code: {e.code().name})")
-        except Exception as ex:
-            raise Exception(f"Unexpected error: {str(ex)}")
-
-    def resolve_calculate_user_stats(self, info, user_id):
-        try:
-            channel = grpc.insecure_channel(GRPC_STAT_TARGET)
-            client = StatServiceStub(channel)
-
-            request = CalculateStatsRequest(user_id=user_id)
-            response = client.CalculateStats(request)
-
-            return CalculateStatsResponseType(
-                total_games=response.total_games,
-                total_wins=response.total_wins,
-                total_losses=response.total_losses
-            )
-        except grpc.RpcError as e:
-            raise Exception(f"gRPC error: {e.details()} (Code: {e.code().name})")
-        except Exception as ex:
-            raise Exception(f"Unexpected error: {str(ex)}")
-
-
-class CreateStatInput(graphene.InputObjectType):
-    game_id = graphene.Int(required=True)
-    winner_id = graphene.Int(required=True)
-    loser_id = graphene.Int(required=True)
-
-
-class CreateStatMutation(graphene.Mutation):
-    class Arguments:
-        input = CreateStatInput(required=True)
-
-    stat = graphene.Field(StatType)
-    success = graphene.Boolean()
-    message = graphene.String()
-
-    @staticmethod
-    def mutate(root, info, input):
-        try:
-
-            channel = grpc.insecure_channel(GRPC_STAT_TARGET)
-            client = StatServiceStub(channel)
-
-            request = CreateStatRequest(
-                game_id=input.game_id,
-                winner_id=input.winner_id,
-                loser_id=input.loser_id,
-            )
-            response = client.CreateStat(request)
-
-            return CreateStatMutation(
-                success=True,
-                stat=StatType(
-                    id=response.stat.id,
-                    game_id=response.stat.game_id,
-                    winner_id=response.stat.winner_id,
-                    loser_id=response.stat.loser_id,
-                    created_at=datetime.fromtimestamp(response.stat.created_at.seconds)
-                ),
-                message="Stat created successfully."
-            )
-        except grpc.RpcError as e:
-            return CreateStatMutation(
-                success=False,
-                stat=None,
-                message=f"gRPC error: {e.details()} (Code: {e.code().name})",
-            )
-        except Exception as ex:
-            return CreateStatMutation(
-                success=False,
-                stat=None,
-                message=f"Unexpected error: {str(ex)}",
-            )
-
-
-class Mutation(graphene.ObjectType):
-    create_stat = CreateStatMutation.Field()
-
-
-schema = graphene.Schema(query=Query, mutation=Mutation)
+# Combine all resolvers into the resolvers list, consistent with userSchema.py
+resolvers = [query, mutation, subscription]

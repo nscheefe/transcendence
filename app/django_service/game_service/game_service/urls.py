@@ -14,13 +14,18 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from .protos import game_pb2_grpc
+from .protos import game_pb2_grpc, tournament_pb2_grpc
 from game_service.game.grpc_handlers import GameServiceHandler
+from game_service.game.grpc_handlers import TournamentServiceHandler
 
 urlpatterns = [
 ]
 
 
+
+
 def grpc_handlers(server):
     game_service_handler = GameServiceHandler.as_servicer()
     game_pb2_grpc.add_GameServiceServicer_to_server(game_service_handler, server)
+    tournament_service_handler = TournamentServiceHandler.as_servicer()
+    tournament_pb2_grpc.add_TournamentServiceServicer_to_server(tournament_service_handler, server)
