@@ -1,0 +1,158 @@
+syntax = "proto3";
+
+package chat_service.chat;
+
+import "google/protobuf/empty.proto";
+
+service ChatRoomController {
+    rpc Create(ChatRoomRequest) returns (ChatRoomResponse) {}
+    rpc Destroy(ChatRoomDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(ChatRoomListRequest) returns (ChatRoomListResponse) {}
+    rpc ListChatRooms(google.protobuf.Empty) returns (ChatRoomResponse) {}
+    rpc PartialUpdate(ChatRoomPartialUpdateRequest) returns (ChatRoomResponse) {}
+    rpc Retrieve(ChatRoomRetrieveRequest) returns (ChatRoomResponse) {}
+    rpc Update(ChatRoomRequest) returns (ChatRoomResponse) {}
+}
+
+service ChatRoomMessageController {
+    rpc Create(ChatRoomMessageRequest) returns (ChatRoomMessageResponse) {}
+    rpc Destroy(ChatRoomMessageDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc List(ChatRoomMessageListRequest) returns (ChatRoomMessageListResponse) {}
+    rpc PartialUpdate(ChatRoomMessagePartialUpdateRequest) returns (ChatRoomMessageResponse) {}
+    rpc Retrieve(ChatRoomMessageRetrieveRequest) returns (ChatRoomMessageResponse) {}
+    rpc SubscribeChatRoomMessages(ChatRoomMessageSubscribeChatRoomMessagesRequest) returns (stream ChatRoomMessageResponse) {}
+    rpc Update(ChatRoomMessageRequest) returns (ChatRoomMessageResponse) {}
+}
+
+service ChatRoomUserController {
+    rpc Create(ChatRoomUserRequest) returns (ChatRoomUserResponse) {}
+    rpc Destroy(ChatRoomUserDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc GetChatRoomByUserId(ChatRoomUserGetChatRoomByUserIdRequest) returns (stream ChatRoomResponse) {}
+    rpc List(ChatRoomUserListRequest) returns (ChatRoomUserListResponse) {}
+    rpc PartialUpdate(ChatRoomUserPartialUpdateRequest) returns (ChatRoomUserResponse) {}
+    rpc Retrieve(ChatRoomUserRetrieveRequest) returns (ChatRoomUserResponse) {}
+    rpc Update(ChatRoomUserRequest) returns (ChatRoomUserResponse) {}
+}
+
+message ChatRoomDestroyRequest {
+    int32 id = 1;
+}
+
+message ChatRoomListRequest {
+}
+
+message ChatRoomListResponse {
+    repeated ChatRoomResponse results = 1;
+}
+
+message ChatRoomMessageDestroyRequest {
+    int32 id = 1;
+}
+
+message ChatRoomMessageListRequest {
+}
+
+message ChatRoomMessageListResponse {
+    repeated ChatRoomMessageResponse results = 1;
+}
+
+message ChatRoomMessagePartialUpdateRequest {
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string content = 3;
+    int32 sender_id = 4;
+    optional string timestamp = 5;
+    int32 chat_room = 6;
+}
+
+message ChatRoomMessageRequest {
+    optional int32 id = 1;
+    string content = 2;
+    int32 sender_id = 3;
+    optional string timestamp = 4;
+    int32 chat_room = 5;
+}
+
+message ChatRoomMessageResponse {
+    optional int32 id = 1;
+    string content = 2;
+    int32 sender_id = 3;
+    optional string timestamp = 4;
+    int32 chat_room = 5;
+}
+
+message ChatRoomMessageRetrieveRequest {
+    int32 id = 1;
+}
+
+message ChatRoomMessageSubscribeChatRoomMessagesRequest {
+    int32 chat_room_id = 1;
+}
+
+message ChatRoomPartialUpdateRequest {
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    string name = 3;
+    optional string created_at = 4;
+    optional int32 game_id = 5;
+}
+
+message ChatRoomRequest {
+    optional int32 id = 1;
+    string name = 2;
+    optional string created_at = 3;
+    optional int32 game_id = 4;
+}
+
+message ChatRoomResponse {
+    optional int32 id = 1;
+    string name = 2;
+    optional string created_at = 3;
+    optional int32 game_id = 4;
+}
+
+message ChatRoomRetrieveRequest {
+    int32 id = 1;
+}
+
+message ChatRoomUserDestroyRequest {
+    int32 id = 1;
+}
+
+message ChatRoomUserGetChatRoomByUserIdRequest {
+    int32 user_id = 1;
+}
+
+message ChatRoomUserListRequest {
+}
+
+message ChatRoomUserListResponse {
+    repeated ChatRoomUserResponse results = 1;
+}
+
+message ChatRoomUserPartialUpdateRequest {
+    optional int32 id = 1;
+    repeated string _partial_update_fields = 2;
+    int32 user_id = 3;
+    optional string joined_at = 4;
+    int32 chat_room = 5;
+}
+
+message ChatRoomUserRequest {
+    optional int32 id = 1;
+    int32 user_id = 2;
+    optional string joined_at = 3;
+    int32 chat_room = 4;
+}
+
+message ChatRoomUserResponse {
+    optional int32 id = 1;
+    int32 user_id = 2;
+    optional string joined_at = 3;
+    int32 chat_room = 4;
+}
+
+message ChatRoomUserRetrieveRequest {
+    int32 id = 1;
+}
+
