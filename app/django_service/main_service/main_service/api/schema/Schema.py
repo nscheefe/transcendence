@@ -98,7 +98,7 @@ type_defs = """
 
     type Subscription {
         ping_test: Ping!
-        chatRoomsForUser: [ChatRoom!]
+        chatRoomsForUser: ChatRoom!
         chat_room_message(chat_room_id: Int!): ChatRoomMessage!
     }
 
@@ -202,7 +202,7 @@ type_defs = """
         create_game_event(game_id: Int!, event_type: String!, event_data: String!): GameEvent
         start_game(game_id: Int!): StartGameResponse
         create_tournament(name: String!): Tournament
-    
+
         create_tournament_user(tournament_id: Int!, user_id: Int!): TournamentUserResponse
 
 
@@ -252,25 +252,25 @@ type_defs = """
         statId: Int!
         didWin: Boolean!
     }
-    
+
     type CalculateStatsResponse {
         totalGames: Int!
         totalWins: Int!
         totalLosses: Int!
     }
-    
+
     input CreateStatInput {
         gameId: Int!
         winnerId: Int!
         loserId: Int!
     }
-    
+
     type CreateStatPayload {
         success: Boolean!
         stat: Stat
         message: String
     }
-    
+
     type Tournament {
         id: Int
         name: String
