@@ -172,10 +172,10 @@ type_defs = """
     }
 
     input ProfileInput {
-        avatarUrl: String!
-        nickname: String!
-        bio: String!
-        additionalInfo: String!
+        avatarUrl: String
+        nickname: String
+        bio: String
+        additionalInfo: String
     }
 
     input UserInput {
