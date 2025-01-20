@@ -120,14 +120,6 @@ def friends(request):
 
 
 @jwt_required
-def game(request):
-    context = {
-        'user_name': request.user.username,
-        'game_data': get_game_data(request.user),  # Example function for getting game data
-    }
-    return render(request, 'frontend/game.html', context)
-
-@jwt_required
 def chat(request):
     user_data = getUserProfileData(request)
     ChatRooms = getDetailedChatRoomData(request)
