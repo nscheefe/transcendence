@@ -11,6 +11,7 @@ document.getElementById('close-btn').addEventListener('click', function() {
   let direction = 1;
   let socket = null;
   let isConnecting = false;
+  let gameStarted = false;
   let player;
   let scene, camera, renderer, ball, paddle1, paddle2;
 
@@ -73,11 +74,16 @@ document.getElementById('close-btn').addEventListener('click', function() {
           const state = JSON.parse(event.data);
           // console.log('Received state:', state)
           if (state.type === 'gameStarted') {
+            updateScene()
               player = state.player;
               console.log('Game started');
+              gameStarted = true;
               updateCamera(); // Update the camera position
           }
           if (state.type === 'updateState') {
+            if (!gameStarted) {
+                gameStarted = true;
+            }
               if (state.paddle1 !== undefined) {
                   paddle1.position.x = state.paddle1.x;
               }
@@ -94,10 +100,11 @@ document.getElementById('close-btn').addEventListener('click', function() {
               if (state.direction !== undefined) {
                   direction = state.direction;
               }
-          }
+            }
           if (state.type === 'gameOver') {
-              console.log('Game Over');
-              scene.add(gameOver(state.winner));
+                gameStarted = false;
+                console.log('Game Over');
+                scene.add(gameOver(state.winner));
           }
       };
 
@@ -394,12 +401,16 @@ document.getElementById('close-btn').addEventListener('click', function() {
   }
 
   function updateScene() {
+    // Remove waiting-message
+    const loadingScreen = document.getElementById('waiting-message');
+    if (loadingScreen) {
+        loadingScreen.remove();
+    }
     const pongContainer = document.getElementById('pong-container');
     const sizes = {
         width: pongContainer.clientWidth,
         height: pongContainer.clientHeight,
     };
-
       // Scene setup
       scene = createScene();
       camera = createCamera();
@@ -439,10 +450,8 @@ console.log("pong.js loaded");
 
 function main() {
     console.log("initPongGame called");
-    updateScene();
     createWebSocket();
 }
-
 // Expose the init function to be called externally
 window.initPongGame = main;
 console.log("initPongGame defined");

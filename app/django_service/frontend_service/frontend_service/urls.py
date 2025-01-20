@@ -20,7 +20,7 @@ urlpatterns = [
     path('home/chat/', views.chat, name='chat'),  # chat view
 
     # Game
-    path('home/game/', views.pong_view, name='pong'),  # Start game view
+    path('home/game/', views.game, name='game'),  # Start game view
 
     path('upload-avatar/', views.upload_avatar, name='upload_avatar'),  # File upload view
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
