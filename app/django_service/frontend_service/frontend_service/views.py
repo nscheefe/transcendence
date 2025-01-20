@@ -5,7 +5,7 @@ from .logic.commonContext import get_home_context
 from .logic.auth.utils import jwt_required, isJwtSet
 from .logic.auth.sign_in import signIn, exchange_code_for_token
 from .logic.gql.query.get_user_data import getUserProfileData
-from .logic.gql.mutation.update_user_profile import update_user_profile
+from .logic.gql.mutation import update_user_profile , create_game
 from django.core.files.storage import default_storage
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -64,7 +64,7 @@ def game(request):
     context = get_home_context(request)
     # Extend the context with additional data for the game view
     context.update({
-        #'game_data': get_game_data(request.user),  # Example function for getting game data
+        'game': create_game.createGame(request),  # Example function for getting game data
     })
     return render(request, 'frontend/pong.html', context)
 
