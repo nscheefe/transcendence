@@ -1,8 +1,11 @@
 {% extends "frontend/base.html" %}
+{% load static %}
 
 {% block title %}Home{% endblock %}
 
 {% block content %}
+        {% include "frontend/chatWidget.html" %}
+
   <section class="section">
     <div class="leaderboard-wrapper">
       <h3 class="heading">Top Players</h3>
@@ -19,5 +22,10 @@
       <div class="grid-overlay"></div>
     </div>
     <div class="backround-m42"></div>
+    <a href="{% url 'game' %}" id="search-game-btn" class="nav-link w-nav-link">Search Game</a>
+    <div data-dynamic-windows>
+      {% block dynamic_windows %}{% endblock %}
+    </div>
   </section>
 {% endblock %}
+

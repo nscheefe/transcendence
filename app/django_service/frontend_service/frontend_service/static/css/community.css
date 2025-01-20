@@ -1,0 +1,111 @@
+ .community {
+        #onpage-nav {
+            background-color: rgb(32, 32, 32); /* Light gray with 80% opacity */
+            border-radius: 0.5rem; /* Rounded corners */
+            padding: 1rem; /* Add some spacing inside the container */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for elevation */
+        }
+
+        /* Individual navigation links (non-active state) */
+
+        #onpage-nav .nav-link {
+            background-color: rgb(32, 32, 32); /* Slightly lighter gray */
+            border: 1px dashed rgba(150, 150, 150, 0.8); /* Dashed border */
+            margin-top: 5px;
+            margin-bottom: 5px;
+            color: #333; /* Dark gray text */
+            padding: 10px 15px; /* Adjust padding */
+            border-radius: 0.25rem; /* Slight rounding for each link */
+            transition: all 0.3s ease; /* Smooth effects for hover and active states */
+        }
+
+        /* Hover effect for navigation links */
+
+        #onpage-nav .nav-link:hover {
+            border-color: #007bff; /* Change border to solid gray */
+            color: #007bff; /* Add hover text color (blue hint) */
+        }
+
+        /* Active/Selected navigation link */
+
+        #onpage-nav .nav-link.active {
+            border-left: 5px solid #007bff; /* Blue left border for the active state */
+            border-color: #007bff;
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.3); /* Blue shadow around active link */
+            font-weight: bold; /* Font weight for selected tab */
+            color: #007bff !important; /* Blue text color for active link */
+        }
+
+        /* Optional: Global navigation container shadow */
+
+        #onpage-nav.show {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Tab Styling if You Want to Highlight Active Content as Well */
+
+        .tab-content .tab-pane {
+            border-radius: 0.5rem;
+            transition: all 0.3s ease;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .tab-content .tab-pane.active {
+            box-shadow: 0px 4px 10px rgba(0, 123, 255, 0.3);
+        }
+
+        /* Focus on Friend List Styling within Right Pane */
+
+        .tab-content .list-group-item {
+            background-color: #eeeeee; /* Light gray background */
+            border: 1px dashed #ccc; /* Dashed list item border */
+            margin-bottom: 10px; /* Spacing between list items */
+            border-radius: 0.5rem; /* Slightly round corners */
+            transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth interaction effects */
+        }
+
+        .tab-content .list-group-item:hover {
+            border-color: #007bff; /* Blue border on hover */
+            transform: scale(1.02); /* Slight scaling effect */
+            box-shadow: 0 4px 8px rgba(0, 123, 255, 0.5); /* Blue shadow around hovered item */
+        }
+
+        .tab-content .list-group-item.active {
+            background-color: #eef6ff; /* Light blue for active state */
+            border-left: 5px solid #007bff; /* Blue left border for active state */
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* Blue shadow */
+        }
+
+        /* Avatar Styling for Profile Images */
+
+        .tab-content .list-group-item .avatar img {
+            border: 2px solid #ddd; /* Border around avatar */
+            border-radius: 50%; /* Circular avatar */
+        }
+
+        #profile .avatar img {
+            border: 3px solid rgba(255, 255, 255, 0.3); /* Slight border for styling */
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5); /* Smooth shadow around avatar */
+            border-radius: 50%; /* Circular avatar */
+            width: 80px; /* Fixed width for avatar */
+            height: 80px; /* Fixed height for avatar */
+            object-fit: cover; /* Ensures the image is contained properly */
+        }
+
+        /* Profile tab text styling */
+
+        #profile h4 {
+            color: #ffffff; /* Bright white for clear visibility */
+            margin: 0;
+        }
+
+        #profile p {
+            color: #cccccc; /* Muted white text for extra content */
+            margin: 0 0 10px;
+        }
+
+        #profile h5 {
+            color: #007bff; /* Highlight section headings in blue */
+            margin-top: 20px;
+        }
+    }

@@ -232,6 +232,7 @@ services:
       - django_network
     ports:
       - '4000:4000'
+    command: ["gow", "run", "main.go"]  # Ensure this command matches the ENTRYPOINT in the Dockerfile
 ## DJANGO/PONG SERVICES EXPOSED TO THE USER ##
 ##########################################
 
