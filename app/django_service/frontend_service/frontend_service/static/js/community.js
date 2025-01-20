@@ -271,3 +271,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         await fetchAndRenderProfiles(profilesContainer, prevPageBtn, nextPageBtn, limit, currentOffset);
     });
 });
+
