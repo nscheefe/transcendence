@@ -1,5 +1,56 @@
+{% extends "frontend/home.html" %}
+{% load static %}
+
+{% block title %}Pong{% endblock %}
+
 {% block dynamic_windows %}
 <div id="pong-container">
   <button id="close-btn">Close</button>
+  <div id="waiting-message">
+    <p>Waiting for Player B</p>
+    <div class="spinner"></div>
+  </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Add event listener for the close button after content is injected
+    document.getElementById('close-btn').addEventListener('click', function() {
+      document.getElementById('pong-container').style.display = 'none';
+    });
+
+    // Function to load scripts sequentially
+    function loadScripts(scripts, callback) {
+      if (scripts.length === 0) {
+        callback();
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = scripts.shift();
+      script.onload = () => loadScripts(scripts, callback);
+      document.head.appendChild(script);
+    }
+
+    // List of scripts to load
+    const scripts = [
+      "https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js",
+      "https://unpkg.com/three@0.128.0/examples/js/shaders/CopyShader.js",
+      "https://unpkg.com/three@0.128.0/examples/js/postprocessing/EffectComposer.js",
+      "https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js",
+      "https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js",
+      "https://unpkg.com/three@0.128.0/examples/js/shaders/RGBShiftShader.js",
+      "https://unpkg.com/three@0.128.0/examples/js/shaders/GammaCorrectionShader.js",
+      "{% static 'js/pong.js' %}"
+    ];
+
+    // Load scripts and initialize the game
+    loadScripts(scripts, () => {
+      console.log("All scripts loaded");
+      window.initPongGame();
+    });
+  });
+</script>
+{% endblock %}
+
