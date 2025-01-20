@@ -9,6 +9,11 @@ from .logic.gql.query.get_user_chat import getDetailedChatRoomData
 from .logic.gql.query.get_profile_data import getProfileData
 from .logic.gql.mutation.update_user_profile import update_user_profile
 from django.core.files.storage import default_storage
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.files.base import ContentFile
+import os
+import jwt
 
 def root_redirect(request):
     """
@@ -47,7 +52,7 @@ def oauth_callback(request):
 
     # Store the JWT as a cookie
     response = redirect('home')
-    response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='Lax')
+    response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='None')
     return response
 
 @jwt_required
@@ -138,3 +143,40 @@ def publicProfile(request, user_id):
         'referrer': referrer,  # Add referrer to the context if needed
     }
     return render(request, 'frontend/publicProfile.html', context)
+
+@csrf_exempt
+def upload_avatar(request):
+    if request.method == 'POST' and request.FILES.get('filename'):
+        token = request.COOKIES.get('jwt_token')
+        if not token:
+            return JsonResponse({'success': False, 'message': 'Authentication token is missing'}, status=401)
+
+        try:
+            decoded_token = jwt.decode(token, settings.JWT_SECRET, algorithms=['HS256'])
+            user_id = decoded_token.get('user_id')
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'success': False, 'message': 'Token has expired'}, status=401)
+        except jwt.InvalidTokenError:
+            return JsonResponse({'success': False, 'message': 'Invalid token'}, status=401)
+        except jwt.InvalidSignatureError:
+            return JsonResponse({'success': False, 'message': 'Signature verification failed'}, status=401)
+
+        avatar_file = request.FILES['filename']
+        user_upload_dir = os.path.join(settings.MEDIA_ROOT, 'avatars', str(user_id))
+
+        if not os.path.exists(user_upload_dir):
+            os.makedirs(user_upload_dir)
+
+        # Delete old avatar if it exists
+        for filename in os.listdir(user_upload_dir):
+            file_path = os.path.join(user_upload_dir, filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+        file_name = default_storage.save(os.path.join('avatars', str(user_id), avatar_file.name), ContentFile(avatar_file.read()))
+        file_url = default_storage.url(file_name)
+        return JsonResponse({'success': True, 'url': file_url})
+    return JsonResponse({'success': False, 'message': 'File upload failed'}, status=400)
+
+def pong_view(request):
+    return render(request, 'frontend/pong.html')

@@ -186,35 +186,26 @@ def resolve_manage_profile(_, info, profileData):
     user_id = info.context["request"].user_id
     if not user_id:
         raise Exception("Authentication required: user_id is missing")
-
+    logger.info("Manage profile data: " + str(profileData))
     try:
         channel = grpc.insecure_channel(GRPC_TARGET)
         profile_stub = ProfileServiceStub(channel)
-        if profileData.get("create"):
-            create_request = CreateProfileRequest(
-                user_id=user_id,
-                avatar_url=profileData["create"]["avatarUrl"],
-                nickname=profileData["create"]["nickname"],
-                bio=profileData["create"]["bio"],
-                additional_info=profileData["create"]["additionalInfo"]
-            )
-            profile_stub.CreateProfile(create_request)
 
-        if profileData.get("update"):
-            update_request = UpdateProfileRequest(
-                user_id=user_id,
-                avatar_url=profileData["update"]["avatarUrl"],
-                nickname=profileData["update"]["nickname"],
-                bio=profileData["update"]["bio"],
-                additional_info=profileData["update"]["additionalInfo"]
-            )
-            profile_stub.UpdateProfile(update_request)
-        return {"success": True, "message": "Profile operations completed successfully."}
+        update_request = UpdateProfileRequest(
+            user_id=user_id,
+            avatar_url=profileData.get("avatarUrl"),
+            nickname=profileData.get("nickname"),
+            bio=profileData.get("bio"),
+            additional_info=profileData.get("additionalInfo")
+        )
+        profile_stub.UpdateProfile(update_request)
+
+        return {"success": True, "message": "Profile updated successfully."}
 
     except grpc.RpcError as e:
         return {"success": False, "message": f"gRPC Profile error: {e.details()} (Code: {e.code()})"}
     except Exception as e:
-        return {"success": False, "message": f"Unexpected error during profile operations: {str(e)}"}
+        return {"success": False, "message": f"Unexpected error during profile update: {str(e)}"}
 
 @mutation.field("manageFriendship")
 def resolve_manage_friendship(_, info, friendshipData):

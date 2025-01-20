@@ -1668,3 +1668,38 @@ blockquote {
   font-style: normal;
   font-display: auto;
 }
+
+
+#pong-container {
+  position: fixed;
+  display: flex;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  height: 80%;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.pong-canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  border-style: dashed;
+}
+
+#close-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff0000;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+  z-index: 1001;
+}

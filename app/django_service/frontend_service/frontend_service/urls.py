@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.root_redirect, name='root_redirect'),  # Root route redirection
@@ -12,8 +14,13 @@ urlpatterns = [
     path('home/stats/', views.stats, name='stats'),  # Stats view
     path('home/friends/', views.friends, name='friends'),  # Friends view
     path('home/game/', views.game, name='game'),  # Game view
+    #path('home/game/', views.game, name='game'),  # Game view
     path('home/profile/', views.profile, name='profile'),  # Profile view
     path('home/profile/<int:user_id>/', views.publicProfile, name='publicProfile'),
     path('home/chat/', views.chat, name='chat'),  # chat view
 
-]
+    # Game
+    path('home/game/', views.pong_view, name='pong'),  # Start game view
+
+    path('upload-avatar/', views.upload_avatar, name='upload_avatar'),  # File upload view
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

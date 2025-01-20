@@ -67,6 +67,6 @@
     const userId = {{ user.id }};
     </script>
     {% load static %}
-        <script src="{% static 'js/community.js' %}"></script>
+        <script type="module" src="{% static 'js/community.js' %}"></script>
 
 {% endblock extra_js %}
