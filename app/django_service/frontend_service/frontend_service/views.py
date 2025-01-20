@@ -1,3 +1,4 @@
+from venv import logger
 from django.shortcuts import render, redirect
 from django.conf import settings
 
@@ -62,9 +63,11 @@ def home(request):
 @jwt_required
 def game(request):
     context = get_home_context(request)
+    game = create_game.createGame(request)
+    logger.info(game)
     # Extend the context with additional data for the game view
     context.update({
-        'game': create_game.createGame(request),  # Example function for getting game data
+        'game': game,  # Example function for getting game data
     })
     return render(request, 'frontend/pong.html', context)
 

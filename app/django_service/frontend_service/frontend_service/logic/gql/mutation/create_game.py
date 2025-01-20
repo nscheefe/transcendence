@@ -12,5 +12,5 @@ def createGame(request):
     """
     query = load_query('mutation/createGame.gql')
     response = execute_query(query, request)
-    return response
+    return response['create_game']
 
