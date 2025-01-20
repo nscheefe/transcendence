@@ -1,5 +1,6 @@
 query getUserData {
   user {
+    id
     lastLoginIp
     mail
     name

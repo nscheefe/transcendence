@@ -1,0 +1,5 @@
+query getUserChatRoom {
+  chatRoomsForUser {
+    id
+  }
+}

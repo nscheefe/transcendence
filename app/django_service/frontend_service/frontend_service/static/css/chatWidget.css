@@ -1,0 +1,68 @@
+.chatWidget{
+        .chat-messages-container {
+            background-color: #181818;
+            color: #ffffff;
+            max-height: 33vh;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        .chat-messages-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .chat-messages-container::-webkit-scrollbar-thumb {
+            background-color: #555555;
+            border-radius: 10px;
+        }
+
+        .chat-messages-container::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        .chat-room.active {
+            background-color: #202020;
+            border-left: 4px solid #007bff;
+            font-weight: bold;
+        }
+
+        .chat-room {
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .chat-room:hover {
+            background-color: #282828;
+        }
+
+        .chat-messages-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding: 0.5rem;
+            box-sizing: border-box;
+        }
+
+        .offcanvas-bottom-right {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 38vw;
+            height: 0;
+            max-height: 50vh;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            padding: 0px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+            z-index: 1050;
+            overflow: hidden;
+            transition: height 0.3s ease, visibility 0.3s ease;
+        }
+
+        .offcanvas-bottom-right.show {
+            visibility: visible;
+            height: 50vh;
+            outline: none;
+            width: 45vw;
+        }
+    }

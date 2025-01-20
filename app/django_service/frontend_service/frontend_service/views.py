@@ -1,9 +1,16 @@
+from pprint import pprint
+
+from venv import logger
 from django.shortcuts import render, redirect
 from django.conf import settings
+
+from .logic.commonContext import get_home_context
 from .logic.auth.utils import jwt_required, isJwtSet
 from .logic.auth.sign_in import signIn, exchange_code_for_token
 from .logic.gql.query.get_user_data import getUserProfileData
-from .logic.gql.mutation.update_user_profile import update_user_profile
+from .logic.gql.query.get_user_chat import getDetailedChatRoomData
+from .logic.gql.query.get_profile_data import getProfileData
+from .logic.gql.mutation import update_user_profile , create_game
 from django.core.files.storage import default_storage
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -48,19 +55,25 @@ def oauth_callback(request):
 
     # Store the JWT as a cookie
     response = redirect('home')
-    response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='Lax')
+    response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='None')
     return response
 
 @jwt_required
 def home(request):
     # Create context dictionary with necessary data
-    user_data = getUserProfileData(request)
-    context = {
-        'show_nav': True,
-        'user_name': request.user.username,  # Example: passing the username
-        'user': user_data,
-    }
+    context = get_home_context(request)
     return render(request, 'frontend/home.html', context)
+
+@jwt_required
+def game(request):
+    context = get_home_context(request)
+    game = create_game.createGame(request)
+    logger.info(game)
+    # Extend the context with additional data for the game view
+    context.update({
+        'game': game,  # Example function for getting game data
+    })
+    return render(request, 'frontend/pong.html', context)
 
 @jwt_required
 def profile(request):
@@ -97,19 +110,68 @@ def stats(request):
 
 @jwt_required
 def friends(request):
+    user_data = getUserProfileData(request)
     context = {
-        'user_name': request.user.username,
-        'friends_data': get_user_friends(request.user),  # Example function for getting friends data
+        'show_nav': True,
+        'user': user_data,
+        #'friends_data': get_user_friends(request.user),  # Example function for getting friends data
     }
     return render(request, 'frontend/friends.html', context)
 
+
 @jwt_required
-def game(request):
+def chat(request):
+    user_data = getUserProfileData(request)
+    ChatRooms = getDetailedChatRoomData(request)
     context = {
-        'user_name': request.user.username,
-        'game_data': get_game_data(request.user),  # Example function for getting game data
+        'show_nav': True,
+        'user': user_data,
     }
-    return render(request, 'frontend/game.html', context)
+    pprint(ChatRooms)
+
+    return render(request, 'frontend/chat.html', context)
+
+@jwt_required
+def publicProfile(request, user_id):
+    # Example: Fetch data or log the user_id
+    referrer = request.META.get('HTTP_REFERER', None)
+    print(f"User ID is: {user_id}")
+    profile_data = getProfileData(request, user_id)
+    user_data = getUserProfileData(request)
+    context = {
+        'show_nav': True,
+        'user': user_data,
+        'profile': profile_data,
+        'referrer': referrer,  # Add referrer to the context if needed
+    }
+    return render(request, 'frontend/publicProfile.html', context)
+
+@jwt_required
+def chat(request):
+    user_data = getUserProfileData(request)
+    ChatRooms = getDetailedChatRoomData(request)
+    context = {
+        'show_nav': True,
+        'user': user_data,
+    }
+    pprint(ChatRooms)
+
+    return render(request, 'frontend/chat.html', context)
+
+@jwt_required
+def publicProfile(request, user_id):
+    # Example: Fetch data or log the user_id
+    referrer = request.META.get('HTTP_REFERER', None)
+    print(f"User ID is: {user_id}")
+    profile_data = getProfileData(request, user_id)
+    user_data = getUserProfileData(request)
+    context = {
+        'show_nav': True,
+        'user': user_data,
+        'profile': profile_data,
+        'referrer': referrer,  # Add referrer to the context if needed
+    }
+    return render(request, 'frontend/publicProfile.html', context)
 
 @csrf_exempt
 def upload_avatar(request):
@@ -144,3 +206,6 @@ def upload_avatar(request):
         file_url = default_storage.url(file_name)
         return JsonResponse({'success': True, 'url': file_url})
     return JsonResponse({'success': False, 'message': 'File upload failed'}, status=400)
+
+def pong_view(request):
+    return render(request, 'frontend/pong.html')

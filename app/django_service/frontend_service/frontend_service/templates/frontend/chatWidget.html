@@ -1,0 +1,71 @@
+{% block chatWidget %}
+
+    <!-- Trigger Button -->
+    <!-- Offcanvas Bottom-Right -->
+    <div class="chatWidget">
+    <div
+            class="offcanvas offcanvas-bottom-right"
+            id="offcanvasBottom"
+            aria-labelledby="offcanvasBottomLabel"
+            style="visibility: hidden; height: 0; color: #ffffff;">
+
+        <div class="offcanvas-body" style="color: #ffffff; padding: 0px">
+    <button
+        id="closeOffcanvasButton"
+        type="button"
+        class="btn-close-white text-reset"
+        style="position: absolute; top: 10px; right: 20px; color: #ffffff; fill: white"
+        data-bs-dismiss="offcanvas"
+        aria-label="Close">
+    </button>
+            <!-- Chat Widget Content -->
+            <div class="chat-container d-flex flex-row" style="min-height: 100%;background-color: #202020">
+                    <div class="card" style="min-height: 100%; min-width: 175px; background-color: #202020; color: #ffffff; padding-right: 10px">
+
+                    <div class="card-body" style="min-height: 100%; background-color: #202020; color: #ffffff;">
+
+                        <ul id="chatRoomList" class="list-unstyled mb-0" style="min-height: 100%; color: #ffffff;">
+                            <!-- The chat room list will be dynamically populated by JavaScript -->
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Chat Details and Messages -->
+                <div class="chat-details flex-fill" style="background-color: #181818; color: #ffffff; padding-left: 10px; padding-right: 10px">
+
+                    <div class="d-flex">
+                        <div style="flex: 1; margin-top:20px">
+                            <ul class="list-unstyled chat-messages-container" id="chat-Room-Messages">
+
+                            </ul>
+
+                            <div data-mdb-input-init class="form-outline">
+                                <label class="form-label" for="textAreaExample2" style="color: #ffffff;">Message</label>
+
+                                <textarea class="form-text-input-transparent w-input" id="textAreaExample2"
+                                          style="color:white" rows="3"></textarea>
+                            </div>
+                                <button type="button" data-mdb-button-init data-mdb-ripple-init
+                                    class="btn btn-info btn-rounded float-end" style="background-color: #0099FF; color: #ffffff;">Send
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <button style="bottom: 20px; right: 20px; width: 150px; height: 50px; z-index: 1049; display: inline-flex; justify-content: center; align-items: center;"
+            class="position-fixed btn shadow-lg" style="background-color: #181818; color: #ffffff; border: 1px solid #555;"
+            id="toggleOffcanvasButton">
+        Open Chat
+    </button>
+    </div>
+    <style>
+
+    </style>
+    <script>
+
+    </script>
+    {% load static %}
+    <script type="module" src="{% static 'js/chatWidget.js' %}"></script>
+{% endblock chatWidget %}
