@@ -10,7 +10,7 @@
       <div class="form-block w-form">
         <form id="profile-form" name="profile-form" data-name="Profile Form" method="post" enctype="multipart/form-data" class="form">
           <div class="w-embed">
-            <input class="file-input" type="file" id="myFile" name="filename" onchange="previewFile()">
+            <input class="file-input" type="file" id="myFile" accept="image/*" name="filename" onchange="previewFile()">
             <label for="myFile" class="file-input-label">
               {% if user.profile.avatarUrl %}
                 <img src="{{ user.profile.avatarUrl }}" alt="Profile Avatar" id="avatarPreview" class="profile-avatar">
@@ -73,45 +73,13 @@ document.getElementById('profile-form').addEventListener('submit', async functio
   const variables = {};
   if (avatarFile && avatarFile.size > 0) {
     // Upload the file to the server
-    const uploadResponse = await fetch('/upload-avatar/', {
+    const uploadResponse = await fetch('/home/profile/', {
       method: 'POST',
       body: formData, // Send the entire form data
       headers: {
         'X-CSRFToken': formData.get('csrfmiddlewaretoken')
       }
     });
-    const uploadResult = await uploadResponse.json();
-    if (uploadResult.success) {
-      variables.avatarUrl = uploadResult.url;
-    } else {
-      alert('Error uploading avatar');
-      return;
-    }
-  }
-  if (nickname) {
-    variables.nickname = nickname;
-  }
-  if (bio) {
-    variables.bio = bio;
-  }
-
-  const query = `
-    mutation ManageProfile($avatarUrl: String, $nickname: String, $bio: String) {
-      manageProfile(profileData: { avatarUrl: $avatarUrl, nickname: $nickname, bio: $bio }) {
-        success
-        message
-      }
-    }
-  `;
-
-  const response = await fetch('/graphql/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-    },
-    body: JSON.stringify({ query, variables })
-  });
 
   const result = await response.json();
   if (result.data.manageProfile.success) {
