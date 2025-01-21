@@ -1,12 +1,36 @@
-import {fetchGraphQL} from './utils.js';
+import {executeSubscription, gql} from "./utils.js"
 
 /**
- * Fetches chat room messages by ID.
- * @param {number} chatRoomId - The ID of the chat room.
- * @returns {Promise<Array>} The list of messages.
+ * Subscribes to real-time updates for the user's chat rooms.
+ * @param {function} onChatRoomUpdate - Callback function, triggered on receiving a new update.
+ * @param {function} [onError] - Callback function, triggered on error during the subscription.
+ * @returns {function} - A function to unsubscribe from the subscription.
  */
+export const subscribeToUserChatRooms = (onChatRoomUpdate, onError) => {
+
+const subscriptionQuery = {
+  query: gql`
+    subscription ChatRoomUpdates {
+        chatRoomsForUser {
+            id,
+            name
+        }
+    }
+  `,
+  variables: {},
+};
+
+executeSubscription(subscriptionQuery,
+  (data) => console.log("Subscription data:", data),
+  (error) => console.error("Subscription error:", error),
+  () => console.log("Subscription complete.")
+);
+
+};
+
+
 export const fetchChatRoomMessages = async (chatRoomId) => {
-    const query = `
+    const query = gql`
         query {
             chatRoom(id: ${chatRoomId}) {
                 messages {
@@ -16,21 +40,6 @@ export const fetchChatRoomMessages = async (chatRoomId) => {
                     id
                     timestamp
                 }
-            }
-        }
-    `;
-    return fetchGraphQL(query);
-};
-
-/**
- * Fetches the list of all chat rooms for a user.
- * @returns {Promise<Array>} The list of chat rooms.
- */
-export const fetchUserChatRooms = async () => {
-    const query = `
-        query {
-            chatRoomsForUser {
-                id
             }
         }
     `;
@@ -56,7 +65,7 @@ export const buildChatRoomDetailsQuery = (ids) => {
         queryBody += `chatRoom${i + 1}: chatRoom(id: ${sanitizedIds[i]}) { id name users { userId } }\n`;
     }
 
-    return `
+    return gql`
         query {
             ${queryBody}
         }

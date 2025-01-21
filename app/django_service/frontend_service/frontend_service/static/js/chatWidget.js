@@ -1,4 +1,4 @@
-import {fetchChatRoomDetails, fetchChatRoomMessages, fetchUserChatRooms} from './chatservice.js';
+import {fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms} from './chatservice.js';
 import {showError} from './utils.js';
 import {addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, formatTime} from './domHelpers.js';
 
@@ -69,38 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     /**
-     * Renders the chat room list in the sidebar.
-     * @param {Array} rooms - Array of chat room details.
-     */
-    const renderChatRooms = (rooms) => {
-        chatRoomList.innerHTML = rooms
-            .map((room) =>
-                createElement(
-                    'li',
-                    `
-                    <a href="#!" class="d-flex justify-content-between">
-                        <div class="d-flex flex-row">
-                            <img src="${DEFAULT_AVATAR}" alt="avatar" width="60" class="rounded-circle me-3">
-                            <div>
-                                <p class="fw-bold">${room.name}</p>
-                            </div>
-                        </div>
-                    </a>
-                `,
-                    'chat-room p-2 border-bottom', {
-                        color: '#ffffff'
-                    }, {
-                        'data-chat-room-id': room.id
-                    }
-                ).outerHTML
-            )
-            .join('');
-        document.querySelectorAll('.chat-room a').forEach((link, i) => {
-            link.addEventListener('click', () => selectChatRoom(rooms[i]));
-        });
-    };
-
-    /**
      * Selects and fetches messages for a given chat room.
      * @param {Object} room - Selected chat room object.
      */
@@ -110,35 +78,83 @@ document.addEventListener('DOMContentLoaded', () => {
         populateChatRoomMessages(room.id);
     };
 
-const loadChatRoomData = async () => {
-    try {
-        const userChatRoomsResponse = await fetchUserChatRooms();
-        const userChatRooms = userChatRoomsResponse.chatRoomsForUser;
-        if (!Array.isArray(userChatRooms) || userChatRooms.length === 0) {
-            chatRoomList.innerHTML = '<li class="text-light">No chat rooms available.</li>';
-            return;
+
+    const loadChatRoomData = async () => {
+        try {
+            // Clear out any existing chat rooms and display a loading message
+            chatRoomList.innerHTML = '<li class="text-light">Loading chat rooms...</li>';
+
+            // Maintain a set of chat room IDs already displayed in the UI
+            const existingRoomIds = new Set();
+
+            // Subscribe to real-time updates for chat rooms
+            const unsubscribe = subscribeToUserChatRooms(
+                (chatRoomUpdate) => {
+                    console.log("New chat room update received:", chatRoomUpdate);
+
+                    if (!Array.isArray(chatRoomUpdate)) {
+                        console.error("Unexpected format for chat room update:", chatRoomUpdate);
+                        return;
+                    }
+
+                    chatRoomUpdate.forEach((room) => {
+                        // If the chat room is not already in the DOM, add it
+                        if (!existingRoomIds.has(room.id)) {
+                            existingRoomIds.add(room.id); // Track added chat room
+
+                            // Create and add the chat room element to the list
+                            const newRoomElement = createElement(
+                                'li',
+                                `
+                                <a href="#!" class="d-flex justify-content-between">
+                                    <div class="d-flex flex-row">
+                                        <img src="${DEFAULT_AVATAR}" alt="avatar" width="60" class="rounded-circle me-3">
+                                        <div>
+                                            <p class="fw-bold">${room.name}</p>
+                                        </div>
+                                    </div>
+                                </a>
+                                `,
+                                'chat-room p-2 border-bottom',
+                                { color: '#ffffff' },
+                                { 'data-chat-room-id': room.id }
+                            );
+
+                            // Remove the "loading" or "waiting" placeholder, if present
+                            const noChatRoomsPlaceholder = chatRoomList.querySelector('.text-light');
+                            if (noChatRoomsPlaceholder) {
+                                noChatRoomsPlaceholder.remove();
+                            }
+
+                            // Append the new chat room to the UI list
+                            chatRoomList.appendChild(newRoomElement);
+
+                            // Add an event listener for chat room selection
+                            newRoomElement.querySelector('a').addEventListener('click', () => selectChatRoom(room));
+                        }
+                    });
+                },
+                (error) => {
+                    console.error("Subscription error:", error);
+                    showError(chatRoomList, "Failed to load chat rooms.");
+                }
+            );
+
+            // Update the placeholder if no updates arrive immediately
+            chatRoomList.innerHTML = '<li class="text-light">Waiting for chat rooms...</li>';
+
+            // Optionally, provide a way to stop the subscription later
+            // Save `unsubscribe` to use it when needed (e.g., when navigating away)
+            window.chatRoomUnsubscriber = unsubscribe;
+        } catch (error) {
+            console.error("Error loading chat rooms:", error);
+
+            // Display an error message in the UI
+            showError(chatRoomList, "Failed to load chat rooms.");
         }
-        const roomIds = [];
-        for (let i = 0; i < userChatRooms.length; i++) {
-            if (userChatRooms[i] && userChatRooms[i].id) {
-                roomIds.push(userChatRooms[i].id);
-            } else {
-                console.error(`Invalid chat room entry at index ${i}:`, userChatRooms[i]);
-            }
-        }
-        console.log("Room IDs:", roomIds);
-        if (roomIds.length === 0) {
-            chatRoomList.innerHTML = '<li class="text-light">No valid chat rooms found.</li>';
-            return;
-        }
-        const roomDetails = await fetchChatRoomDetails(roomIds);
-        renderChatRooms(roomDetails);
-    } catch (error) {
-        console.error("Error loading chat rooms:", error);
-        showError(chatRoomList, "Failed to load chat rooms.");
-    }
-};
- const toggleOffcanvas = () => {
+    };
+
+    const toggleOffcanvas = () => {
         const isVisible = offcanvas.classList.toggle('show');
         Object.assign(offcanvas.style, {
             visibility: isVisible ? 'visible' : 'hidden',

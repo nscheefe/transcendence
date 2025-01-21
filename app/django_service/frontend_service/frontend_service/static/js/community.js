@@ -1,7 +1,7 @@
-import {fetchFriendships, fetchFriendsWithProfiles} from './friendservice.js';
-import {fetchUserProfileAndStats, fetchProfiles} from './profileservice.js';
-import {showError} from './utils.js';
-import {createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate} from './domHelpers.js';
+import { fetchFriendships, fetchFriendsWithProfiles } from './friendservice.js';
+import { fetchUserProfileAndStats, fetchProfiles } from './profileservice.js';
+import { showError, gql } from './utils.js';
+import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
 
 const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';
 const LOADING_FRIENDS_HTML = '<p class="text-light">Loading friends...</p>';
@@ -155,7 +155,8 @@ const renderUserProfile = (user, stats, profileContainer) => {
  */
 const loadUserProfile = async (profileContainer, profileLoading) => {
     try {
-        const data = await fetchUserProfileAndStats(userId); // Replace 'userId' appropriately
+        const userId = 1; // Replace with actual user ID
+        const data = await fetchUserProfileAndStats(userId);
         profileLoading.remove();
 
         if (data?.user) {
@@ -176,7 +177,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await Promise.all([loadFriends(friendsContainer), loadUserProfile(profileContainer, profileLoading)]);
 });
-
 
 const NO_PROFILES_HTML = '<p class="text-light">No profiles found.</p>';
 const LOADING_PROFILES_HTML = '<p class="text-light">Loading profiles, please wait...</p>';
@@ -271,4 +271,3 @@ document.addEventListener('DOMContentLoaded', async () => {
         await fetchAndRenderProfiles(profilesContainer, prevPageBtn, nextPageBtn, limit, currentOffset);
     });
 });
-

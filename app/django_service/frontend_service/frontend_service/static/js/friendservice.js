@@ -1,34 +1,12 @@
-const graphqlEndpoint = '/graphql/';
+import { executeQuery, gql } from './utils.js';
 
 /**
- * Sends a GraphQL query request.
- * @param {string} query - The GraphQL query string.
- * @returns {Promise<object>} - The resulting data from the query.
- */
-const fetchGraphQL = async (query) => {
-    try {
-        const response = await fetch(graphqlEndpoint, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({query}),
-            credentials: 'include'
-        });
-
-        const {data, errors} = await response.json();
-        if (errors) throw new Error(errors[0]?.message || 'GraphQL Errors');
-        return data;
-    } catch (error) {
-        console.error('GraphQL error:', error);
-        throw error;
-    }
-};
-
-/**
- * Fetches friendships for the logged-in user.
- * @returns {Promise<array>} - Array of friendship objects.
+ * Fetches friendships for the logged-in user using plain string queries.
+ * @returns {Promise<Array>} - Array of friendship objects.
  */
 export const fetchFriendships = async () => {
-    const friendshipsQuery = `
+    // Defining the GraphQL query as a plain string
+    const GET_FRIENDSHIPS_QUERY = gql`
         query GetFriendships {
             user {
                 friendships {
@@ -42,7 +20,7 @@ export const fetchFriendships = async () => {
     `;
 
     try {
-        const {user} = await fetchGraphQL(friendshipsQuery);
+        const { user } = await executeQuery(GET_FRIENDSHIPS_QUERY);
         return user.friendships || [];
     } catch (error) {
         console.error('Failed to fetch friendships:', error);
@@ -52,12 +30,13 @@ export const fetchFriendships = async () => {
 
 /**
  * Dynamically generates a GraphQL query to fetch profiles for each friend ID.
- * @param {array} friendships - Array of friendship objects.
- * @returns {string} - The combined GraphQL query for fetching profiles.
+ * @param {Array} friendships - Array of friendship objects.
+ * @returns {String} - The combined GraphQL query for fetching profiles.
  */
 const buildProfileQuery = (friendships) => {
     return friendships
-        .map((friendship, index) => `
+        .map(
+            (friendship, index) => `
             friend${index}: profile(userId: ${friendship.friendId}) {
                 additionalInfo
                 avatarUrl
@@ -65,19 +44,21 @@ const buildProfileQuery = (friendships) => {
                 bio
                 userId
             }
-        `)
+        `
+        )
         .join('\n');
 };
 
 /**
- * Fetches friendships and associated profiles in one combined query.
- * @param {array} friendships - Array of friendship objects.
- * @returns {Promise<object>} - Combined friendships and profiles data.
+ * Fetches friendships and associated profiles in one combined query using plain strings.
+ * @param {Array} friendships - Array of friendship objects.
+ * @returns {Promise<Object>} - Combined friendships and profiles data.
  */
 export const fetchFriendsWithProfiles = async (friendships) => {
+    // Build the dynamic profile query as a plain string
     const profileQueries = buildProfileQuery(friendships);
 
-    const combinedQuery = `
+    const GET_FRIENDSHIPS_AND_PROFILES_QUERY = gql`
         query GetFriendshipsAndProfiles {
             friendships: user {
                 friendships {
@@ -93,7 +74,7 @@ export const fetchFriendsWithProfiles = async (friendships) => {
     `;
 
     try {
-        return await fetchGraphQL(combinedQuery);
+        return await executeQuery(GET_FRIENDSHIPS_AND_PROFILES_QUERY);
     } catch (error) {
         console.error('Failed to fetch friends and their profiles:', error);
         throw error;
