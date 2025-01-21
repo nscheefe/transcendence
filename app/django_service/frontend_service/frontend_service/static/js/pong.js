@@ -30,23 +30,18 @@ document.getElementById('close-btn').addEventListener('click', function() {
   }
 
   function gameOver(winner) {
-      const gameOverText = createTextMesh('Game Over', 2, 0xff0000, {
-          x: 0,
-          y: 1,
-          z: 0
-      });
+      const gameOverview = document.getElementById('game-overview');
+      const gameOverviewTitle = document.getElementById('game-overview-title');
+      const gameOverviewResult = document.getElementById('game-overview-result');
 
-      // Center the text
-      gameOverText.geometry.computeBoundingBox();
-      const textWidth = gameOverText.geometry.boundingBox.max.x - gameOverText.geometry.boundingBox.min.x;
-      gameOverText.position.x = -textWidth / 2;
-
-      // Rotate the text based on the player
-      if (player === 'player_b') {
-          gameOverText.rotation.y = Math.PI; // Rotate 180 degrees for player_b
+      gameOverviewTitle.textContent = 'Game Over';
+      if (winner === player) {
+          gameOverviewResult.textContent = 'You won!';
+      } else {
+          gameOverviewResult.textContent = 'You lost!';
       }
 
-      return gameOverText;
+      gameOverview.style.display = 'block';
   }
 
   // WebSocket setup
@@ -104,7 +99,7 @@ document.getElementById('close-btn').addEventListener('click', function() {
           if (state.type === 'gameOver') {
                 gameStarted = false;
                 console.log('Game Over');
-                scene.add(gameOver(state.winner));
+                gameOver(state.winner);
           }
       };
 
@@ -164,7 +159,7 @@ document.getElementById('close-btn').addEventListener('click', function() {
 
   function createCamera() {
       const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      if (player === 'player_a') {
+      if (player === 1) {
           camera.position.set(0, 10, -15);
       } else {
           camera.position.set(0, 10, 15);
@@ -339,7 +334,7 @@ document.getElementById('close-btn').addEventListener('click', function() {
   }
 
   function updatePaddlePosition() {
-      if (player === 'player_a') {
+      if (player === 1) {
           if (keyState['ArrowLeft'] && paddle1.position.x > -4.5) {
               paddle1.position.x += 0.1;
           }
@@ -353,7 +348,7 @@ document.getElementById('close-btn').addEventListener('click', function() {
               paddle1.position.x -= 0.1;
           }
       }
-      if (player === 'player_b') {
+      if (player === 2) {
           if (keyState['ArrowLeft'] && paddle2.position.x > -4.5) {
               paddle2.position.x -= 0.1;
           }
@@ -392,7 +387,7 @@ document.getElementById('close-btn').addEventListener('click', function() {
   }
 
   function updateCamera() {
-      if (player === 'player_a') {
+      if (player === 1) {
           camera.position.set(0, 10, -15);
       } else {
           camera.position.set(0, 10, 15);

@@ -93,11 +93,11 @@ func startGame(game *Game) {
 
 	sendIndividually(game, int(game.info.PlayerAId), map[string]interface{}{
 		"type":   "gameStarted",
-		"player": "player_a",
+		"player": 1,
 	})
 	sendIndividually(game, int(game.info.PlayerBId), map[string]interface{}{
 		"type":   "gameStarted",
-		"player": "player_b",
+		"player": 2,
 	})
 
 	_, err := grpc.GameCon.StartGame(int32(game.id))
