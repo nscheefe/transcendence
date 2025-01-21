@@ -182,22 +182,26 @@ def resolve_create_user(_, info, input):
         raise Exception(f"Error occurred while creating user: {str(ex)}")
 
 @mutation.field("manageProfile")
-def resolve_manage_profile(_, info, profileData):
+def resolve_manage_profile(_, info, bio=None, nickname=None, avatarUrl=None, additionalInfo=None):
     user_id = info.context["request"].user_id
     if not user_id:
         raise Exception("Authentication required: user_id is missing")
-    logger.info("Manage profile data: " + str(profileData))
+    logger.info(f"Manage profile data: bio={bio}, nickname={nickname}, avatarUrl={avatarUrl}, additionalInfo={additionalInfo}")
     try:
         channel = grpc.insecure_channel(GRPC_TARGET)
         profile_stub = ProfileServiceStub(channel)
 
-        update_request = UpdateProfileRequest(
-            user_id=user_id,
-            avatar_url=profileData.get("avatarUrl"),
-            nickname=profileData.get("nickname"),
-            bio=profileData.get("bio"),
-            additional_info=profileData.get("additionalInfo")
-        )
+        update_request = UpdateProfileRequest(user_id=user_id)
+
+        if bio is not None:
+            update_request.bio = bio
+        if nickname is not None:
+            update_request.nickname = nickname
+        if avatarUrl is not None:
+            update_request.avatar_url = avatarUrl
+        if additionalInfo is not None:
+            update_request.additional_info = additionalInfo
+
         profile_stub.UpdateProfile(update_request)
 
         return {"success": True, "message": "Profile updated successfully."}

@@ -10,7 +10,7 @@ from .logic.auth.sign_in import signIn, exchange_code_for_token
 from .logic.gql.query.get_user_data import getUserProfileData
 from .logic.gql.query.get_user_chat import getDetailedChatRoomData
 from .logic.gql.query.get_profile_data import getProfileData
-from .logic.gql.mutation import update_user_profile , create_game
+from .logic.gql.mutation import update_profile , create_game
 from django.core.files.storage import default_storage
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -75,30 +75,86 @@ def game(request):
     })
     return render(request, 'frontend/pong.html', context)
 
+@csrf_exempt
 @jwt_required
 def profile(request):
-    if request.method == 'POST':
-        bio = request.POST.get('Bio')
-        nickname = request.POST.get('Nickname')
-        avatar = request.FILES.get('filename')
-
-        # Handle file upload
-        if avatar:
-            avatar_path = default_storage.save(f'avatars/{avatar.name}', avatar)
-            # Update user profile with the new avatar path
-            # Assuming you have a function to update the user profile
-            update_user_profile(request.user, bio, nickname, avatar_path)
-        else:
-            update_user_profile(request.user, bio, nickname)
-
-        return redirect('profile')
-
     user_data = getUserProfileData(request)
     context = {
         'show_nav': True,
         'user': user_data,
     }
+    if request.method == 'POST':
+        bio = request.POST.get('Bio')
+        nickname = request.POST.get('Nickname')
+        avatar = request.FILES.get('filename')
+        additional_info = request.POST.get('additionalInfo')
+        token = request.COOKIES.get('jwt_token')
+
+        avatar_path = user_data['profile']['avatarUrl']
+        if avatar:
+            try:
+                decoded_token = jwt.decode(token, settings.JWT_SECRET, algorithms=['HS256'])
+                user_id = decoded_token.get('user_id')
+            except jwt.ExpiredSignatureError:
+                return JsonResponse({'success': False, 'message': 'Token has expired'}, status=401)
+            except jwt.InvalidTokenError:
+                return JsonResponse({'success': False, 'message': 'Invalid token'}, status=401)
+            except jwt.InvalidSignatureError:
+                return JsonResponse({'success': False, 'message': 'Signature verification failed'}, status=401)
+            user_upload_dir = os.path.join(settings.MEDIA_ROOT, 'avatars', str(user_id))
+
+            if not os.path.exists(user_upload_dir):
+                os.makedirs(user_upload_dir)
+
+            # Delete old avatar if it exists
+            for filename in os.listdir(user_upload_dir):
+                file_path = os.path.join(user_upload_dir, filename)
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+
+            avatar_path = default_storage.save(os.path.join('avatars', str(user_id), avatar.name), ContentFile(avatar.read()))
+            avatar_path = default_storage.url(avatar_path)
+
+        response = update_profile.manageProfile(request, bio, nickname, avatar_path, additional_info)
+        return JsonResponse(response)
+
+        return redirect('profile')
+
     return render(request, 'frontend/manage-profile.html', context)
+
+#@csrf_exempt
+#def upload_avatar(request):
+#    if request.method == 'POST' and request.FILES.get('filename'):
+#        token = request.COOKIES.get('jwt_token')
+#        if not token:
+#            return JsonResponse({'success': False, 'message': 'Authentication token is missing'}, status=401)
+
+#        try:
+#            decoded_token = jwt.decode(token, settings.JWT_SECRET, algorithms=['HS256'])
+#            user_id = decoded_token.get('user_id')
+#        except jwt.ExpiredSignatureError:
+#            return JsonResponse({'success': False, 'message': 'Token has expired'}, status=401)
+#        except jwt.InvalidTokenError:
+#            return JsonResponse({'success': False, 'message': 'Invalid token'}, status=401)
+#        except jwt.InvalidSignatureError:
+#            return JsonResponse({'success': False, 'message': 'Signature verification failed'}, status=401)
+
+#        avatar_file = request.FILES['filename']
+#        user_upload_dir = os.path.join(settings.MEDIA_ROOT, 'avatars', str(user_id))
+
+#        if not os.path.exists(user_upload_dir):
+#            os.makedirs(user_upload_dir)
+
+#        # Delete old avatar if it exists
+#        for filename in os.listdir(user_upload_dir):
+#            file_path = os.path.join(user_upload_dir, filename)
+#            if os.path.isfile(file_path):
+#                os.remove(file_path)
+
+#        file_name = default_storage.save(os.path.join('avatars', str(user_id), avatar_file.name), ContentFile(avatar_file.read()))
+#        file_url = default_storage.url(file_name)
+#        return JsonResponse({'success': True, 'url': file_url})
+#    return JsonResponse({'success': False, 'message': 'File upload failed'}, status=400)
 
 @jwt_required
 def stats(request):
@@ -120,12 +176,32 @@ def friends(request):
 
 
 @jwt_required
-def game(request):
+def chat(request):
+    user_data = getUserProfileData(request)
+    ChatRooms = getDetailedChatRoomData(request)
     context = {
-        'user_name': request.user.username,
-        'game_data': get_game_data(request.user),  # Example function for getting game data
+        'show_nav': True,
+        'user': user_data,
     }
-    return render(request, 'frontend/game.html', context)
+    pprint(ChatRooms)
+
+    return render(request, 'frontend/chat.html', context)
+
+@jwt_required
+def publicProfile(request, user_id):
+    # Example: Fetch data or log the user_id
+    referrer = request.META.get('HTTP_REFERER', None)
+    print(f"User ID is: {user_id}")
+    profile_data = getProfileData(request, user_id)
+    user_data = getUserProfileData(request)
+    context = {
+        'show_nav': True,
+        'user': user_data,
+        'profile': profile_data,
+        'referrer': referrer,  # Add referrer to the context if needed
+    }
+    return render(request, 'frontend/publicProfile.html', context)
+
 
 @jwt_required
 def chat(request):
@@ -154,66 +230,6 @@ def publicProfile(request, user_id):
     }
     return render(request, 'frontend/publicProfile.html', context)
 
-@jwt_required
-def chat(request):
-    user_data = getUserProfileData(request)
-    ChatRooms = getDetailedChatRoomData(request)
-    context = {
-        'show_nav': True,
-        'user': user_data,
-    }
-    pprint(ChatRooms)
-
-    return render(request, 'frontend/chat.html', context)
-
-@jwt_required
-def publicProfile(request, user_id):
-    # Example: Fetch data or log the user_id
-    referrer = request.META.get('HTTP_REFERER', None)
-    print(f"User ID is: {user_id}")
-    profile_data = getProfileData(request, user_id)
-    user_data = getUserProfileData(request)
-    context = {
-        'show_nav': True,
-        'user': user_data,
-        'profile': profile_data,
-        'referrer': referrer,  # Add referrer to the context if needed
-    }
-    return render(request, 'frontend/publicProfile.html', context)
-
-@csrf_exempt
-def upload_avatar(request):
-    if request.method == 'POST' and request.FILES.get('filename'):
-        token = request.COOKIES.get('jwt_token')
-        if not token:
-            return JsonResponse({'success': False, 'message': 'Authentication token is missing'}, status=401)
-
-        try:
-            decoded_token = jwt.decode(token, settings.JWT_SECRET, algorithms=['HS256'])
-            user_id = decoded_token.get('user_id')
-        except jwt.ExpiredSignatureError:
-            return JsonResponse({'success': False, 'message': 'Token has expired'}, status=401)
-        except jwt.InvalidTokenError:
-            return JsonResponse({'success': False, 'message': 'Invalid token'}, status=401)
-        except jwt.InvalidSignatureError:
-            return JsonResponse({'success': False, 'message': 'Signature verification failed'}, status=401)
-
-        avatar_file = request.FILES['filename']
-        user_upload_dir = os.path.join(settings.MEDIA_ROOT, 'avatars', str(user_id))
-
-        if not os.path.exists(user_upload_dir):
-            os.makedirs(user_upload_dir)
-
-        # Delete old avatar if it exists
-        for filename in os.listdir(user_upload_dir):
-            file_path = os.path.join(user_upload_dir, filename)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
-
-        file_name = default_storage.save(os.path.join('avatars', str(user_id), avatar_file.name), ContentFile(avatar_file.read()))
-        file_url = default_storage.url(file_name)
-        return JsonResponse({'success': True, 'url': file_url})
-    return JsonResponse({'success': False, 'message': 'File upload failed'}, status=400)
 
 def pong_view(request):
     return render(request, 'frontend/pong.html')

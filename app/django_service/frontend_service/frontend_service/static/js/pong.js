@@ -58,7 +58,7 @@ document.getElementById('close-btn').addEventListener('click', function() {
 
       console.log('Attempting to connect to WebSocket server...');
       isConnecting = true;
-      socket = new WebSocket(`ws://${document.location.hostname}:4000`);
+      socket = new WebSocket(`wss://${document.location.hostname}:9001/game`);
 
       socket.onopen = () => {
           console.log('Connected to the server');
