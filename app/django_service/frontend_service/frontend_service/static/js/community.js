@@ -1,4 +1,4 @@
-import { fetchFriendships, fetchFriendsWithProfiles } from './friendservice.js';
+import { fetchFriendships, fetchFriendsWithProfiles, addFriend } from './friendservice.js';
 import { fetchUserProfileAndStats, fetchProfiles } from './profileservice.js';
 import { showError, gql } from './utils.js';
 import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
@@ -49,7 +49,7 @@ const generateFriendHTML = (friendship, profile) => {
 const renderFriendsList = (friendships, combinedData, friendsContainer) => {
     friendsContainer.innerHTML = '';
     let friendCount = 0;
-
+    console.log("friends combined to render", friendships, combinedData)
     friendships.forEach((friendship, index) => {
         const profile = combinedData[`friend${index}`];
         if (friendship.accepted && profile) {
@@ -73,15 +73,29 @@ const renderFriendsList = (friendships, combinedData, friendsContainer) => {
 const loadFriends = async (friendsContainer) => {
     friendsContainer.innerHTML = LOADING_FRIENDS_HTML;
     try {
-        const friendships = await fetchFriendships();
+        const data = await fetchFriendships(); // Fetch friendships data
+        console.log("Received friendships data", data);
 
+        // Ensure data is an array of objects
+        const friendships = Array.isArray(data)
+            ? data
+            : Object.values(data); // If it's an object (with numeric keys), convert it to an array
+
+        console.log("Is friendships an array?", Array.isArray(friendships)); // True if valid array
+
+        // Check if friendships array is empty
         if (!friendships.length) {
             friendsContainer.innerHTML = `<p class="text-light">${NO_FRIENDS_WARNING}</p>`;
             return;
         }
+        console.log("Received friendships data", friendships);
 
+        // Fetch more data based on friendships
         const combinedData = await fetchFriendsWithProfiles(friendships);
-        renderFriendsList(friendships, combinedData, friendsContainer);
+        console.log("Received friendships cobined data", friendships);
+
+        // Render the friends list
+        renderFriendsList(combinedData.friendships, combinedData, friendsContainer);
     } catch (error) {
         console.error('Failed to load friends:', error);
         showError(friendsContainer, 'Failed to load friends. Try again later.');
@@ -186,6 +200,7 @@ const LOADING_PROFILES_HTML = '<p class="text-light">Loading profiles, please wa
  * @param {Array} profiles - The profiles to render.
  * @param {HTMLElement} profilesContainer - The container to render profiles in.
  */
+
 const renderProfiles = (profiles, profilesContainer) => {
     profilesContainer.innerHTML = '';
 
@@ -193,6 +208,7 @@ const renderProfiles = (profiles, profilesContainer) => {
         profilesContainer.innerHTML = NO_PROFILES_HTML;
         return;
     }
+
     profiles.forEach((profile) => {
         const profileHTML = `
             <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center p-3 rounded-3 mb-2">
@@ -212,10 +228,43 @@ const renderProfiles = (profiles, profilesContainer) => {
                         <p class="small mb-0" style="color:white;">${profile.bio || 'No bio available.'}</p>
                     </div>
                 </div>
-                <button class="btn btn-success btn-sm">Add Friend</button>
+                <button class="btn btn-success btn-sm" data-friend-id="${profile.userId}">Add Friend</button>
             </li>
         `;
         profilesContainer.innerHTML += profileHTML;
+    });
+
+    // Attach event listeners to "Add Friend" buttons
+    const buttons = profilesContainer.querySelectorAll('.btn-success');
+    buttons.forEach((button) => {
+        button.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            const friendId = parseInt(button.getAttribute('data-friend-id'), 10);
+            if (isNaN(friendId)) {
+                console.error("Invalid friend ID.");
+                return;
+            }
+
+            try {
+                // Call the addFriend service function
+                const response = await addFriend(friendId);
+
+                if (response && response.success) {
+                    console.log(`Friend added successfully: ${response.message}`);
+                    button.textContent = "Friend Added!";
+                    button.classList.remove("btn-success");
+                    button.classList.add("btn-secondary");
+                    button.disabled = true; // Disable the button after a successful add
+                } else {
+                    console.error(`Failed to add friend: ${response.message}`);
+                    alert(`Error: ${response.message}`);
+                }
+            } catch (error) {
+                console.error("An unexpected error occurred:", error);
+                alert("An unexpected error occurred. Please try again later.");
+            }
+        });
     });
 };
 

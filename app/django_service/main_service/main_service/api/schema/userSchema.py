@@ -150,6 +150,45 @@ def resolve_get_all_profiles(_, info, limit, offset):
     except Exception as ex:
         raise Exception(f"Error occurred while fetching profiles: {str(ex)}")
 
+@query.field("friendships")
+def resolve_friendships(_, info):
+    # Extract `user_id` from the request context (set via middleware)
+    user_id = info.context["request"].user_id
+    if not user_id:
+        raise Exception("Authentication required: user_id is missing")  # Ensure the user is authenticated
+
+    logger.info(f"Fetching friendships for user with ID: {user_id}")
+    try:
+        # Set up gRPC connection with the Friendship service
+        channel = grpc.insecure_channel(GRPC_TARGET)
+        client = FriendshipServiceStub(channel)
+
+        # Make a GetFriendshipsByUserIdRequest via gRPC
+        request = GetFriendshipsByUserIdRequest(user_id=user_id)
+        response = client.GetFriendshipsByUserId(request)
+
+        # Map the gRPC response to the expected GraphQL response format
+        friendships = [
+            {
+                "userId": friendship.user_id,
+                "friendId": friendship.friend_id,
+                "establishedAt": datetime.fromtimestamp(friendship.established_at.seconds) if friendship.HasField(
+                    "established_at") else None,
+                "accepted": friendship.accepted,
+            }
+            for friendship in response.friendships
+        ]
+
+        return friendships  # Return the friendships list
+
+    except grpc.RpcError as e:
+        logger.error(f"Error fetching friendships for user {user_id}: {e.details()} (Code: {e.code()})")
+        return []  # Return an empty list in case of error
+    except Exception as e:
+        logger.error(f"Unexpected error fetching friendships for user {user_id}: {str(e)}")
+        return []  # Return an empty list for unexpected errors
+
+
 @mutation.field("createUser")
 def resolve_create_user(_, info, input):
     service_endpoint = GRPC_TARGET
@@ -222,8 +261,6 @@ def resolve_manage_friendship(_, info, friendshipData):
             create_request = CreateFriendshipRequest(
                 user_id=user_id,
                 friend_id=friendshipData["create"]["friendId"],
-                established_at=friendshipData["create"]["establishedAt"],
-                accepted=friendshipData["create"]["accepted"],
             )
             response = friendship_stub.CreateFriendship(create_request)
             if not response.id:

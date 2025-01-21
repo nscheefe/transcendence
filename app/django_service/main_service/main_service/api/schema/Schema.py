@@ -94,6 +94,8 @@ type_defs = """
         tournaments: [Tournament]
                 tournament_users(tournament_id: Int!): [TournamentUser]
         tournament_games(tournament_id: Int!): [TournamentGame]
+        friendships: [Friendship!]
+
     }
 
     type Subscription {
@@ -149,11 +151,24 @@ type_defs = """
         messages: [ChatRoomMessage!]
     }
 
-    input FriendshipInput {
-        friendId: Int!
-        establishedAt: DateTime
-        accepted: Boolean!
-    }
+   input FriendshipCreateInput {
+       friendId: Int!
+   }
+
+   input FriendshipUpdateInput {
+       friendId: Int!
+       accepted: Boolean!
+   }
+
+   input FriendshipDeleteInput {
+       id: Int!
+   }
+
+   input FriendshipInput {
+       create: FriendshipCreateInput
+       update: FriendshipUpdateInput
+       delete: FriendshipDeleteInput
+   }
 
     input NotificationInput {
         message: String!
