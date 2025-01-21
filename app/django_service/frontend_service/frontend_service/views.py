@@ -118,8 +118,6 @@ def profile(request):
         response = update_profile.manageProfile(request, bio, nickname, avatar_path, additional_info)
         return JsonResponse(response)
 
-        return redirect('profile')
-
     return render(request, 'frontend/manage-profile.html', context)
 
 #@csrf_exempt
