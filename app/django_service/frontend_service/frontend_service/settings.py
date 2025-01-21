@@ -38,6 +38,11 @@ ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '109.193.98.181']
 
 SECURE_COOKIE = os.getenv('SECURE_COOKIE', 'True').lower() in ['true', '1', 't']
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://109.193.98.181:9001',
+    # Add other trusted origins if needed
+]
+
 # Application definition
 
 INSTALLED_APPS = [
