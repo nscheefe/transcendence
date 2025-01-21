@@ -192,22 +192,18 @@ type_defs = """
 
     type Mutation {
         createUser(input: UserInput!): User
-        manageProfile(profileData: ProfileInput!): ProfileMutationResponse
+        manageProfile(avatarUrl: String, nickname: String, bio: String, additionalInfo: String): ProfileMutationResponse
         manageFriendship(friendshipData: FriendshipInput!): FriendshipMutationResponse
         manageNotification(notificationData: NotificationInput!): NotificationMutationResponse
         manageSetting(settingData: SettingInput!): SettingMutationResponse
         manageUserAchievement(achievementData: UserAchievementInput!): UserAchievementMutationResponse
         createStat(input: CreateStatInput!): CreateStatPayload!
-           create_game: Game
+        create_game: Game
         create_game_event(game_id: Int!, event_type: String!, event_data: String!): GameEvent
         start_game(game_id: Int!): StartGameResponse
         create_tournament(name: String!): Tournament
-
         create_tournament_user(tournament_id: Int!, user_id: Int!): TournamentUserResponse
-
-
         create_tournament_game(game_id: Int!, tournament_id: Int!, user_id: Int!): TournamentGame
-
     }
 
     type ProfileMutationResponse {
