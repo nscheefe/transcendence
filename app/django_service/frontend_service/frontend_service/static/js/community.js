@@ -6,7 +6,7 @@ import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from '
 const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';
 const LOADING_FRIENDS_HTML = '<p class="text-light">Loading friends...</p>';
 const NO_FRIENDS_WARNING = 'Sad ... you don\'t seem to have any friends 😞.';
-
+let cachedFriendships = null; // Holds the friendships in memory
 /**
  * Generates individual friend's HTML using the friendship and profile data.
  * @param {Object} friendship - Friendship object.
@@ -88,6 +88,8 @@ const loadFriends = async (friendsContainer) => {
             friendsContainer.innerHTML = `<p class="text-light">${NO_FRIENDS_WARNING}</p>`;
             return;
         }
+                cachedFriendships = friendships; // Cache friendships here
+
         console.log("Received friendships data", friendships);
 
         // Fetch more data based on friendships
@@ -197,10 +199,10 @@ const LOADING_PROFILES_HTML = '<p class="text-light">Loading profiles, please wa
 
 /**
  * Renders profiles into the DOM.
+ * Disables the "Add Friend" button for profiles already in friendships.
  * @param {Array} profiles - The profiles to render.
  * @param {HTMLElement} profilesContainer - The container to render profiles in.
  */
-
 const renderProfiles = (profiles, profilesContainer) => {
     profilesContainer.innerHTML = '';
 
@@ -208,8 +210,16 @@ const renderProfiles = (profiles, profilesContainer) => {
         profilesContainer.innerHTML = NO_PROFILES_HTML;
         return;
     }
+    console.log("cached",cachedFriendships);
+    const flattenedFriendships = cachedFriendships?.flat() || [];
 
     profiles.forEach((profile) => {
+        // Check if the profile userId exists in cachedFriendships
+  const isFriendAlready = flattenedFriendships.some(
+            (friendship) => friendship.friendId == profile.userId
+        );
+
+        console.log("isalread friend:", isFriendAlready);
         const profileHTML = `
             <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center p-3 rounded-3 mb-2">
                 <div class="d-flex align-items-center">
@@ -228,7 +238,12 @@ const renderProfiles = (profiles, profilesContainer) => {
                         <p class="small mb-0" style="color:white;">${profile.bio || 'No bio available.'}</p>
                     </div>
                 </div>
-                <button class="btn btn-success btn-sm" data-friend-id="${profile.userId}">Add Friend</button>
+                <button 
+                    class="btn ${isFriendAlready ? 'btn-secondary' : 'btn-success'} btn-sm" 
+                    data-friend-id="${profile.userId}" 
+                    ${isFriendAlready ? 'disabled' : ''}>
+                    ${isFriendAlready ? 'Friend Added' : 'Add Friend'}
+                </button>
             </li>
         `;
         profilesContainer.innerHTML += profileHTML;
@@ -256,6 +271,8 @@ const renderProfiles = (profiles, profilesContainer) => {
                     button.classList.remove("btn-success");
                     button.classList.add("btn-secondary");
                     button.disabled = true; // Disable the button after a successful add
+                    // Optionally update cachedFriendships
+                    cachedFriendships.push({ friendId }); // Add the new friend to the cache
                 } else {
                     console.error(`Failed to add friend: ${response.message}`);
                     alert(`Error: ${response.message}`);

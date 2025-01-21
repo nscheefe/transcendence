@@ -35,6 +35,8 @@
     <link href="{% static 'images/webclip.png' %}" rel="apple-touch-icon">
       <script type="module" src="{% static 'js/main.js' %}"></script>
       <script type="module" src="{% static 'js/bootstrap.min.js' %}"></script>
+      <script type="module" src="{% static 'js/notification.js' %}"></script>
+
   {% block extra_head %}
   {% endblock extra_head %}
   </head>
@@ -50,7 +52,23 @@
             <a href="{% url 'friends' %}" class="nav-link w-nav-link">Friends</a>
             </span>
           </nav>
+                        <span class="nav-item-group">
+<div class="dropdown" style="padding-top: 15%; heigth: 50px">
+  <!-- Bell Icon -->
+  <button
+    class="btn btn-secondary"
+    id="notificationDropdown"
+    aria-expanded="false"
+  >
+    Notifications
+  </button>
+  <ul class="dropdown-menu" id="dropdownMenu" style="display: none;">
+    <li class="dropdown-item">No notifications</li>
+  </ul>
+</div></span>
+
             <span class="nav-item-group">
+
             <a class="profile-link-wrapper" href="{% url 'profile' %}" aria-expanded="false">
             <div class="profile-link-wrapper">
               <span class="intra-name-42" data-login="{{ user.profile.nickname }}">{{ user.profile.nickname }}</span>

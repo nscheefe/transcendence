@@ -53,6 +53,7 @@ type_defs = """
     }
 
     type Notification {
+        id: Int!
         userId: Int!
         message: String!
         read: Boolean!
@@ -169,11 +170,27 @@ type_defs = """
        update: FriendshipUpdateInput
        delete: FriendshipDeleteInput
    }
-
-    input NotificationInput {
+    
+    input NotificationCreateInput {
         message: String!
         read: Boolean!
         sentAt: DateTime
+    }
+    
+    input NotificationUpdateInput {
+        id: Int!    
+        message: String!
+        read: Boolean!   
+    }
+    
+    input NotificationDeleteInput {
+        id: Int!          
+    }
+    
+    input NotificationInput {
+        create: NotificationCreateInput
+        update: NotificationUpdateInput
+        delete: NotificationDeleteInput
     }
 
     input SettingInput {

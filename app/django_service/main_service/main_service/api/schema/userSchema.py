@@ -93,6 +93,36 @@ def resolve_user_profile(obj, *_):
         else:
             raise e
 
+@user.field("notifications")
+def resolve_notifications_for_user(obj, *_):
+    user_id = obj['id']
+    try:
+        channel = grpc.insecure_channel(GRPC_TARGET)
+        client = NotificationServiceStub(channel)
+        request = GetNotificationsByUserIdRequest(user_id=user_id)
+        response = client.GetNotificationsByUserId(request)
+
+        return [
+            {
+                    "id": notification.id,
+                "userId": notification.user_id,
+                "message": notification.message,
+                "read": notification.read,
+                "sentAt": datetime.fromtimestamp(notification.sent_at.seconds) if notification.HasField(
+                    "sent_at") else None,
+            }
+            for notification in response.notifications
+        ]
+    except grpc.RpcError as e:
+        if e.code() == grpc.StatusCode.NOT_FOUND:
+            logger.error(f"No notifications found for user {user_id}")
+            return []
+        else:
+            raise e
+    except Exception as e:
+        logger.error(f"Unexpected error fetching notifications for user {user_id}: {e}")
+        raise e
+
 @query.field("profile")
 def resolve_profile(_, info, userId):
     logger.info(f"Fetching profile for user ID {userId}")
@@ -265,9 +295,13 @@ def resolve_manage_friendship(_, info, friendshipData):
             response = friendship_stub.CreateFriendship(create_request)
             if not response.id:
                 raise Exception("Failed to create friendship.")
+            profile = resolve_profile(_, info, user_id)
+            nickname= profile["nickname"]
+            logger.info(f"add notification created by {nickname}")
+
             notification_request = CreateNotificationRequest(
                 user_id=friendshipData["create"]["friendId"],
-                message=f"User {user_id} sent you a friend request.",
+                message=f"User {nickname} sent you a friend request.",
                 read=False,
                 sent_at=datetime.utcnow()
             )
