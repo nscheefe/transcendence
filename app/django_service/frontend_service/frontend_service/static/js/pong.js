@@ -1,6 +1,29 @@
 document.getElementById('close-btn').addEventListener('click', function () {
+    if (gameStarted) {
+        const confirmClose = confirm("The game is ongoing. Are you sure you want to close?");
+        if (!confirmClose) {
+            return;
+        }
+    }
+    if (socket) {
+        socket.close();
+        console.log('WebSocket connection closed');
+    }
     document.getElementById('pong-container').style.display = 'none';
+    window.location.href = '/home';
 });
+
+// Ask for confirmation when the user tries to navigate away using the back button or closing the tab
+//window.addEventListener('beforeunload', function (event) {
+//    if (!gameStarted) {
+//        const confirmClose = confirm("The game is ongoing. Are you sure you want to leave?");
+//        if (!confirmClose) {
+//            event.preventDefault();
+//            event.returnValue = ''; // For compatibility with older browsers
+//            return '';
+//        }
+//    }
+//});
 
 // Global variables
 let font;
