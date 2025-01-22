@@ -4,6 +4,14 @@ from datetime import datetime
 import grpc
 import google
 from game_service.protos import game_pb2_grpc, game_pb2
+from game_service.protos.stat_pb2 import (
+    GetStatRequest,
+    CreateStatRequest,
+    GetStatsByUserIdRequest,
+    CalculateStatsRequest,
+)
+from game_service.protos.stat_pb2_grpc import StatServiceStub
+
 from google.protobuf.empty_pb2 import Empty
 from .models import Game
 
@@ -229,6 +237,12 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         """
         Update the game as finished with the information provided from WebSocket callback.
         """
+        GRPC_STAT_HOST = "stat_service"
+        GRPC_STAT_PORT = "50051"
+        GRPC_STAT_TARGET = f"{GRPC_STAT_HOST}:{GRPC_STAT_PORT}"
+        stat_channel = grpc.insecure_channel(GRPC_STAT_TARGET)
+        stat_stub = StatServiceStub(stat_channel)
+
         try:
             # Fetch the game from the database
             game = Game.objects.get(id=request.game_id)
@@ -252,12 +266,12 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
 
             # Save updates to the database
             game.save()
-            create_stat_request = stat_pb2.CreateStatRequest(
+            create_stat_request = CreateStatRequest(
                 game_id=request.game_id,
                 winner_id=winner_id,
                 loser_id=loser_id
             )
-            create_stat_response = StatServiceStub.CreateStat(create_stat_request)
+            create_stat_response = stat_stub.CreateStat(create_stat_request)
 
             # Return empty response as acknowledgment
             return Empty()

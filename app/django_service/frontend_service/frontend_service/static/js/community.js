@@ -1,6 +1,6 @@
 
 import { fetchFriendships, fetchFriendsWithProfiles, addFriend, deleteFriendship } from './friendservice.js';
-import { fetchUserProfileAndStats, fetchProfiles } from './profileservice.js';
+import { fetchUserProfileAndStats, fetchProfiles, fetchProfileByUserId } from './profileservice.js';
 import { showError, gql } from './utils.js';
 import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
 import { createFriendGame } from "./gameService.js"
@@ -121,17 +121,33 @@ const loadFriends = async (friendsContainer) => {
 
 
 /*************************************************************************************************************/
-
+async function loadOpponentProfile(opponentId) {
+    try {
+        const opponent = await fetchProfileByUserId(opponentId);
+        console.log('Opponent profile:', opponent.profile.nickname);
+        return opponent; // Use the resolved value if needed later
+    } catch (error) {
+        console.error('Failed to fetch opponent profile:', error);
+    }
+}
 /**
  * Renders the profile and stats of the logged-in user.
  * @param {Object} user - User object returned from the API.
  * @param {Object} stats - User stats object returned from the API.
  * @param {HTMLElement} profileContainer - The DOM container for the user profile.
  */
-const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
+const renderUserProfile = async (user, stats, statsByUser, profileContainer) => {
     const profile = user.profile;
 
-    // Create the user profile section
+    // Preload opponent profiles in parallel
+    const opponents = await Promise.all(
+        statsByUser.map(async (stat) => {
+            const isWinner = stat.stat.winnerId === user.id;
+            const opponentId = isWinner ? stat.stat.loserId : stat.stat.winnerId;
+            return { opponentId, opponent: await fetchProfileByUserId(opponentId) };
+        })
+    );
+
     profileContainer.appendChild(
         createElement(
             'div',
@@ -181,15 +197,11 @@ const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
                 
                 <!-- Detailed User Stats -->
                 <div class="stats-list mt-3">
-                    ${statsByUser.map(stat => {
-                        const date = stat.stat.createdAt; // Assume createdAt exists in stat.stat
+                    ${statsByUser.map((stat, index) => {
+                        const date = stat.stat.createdAt;
                         const result = stat.didWin ? 'win' : 'loss';
-                        const isWinner = stat.stat.winnerId === user.id;
-                        const opponent = {
-                            avatarUrl: stat.opponentAvatar || 'https://via.placeholder.com/50',
-                            nickname: stat.opponentNickname || 'Unknown Player',
-                        };
-
+                        const opponentData = opponents.find(o => o.opponentId === (stat.stat.winnerId === user.id ? stat.stat.loserId : stat.stat.winnerId));
+                        const opponent = opponentData?.opponent?.profile || {};
                         return `
                             <div class="game-stat bg-dark ${result === 'win' ? 'victory' : 'defeat'}">
                                 <div class="d-flex justify-content-between mb-2">
@@ -201,14 +213,16 @@ const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
                                 <div class="d-flex justify-content-around">
                                     <div class="player">
                                         <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}" alt="${profile.nickname}">
-                                        <span>${isWinner ? 'You' : profile.nickname}</span>
+                                        <span>You</span>
                                     </div>
                                     <div class="vs text-bold">
                                         <span>VS</span>
                                     </div>
                                     <div class="opponent">
-                                        <img src="${opponent.avatarUrl}" alt="${opponent.nickname}">
-                                        <span>${opponent.nickname}</span>
+                                    <a href="/home/profile/${opponent.userId}">
+                                        <img src="${opponent.avatarUrl || 'https://via.placeholder.com/50'}" alt="${opponent.nickname || 'Opponent'}">
+                                        <span>${opponent.nickname || 'Opponent'}</span>
+                                    </a>
                                     </div>
                                 </div>
                             </div>

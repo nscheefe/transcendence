@@ -84,3 +84,34 @@ export const fetchProfiles = async (limit, offset) => {
         throw error;
     }
 };
+
+/**
+ * Fetches a user's profile by the provided user ID.
+ * @param {number} userId - The user's ID.
+ * @returns {Promise<object>} The user's profile.
+ */
+export const fetchProfileByUserId = async (userId) => {
+    console.log("Fetching profile for userId:", userId); // Debugging
+
+    const GET_PROFILE_BY_USER_ID_QUERY = gql`
+        query GetProfile($userId: Int!) {
+            profile(userId: $userId) {
+                id
+                userId
+                avatarUrl
+                nickname
+                bio
+                additionalInfo
+            }
+        }
+    `;
+
+    try {
+        const result = await executeQuery(GET_PROFILE_BY_USER_ID_QUERY, { userId });
+        console.log('Profile fetched successfully:', result); // Debugging
+        return result;
+    } catch (error) {
+        console.error('Error fetching profile by user ID:', error);
+        throw error;
+    }
+};
