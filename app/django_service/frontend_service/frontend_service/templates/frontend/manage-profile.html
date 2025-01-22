@@ -9,12 +9,11 @@
       <h2 class="heading-3">{{ user.name }}</h2>
       <div class="form-block w-form">
         <form id="profile-form" name="profile-form" data-name="Profile Form" method="post" enctype="multipart/form-data" class="form">
+          {% csrf_token %}
           <div class="w-embed">
-            <input class="file-input" type="file" id="myFile" name="filename" onchange="previewFile()">
+            <input class="file-input" type="file" id="myFile" accept="image/*" name="filename" onchange="previewFile()">
             <label for="myFile" class="file-input-label">
-              {% if user.profile.avatarUrl %}
-                <img src="{{ user.profile.avatarUrl }}" alt="Profile Avatar" id="avatarPreview" class="profile-avatar">
-              {% endif %}
+              <img src="{% if user.profile.avatarUrl %}{{ user.profile.avatarUrl }}{% else %}# {% endif %}" alt="Profile Avatar" id="avatarPreview" class="profile-avatar">
             </label>
           </div>
           <div class="text-input-wrapper">
@@ -61,6 +60,15 @@ function previewFile() {
   }
 }
 
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'toast show';
+  setTimeout(() => {
+    toast.className = toast.className.replace('show', '');
+  }, 3000);
+}
+
 document.getElementById('profile-form').addEventListener('submit', async function(event) {
   event.preventDefault();
 
@@ -70,54 +78,70 @@ document.getElementById('profile-form').addEventListener('submit', async functio
   const nickname = formData.get('Nickname');
   const bio = formData.get('Bio');
 
-  const variables = {};
+  // Input validation
+  let isValid = true;
+
+  if (!nickname || nickname.trim() === '') {
+    showToast('Nickname is required');
+    isValid = false;
+  }
+
   if (avatarFile && avatarFile.size > 0) {
-    // Upload the file to the server
-    const uploadResponse = await fetch('/upload-avatar/', {
-      method: 'POST',
-      body: formData, // Send the entire form data
-      headers: {
-        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-      }
-    });
-    const uploadResult = await uploadResponse.json();
-    if (uploadResult.success) {
-      variables.avatarUrl = uploadResult.url;
-    } else {
-      alert('Error uploading avatar');
-      return;
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(avatarFile.type)) {
+      showToast('Only JPEG, PNG, and GIF files are allowed');
+      isValid = false;
     }
-  }
-  if (nickname) {
-    variables.nickname = nickname;
-  }
-  if (bio) {
-    variables.bio = bio;
-  }
 
-  const query = `
-    mutation ManageProfile($avatarUrl: String, $nickname: String, $bio: String) {
-      manageProfile(profileData: { avatarUrl: $avatarUrl, nickname: $nickname, bio: $bio }) {
-        success
-        message
-      }
+    if (avatarFile.size > 2 * 1024 * 1024) { // 2MB limit
+      showToast('File size must be less than 2MB');
+      isValid = false;
     }
-  `;
+  } else if (!avatarFile) {
+    showToast('Profile picture is required');
+    isValid = false;
+  }
 
-  const response = await fetch('/graphql/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-CSRFToken': formData.get('csrfmiddlewaretoken')
-    },
-    body: JSON.stringify({ query, variables })
-  });
+  if (!isValid) {
+    return;
+  }
+  if (isValid) {
+    try {
+      const uploadResponse = await fetch('/home/profile/', {
+        method: 'POST',
+        body: formData, // Send the entire form data
+        headers: {
+          'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+      });
 
-  const result = await response.json();
-  if (result.data.manageProfile.success) {
-    alert('Profile updated successfully');
-  } else {
-    alert('Error: ' + result.data.manageProfile.message);
+      const contentType = uploadResponse.headers.get('content-type');
+      if (!uploadResponse.ok) {
+        const errorText = await uploadResponse.text();
+        console.error('Upload failed:', errorText);
+        showToast('Error: ' + uploadResponse.statusText);
+        return;
+      }
+
+      if (contentType && contentType.includes('application/json')) {
+        const result = await uploadResponse.json();
+        if (result.success) {
+          showToast('Profile updated successfully');
+          setTimeout(() => {
+            window.location.reload();
+          }, 3000);
+        } else {
+          showToast('Error: ' + result.message);
+        }
+      } else {
+        const errorText = await uploadResponse.text();
+        console.error('Unexpected response format:', errorText);
+        showToast('An unexpected error occurred');
+      }
+    } catch (error) {
+      console.error('An error occurred:', error);
+      showToast('An error occurred while updating the profile');
+    }
   }
 });
 </script>

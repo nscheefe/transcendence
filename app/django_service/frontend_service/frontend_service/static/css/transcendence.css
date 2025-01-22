@@ -13,6 +13,9 @@
   --bg-info: #cde6f6;
   --bg-warning: #fce7c4;
   --bg-danger: #f9d3cf;
+  --toast-bottom-position: 10%;
+  --toast-animation-start: calc(var(--toast-bottom-position) - 20px);
+  --toast-animation-end: var(--toast-bottom-position);
 }
 
 .w-checkbox {
@@ -101,6 +104,49 @@
   border-radius: 50%;
   margin: auto;
   object-fit: cover;
+}
+
+.toast {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1000; /* Increase z-index to ensure it appears above other elements */
+  left: 50%;
+  bottom: var(--toast-bottom-position); /* Use variable for bottom position */
+  font-size: 17px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+}
+
+.toast.show {
+  visibility: visible;
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+@-webkit-keyframes fadein {
+  from {bottom: var(--toast-animation-start); opacity: 0;}
+  to {bottom: var(--toast-animation-end); opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: var(--toast-animation-start); opacity: 0;}
+  to {bottom: var(--toast-animation-end); opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: var(--toast-animation-end); opacity: 1;}
+  to {bottom: var(--toast-animation-start); opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: var(--toast-animation-end); opacity: 1;}
+  to {bottom: var(--toast-animation-start); opacity: 0;}
 }
 
 .nav-item-group {
@@ -1669,10 +1715,39 @@ blockquote {
   font-display: auto;
 }
 
+#waiting-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 1.5em;
+  color: #fff;
+}
+
+.spinner {
+  border: 4px solid rgba(255, 255, 255, 0.3);
+  border-top: 4px solid var(--neon-pink);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+  margin-top: 10px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
 
 #pong-container {
   position: fixed;
   display: flex;
+  justify-content: center;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);

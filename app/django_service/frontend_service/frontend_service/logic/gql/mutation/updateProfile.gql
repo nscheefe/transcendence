@@ -1,0 +1,6 @@
+mutation UpdateProfile($bio: String, $nickname: String, $avatarUrl: String, $additionalInfo: String) {
+    manageProfile(bio: $bio, nickname: $nickname, avatarUrl: $avatarUrl, additionalInfo: $additionalInfo) {
+        success
+        message
+    }
+}

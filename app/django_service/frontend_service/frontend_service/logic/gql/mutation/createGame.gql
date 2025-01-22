@@ -1,0 +1,9 @@
+mutation Create_game {
+    create_game {
+        id
+        finished
+        player_a_id
+        player_b_id
+        state
+    }
+}
