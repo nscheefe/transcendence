@@ -46,6 +46,7 @@ type_defs = """
     }
 
     type Friendship {
+        id: Int!
         userId: Int!
         friendId: Int!
         establishedAt: DateTime
@@ -236,6 +237,8 @@ type_defs = """
         create_tournament(name: String!): Tournament
         create_tournament_user(tournament_id: Int!, user_id: Int!): TournamentUserResponse
         create_tournament_game(game_id: Int!, tournament_id: Int!, user_id: Int!): TournamentGame
+            create_friend_game(player_a: Int!, player_b: Int!): Game!
+    update_game_state(game_id: Int!, state: String!): Game!
     }
 
     type ProfileMutationResponse {
@@ -277,7 +280,7 @@ type_defs = """
     type UserStat {
         id: Int!
         userId: Int!
-        stat: Stat! # Replace statId with a nested Stat object
+        stat: Stat!
         didWin: Boolean!
     }
 

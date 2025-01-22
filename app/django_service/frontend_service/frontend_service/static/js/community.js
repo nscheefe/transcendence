@@ -1,8 +1,9 @@
-import { fetchFriendships, fetchFriendsWithProfiles, addFriend } from './friendservice.js';
+
+import { fetchFriendships, fetchFriendsWithProfiles, addFriend, deleteFriendship } from './friendservice.js';
 import { fetchUserProfileAndStats, fetchProfiles } from './profileservice.js';
 import { showError, gql } from './utils.js';
 import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
-
+import { createFriendGame } from "./gameService.js"
 const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';
 const LOADING_FRIENDS_HTML = '<p class="text-light">Loading friends...</p>';
 const NO_FRIENDS_WARNING = 'Sad ... you don\'t seem to have any friends 😞.';
@@ -16,28 +17,42 @@ let cachedFriendships = null; // Holds the friendships in memory
 const generateFriendHTML = (friendship, profile) => {
     const avatarUrl = profile.avatarUrl || DEFAULT_AVATAR;
     const establishedDate = formatDate(friendship.establishedAt);
-
-    return createElement(
-        'li',
-        `
-        <div class="avatar me-3">
-            <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-                <img src="${avatarUrl}"
-                    alt="${profile.nickname || 'Friend Avatar'}"
-                    class="rounded-circle"
-                    style="width: 50px; height: 50px; object-fit: cover;" />
-            </a>
-        </div>
-        <div>
-            <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-                <h6>${profile.nickname || 'Unknown Friend'}</h6>
-            </a>
-            <p class="small mb-0" style="color:white">${profile.bio || 'No bio available.'}</p>
-            <p class="small" style="color:white">Friends since: ${establishedDate}</p>
-        </div>
-        `,
-        'list-group-item bg-dark text-light d-flex align-items-center p-3 rounded-3 mb-2'
-    );
+    console.log("friendid", friendship.id);
+return createElement(
+    'li', // tagName
+    `
+    <div class="avatar me-3">
+        <a href="/home/profile/${profile.userId}" class="text-decoration-none">
+            <img src="${avatarUrl}" 
+                alt="${profile.nickname || 'Friend Avatar'}" 
+                class="rounded-circle"
+                style="width: 50px; height: 50px; object-fit: cover;" />
+        </a>
+    </div>
+    <div>
+        <a href="/home/profile/${profile.userId}" class="text-decoration-none">
+            <h6>${profile.nickname || 'Unknown Friend'}</h6>
+        </a>
+        <p class="small mb-0" style="color:white">${profile.bio || 'No bio available.'}</p>
+        <p class="small" style="color:white">Friends since: ${establishedDate}</p>
+    </div>
+    <div class="ms-auto d-flex gap-2">
+      
+        <button class="btn btn-primary btn-sm start-chat-room" data-friendship-id="${friendship.id}">
+            Start Chat
+        </button>
+        <button class="btn btn-success btn-sm start-game" data-friendship-id="${profile.userId}">
+            Play a Game
+        </button>
+        <button class="btn btn-danger btn-sm delete-friend" data-friendship-id="${friendship.id}">
+            Delete
+        </button>
+    </div>
+    `,
+    'list-group-item bg-dark text-light d-flex align-items-center p-3 rounded-3 mb-2', // className
+    {},
+    { id: `friendship-${friendship.id}` }
+);
 };
 
 /**
@@ -104,6 +119,9 @@ const loadFriends = async (friendsContainer) => {
     }
 };
 
+
+/*************************************************************************************************************/
+
 /**
  * Renders the profile and stats of the logged-in user.
  * @param {Object} user - User object returned from the API.
@@ -120,7 +138,7 @@ const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
             `
             <div class="d-flex align-items-center mb-3">
                 <div class="avatar me-3">
-                    <img src="${profile.avatarUrl || DEFAULT_USER_AVATAR}"
+                    <img src="${profile.avatarUrl || DEFAULT_USER_AVATAR}" 
                         alt="User Avatar"
                         class="rounded-circle">
                 </div>
@@ -136,7 +154,7 @@ const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
                 <h5>Additional Information</h5>
                 <p>${profile.additionalInfo || 'No additional information available.'}</p>
                 <h5>Stats:</h5>
-
+                
                 <!-- Stats Summary -->
                 <div class="card bg-dark text-light shadow-sm rounded-3 p-3">
                     <div class="row text-center">
@@ -148,8 +166,8 @@ const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
                         </div>
                         <div class="col border-start border-secondary">
                             <div class="p-2">
-                                <h6 class="fw-bold text-win">Total Wins</h6>
-                                <span class="fs-5 text-win">${stats.totalWins}</span>
+                                <h6 class="fw-bold text-primary">Total Wins</h6>
+                                <span class="fs-5 text-primary">${stats.totalWins}</span>
                             </div>
                         </div>
                         <div class="col border-start border-secondary">
@@ -160,7 +178,7 @@ const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
                         </div>
                     </div>
                 </div>
-
+                
                 <!-- Detailed User Stats -->
                 <div class="stats-list mt-3">
                     ${statsByUser.map(stat => {
@@ -223,16 +241,81 @@ const loadUserProfile = async (profileContainer, profileLoading) => {
     }
 };
 
+
+
+
+
+
 document.addEventListener('DOMContentLoaded', async () => {
     const friendsContainer = document.querySelector('#friends ul');
     const profileContainer = document.getElementById('profile');
     const profileLoading = document.getElementById('profile-loading');
 
     await Promise.all([loadFriends(friendsContainer), loadUserProfile(profileContainer, profileLoading)]);
+
+    friendsContainer.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('delete-friend')) {
+            const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
+            console.log("Target friendship ID:", friendshipId);
+
+            if (!isNaN(friendshipId)) {
+                try {
+                    console.log("Attempting to delete friendship with ID:", friendshipId);
+                    const response = await deleteFriendship(friendshipId);
+                    console.log("Delete response:", response);
+
+                    if (response && response.success) {
+                        console.log(`Friendship ${friendshipId} deleted successfully.`);
+                        const elementToRemove = document.getElementById(`friendship-${friendshipId}`);
+                        if (elementToRemove) {
+                            elementToRemove.remove(); // Remove from the DOM
+                        } else {
+                            console.error(`Element with id "friendship-${friendshipId}" not found.`);
+                        }
+                    } else {
+                        console.error(`Failed to delete friendship: ${response ? response.message : 'Unknown error'}`);
+                        alert(`Error: ${response.message || 'Failed to delete friendship.'}`);
+                    }
+                } catch (error) {
+                    console.error("An unexpected error occurred while deleting friendship:", error);
+                    alert("An error occurred while deleting the friendship. Please try again later.");
+                }
+            }
+        }
+    });
+    friendsContainer.addEventListener('click', async (event) => {
+    // Handle "Play a Game" button click
+    if (event.target.classList.contains('start-game')) {
+        const friendUserId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
+
+        if (!isNaN(friendUserId)) {
+            try {
+                console.log(`Creating a game between userId: ${userId} and friendUserId: ${friendUserId}`);
+
+                // Call the createFriendGame GraphQL mutation
+                const game = await createFriendGame(userId, friendUserId);
+
+                console.log('Game created successfully', game);
+                alert(`Game created successfully! Game ID: ${game.id}`);
+
+                // Optionally redirect to the game screen
+                window.location.href = `/home/game`;
+            } catch (error) {
+                console.error("Error creating the game:", error);
+                alert("Failed to create the game. Please try again later.");
+            }
+        } else {
+            console.error("Invalid friendUserId in the data-friendship-id attribute.");
+        }
+    }
+});
 });
 
 const NO_PROFILES_HTML = '<p class="text-light">No profiles found.</p>';
 const LOADING_PROFILES_HTML = '<p class="text-light">Loading profiles, please wait...</p>';
+
+
+
 
 /**
  * Renders profiles into the DOM.
@@ -262,9 +345,9 @@ const renderProfiles = (profiles, profilesContainer) => {
                 <div class="d-flex align-items-center">
                     <div class="avatar me-3">
                         <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-                            <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}"
-                                 alt="Profile Avatar"
-                                 class="rounded-circle"
+                            <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}" 
+                                 alt="Profile Avatar" 
+                                 class="rounded-circle" 
                                  style="width: 50px; height: 50px; object-fit: cover;">
                         </a>
                     </div>
@@ -275,9 +358,9 @@ const renderProfiles = (profiles, profilesContainer) => {
                         <p class="small mb-0" style="color:white;">${profile.bio || 'No bio available.'}</p>
                     </div>
                 </div>
-                <button
-                    class="btn ${isFriendAlready ? 'btn-secondary' : 'btn-success'} btn-sm"
-                    data-friend-id="${profile.userId}"
+                <button 
+                    class="btn ${isFriendAlready ? 'btn-secondary' : 'btn-success'} btn-sm" 
+                    data-friend-id="${profile.userId}" 
                     ${isFriendAlready ? 'disabled' : ''}>
                     ${isFriendAlready ? 'Friend Added' : 'Add Friend'}
                 </button>
@@ -355,6 +438,9 @@ const fetchAndRenderProfiles = async (
         profilesContainer.innerHTML = `<p class="text-danger">Failed to load profiles. Please try again later.</p>`;
     }
 };
+
+
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     const profilesContainer = document.querySelector('#profilesContainer');

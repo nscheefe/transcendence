@@ -200,10 +200,11 @@ def resolve_friendships(_, info):
         # Map the gRPC response to the expected GraphQL response format
         friendships = [
             {
+                "id": friendship.id,
                 "userId": friendship.user_id,
                 "friendId": friendship.friend_id,
                 "establishedAt": datetime.fromtimestamp(friendship.established_at.seconds) if friendship.HasField(
-                    "established_at") else None,
+                "established_at") else None,
                 "accepted": friendship.accepted,
             }
             for friendship in response.friendships

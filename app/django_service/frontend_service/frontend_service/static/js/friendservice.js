@@ -9,6 +9,7 @@ export const fetchFriendships = async () => {
     const GET_FRIENDSHIPS_QUERY = gql`
         query GetFriendships {
                 friendships {
+                    id
                     friendId
                     accepted
                     establishedAt
@@ -56,6 +57,7 @@ const buildProfileQuery = (friendships) => {
             // Build the query segment for each friend
             const querySegment = `
             friend${index}: profile(userId: ${friendId}) {
+                id
                 additionalInfo
                 avatarUrl
                 nickname
@@ -101,6 +103,7 @@ export const fetchFriendsWithProfiles = async (friendships) => {
     const GET_FRIENDSHIPS_AND_PROFILES_QUERY = gql`
         query GetFriendshipsAndProfiles {
    friendships {
+                    id
                     friendId
                     accepted
                     establishedAt
@@ -164,6 +167,38 @@ const variables = {
         return manageFriendship; // Return the success status and message
     } catch (error) {
         console.error('Error adding friend:', error);
+        throw error; // Re-throw the error for the caller to handle
+    }
+};
+
+export const deleteFriendship = async (friendshipId) => {
+    // Define the Delete Friendship mutation
+    const DELETE_FRIENDSHIP_MUTATION = gql`
+        mutation DeleteFriendship($friendshipId: Int!) {
+            manageFriendship(
+                friendshipData: {
+                    delete: {
+                        id: $friendshipId
+                    }
+                }
+            ) {
+                success
+                message
+            }
+        }
+    `;
+
+    // Example variables
+    const variables = {
+        friendshipId, // Pass friendshipId dynamically
+    };
+
+    try {
+        // Execute the mutation using the utility function
+        const { manageFriendship } = await executeMutation(DELETE_FRIENDSHIP_MUTATION, variables);
+        return manageFriendship; // Return the success status and message
+    } catch (error) {
+        console.error('Error deleting friendship:', error);
         throw error; // Re-throw the error for the caller to handle
     }
 };
