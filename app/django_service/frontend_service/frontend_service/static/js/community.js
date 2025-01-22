@@ -1,9 +1,8 @@
-
-import { fetchFriendships, fetchFriendsWithProfiles, addFriend, deleteFriendship } from './friendservice.js';
+import { fetchFriendships, fetchFriendsWithProfiles, addFriend } from './friendservice.js';
 import { fetchUserProfileAndStats, fetchProfiles } from './profileservice.js';
 import { showError, gql } from './utils.js';
 import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
-import { createFriendGame } from "./gameService.js"
+
 const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';
 const LOADING_FRIENDS_HTML = '<p class="text-light">Loading friends...</p>';
 const NO_FRIENDS_WARNING = 'Sad ... you don\'t seem to have any friends 😞.';
@@ -118,9 +117,6 @@ const loadFriends = async (friendsContainer) => {
         showError(friendsContainer, 'Failed to load friends. Try again later.');
     }
 };
-
-
-/*************************************************************************************************************/
 
 /**
  * Renders the profile and stats of the logged-in user.
@@ -241,81 +237,16 @@ const loadUserProfile = async (profileContainer, profileLoading) => {
     }
 };
 
-
-
-
-
-
 document.addEventListener('DOMContentLoaded', async () => {
     const friendsContainer = document.querySelector('#friends ul');
     const profileContainer = document.getElementById('profile');
     const profileLoading = document.getElementById('profile-loading');
 
     await Promise.all([loadFriends(friendsContainer), loadUserProfile(profileContainer, profileLoading)]);
-
-    friendsContainer.addEventListener('click', async (event) => {
-        if (event.target.classList.contains('delete-friend')) {
-            const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
-            console.log("Target friendship ID:", friendshipId);
-
-            if (!isNaN(friendshipId)) {
-                try {
-                    console.log("Attempting to delete friendship with ID:", friendshipId);
-                    const response = await deleteFriendship(friendshipId);
-                    console.log("Delete response:", response);
-
-                    if (response && response.success) {
-                        console.log(`Friendship ${friendshipId} deleted successfully.`);
-                        const elementToRemove = document.getElementById(`friendship-${friendshipId}`);
-                        if (elementToRemove) {
-                            elementToRemove.remove(); // Remove from the DOM
-                        } else {
-                            console.error(`Element with id "friendship-${friendshipId}" not found.`);
-                        }
-                    } else {
-                        console.error(`Failed to delete friendship: ${response ? response.message : 'Unknown error'}`);
-                        alert(`Error: ${response.message || 'Failed to delete friendship.'}`);
-                    }
-                } catch (error) {
-                    console.error("An unexpected error occurred while deleting friendship:", error);
-                    alert("An error occurred while deleting the friendship. Please try again later.");
-                }
-            }
-        }
-    });
-    friendsContainer.addEventListener('click', async (event) => {
-    // Handle "Play a Game" button click
-    if (event.target.classList.contains('start-game')) {
-        const friendUserId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
-
-        if (!isNaN(friendUserId)) {
-            try {
-                console.log(`Creating a game between userId: ${userId} and friendUserId: ${friendUserId}`);
-
-                // Call the createFriendGame GraphQL mutation
-                const game = await createFriendGame(userId, friendUserId);
-
-                console.log('Game created successfully', game);
-                alert(`Game created successfully! Game ID: ${game.id}`);
-
-                // Optionally redirect to the game screen
-                window.location.href = `/home/game`;
-            } catch (error) {
-                console.error("Error creating the game:", error);
-                alert("Failed to create the game. Please try again later.");
-            }
-        } else {
-            console.error("Invalid friendUserId in the data-friendship-id attribute.");
-        }
-    }
-});
 });
 
 const NO_PROFILES_HTML = '<p class="text-light">No profiles found.</p>';
 const LOADING_PROFILES_HTML = '<p class="text-light">Loading profiles, please wait...</p>';
-
-
-
 
 /**
  * Renders profiles into the DOM.
@@ -438,9 +369,6 @@ const fetchAndRenderProfiles = async (
         profilesContainer.innerHTML = `<p class="text-danger">Failed to load profiles. Please try again later.</p>`;
     }
 };
-
-
-
 
 document.addEventListener('DOMContentLoaded', async () => {
     const profilesContainer = document.querySelector('#profilesContainer');
