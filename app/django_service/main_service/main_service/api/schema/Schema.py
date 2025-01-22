@@ -97,6 +97,7 @@ type_defs = """
                 tournament_users(tournament_id: Int!): [TournamentUser]
         tournament_games(tournament_id: Int!): [TournamentGame]
         friendships: [Friendship!]
+            StatList: [StatsWithProfile!]!
 
     }
 
@@ -222,7 +223,17 @@ type_defs = """
         lastLogin: DateTime
         lastLoginIp: String
     }
+    type StatsWithProfile {
+        profile: Profile!
+        stats: ProfileStats!
+    }
 
+    type ProfileStats {
+        totalGames: Int!
+        totalWins: Int!
+        totalLosses: Int!
+        winRatio: Float!
+    }
     type Mutation {
         createUser(input: UserInput!): User
         manageProfile(avatarUrl: String, nickname: String, bio: String, additionalInfo: String): ProfileMutationResponse
@@ -239,6 +250,7 @@ type_defs = """
         create_tournament_game(game_id: Int!, tournament_id: Int!, user_id: Int!): TournamentGame
             create_friend_game(player_a: Int!, player_b: Int!): Game!
     update_game_state(game_id: Int!, state: String!): Game!
+
     }
 
     type ProfileMutationResponse {

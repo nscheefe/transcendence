@@ -12,4 +12,4 @@ def getProfileData(request, id):
 
     # Execute the query with variables
     response = execute_query(query, request, variables=variables)
-    return response["profile"]
+    return response

@@ -6,4 +6,19 @@ query GetUserProfile($userId: Int!) {
     nickname
     userId
   }
+  calculateUserStats(userId: $userId) {
+                totalGames
+                totalWins
+                totalLosses
+  }
+            statsByUser(userId: $userId) {
+                id
+                userId
+                stat {
+                    winnerId
+                    loserId
+                    createdAt
+                    }
+                didWin
+            }
 }

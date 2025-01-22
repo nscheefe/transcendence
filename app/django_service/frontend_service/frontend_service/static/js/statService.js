@@ -32,3 +32,46 @@ export const getStatsByUser = async (userId) => {
     throw error;
   }
 };
+
+const GET_STAT_LIST_QUERY = gql`
+  query StatList {
+    StatList {
+      profile {
+        id
+        userId
+        avatarUrl
+        nickname
+        bio
+        additionalInfo
+      }
+      stats {
+        totalGames
+        totalWins
+        totalLosses
+        winRatio
+      }
+    }
+  }
+`;
+
+/**
+ * Fetch the list of profiles with their stats
+ * @returns {Promise<Object>} - Returns a promise with the StatList data
+ */
+export const getStatList = async () => {
+  try {
+    // Log the raw response to see what is returned
+    const response = await executeQuery(GET_STAT_LIST_QUERY);
+    console.log("Raw GraphQL Response:", response);
+
+    // Check if response and data exist, otherwise throw an error
+    if (!response || !response.StatList) {
+      throw new Error("Invalid response format: Missing data or StatList in response");
+    }
+
+    return response.StatList;
+  } catch (error) {
+    console.error("Error fetching StatList:", error);
+    throw error;
+  }
+};
