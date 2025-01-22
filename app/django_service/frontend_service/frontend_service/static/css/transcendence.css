@@ -352,6 +352,13 @@ blockquote {
   line-height: 27px;
 }
 
+.fs-5.text-win{
+  color:var(--success) !important
+}
+
+.fw-bold.text-win {
+  color: var(--success) !important
+}
 .header {
   background-color: #fff;
   border-bottom: 1px solid #ccc;

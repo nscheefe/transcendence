@@ -22,8 +22,8 @@ const generateFriendHTML = (friendship, profile) => {
         `
         <div class="avatar me-3">
             <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-                <img src="${avatarUrl}" 
-                    alt="${profile.nickname || 'Friend Avatar'}" 
+                <img src="${avatarUrl}"
+                    alt="${profile.nickname || 'Friend Avatar'}"
                     class="rounded-circle"
                     style="width: 50px; height: 50px; object-fit: cover;" />
             </a>
@@ -120,7 +120,7 @@ const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
             `
             <div class="d-flex align-items-center mb-3">
                 <div class="avatar me-3">
-                    <img src="${profile.avatarUrl || DEFAULT_USER_AVATAR}" 
+                    <img src="${profile.avatarUrl || DEFAULT_USER_AVATAR}"
                         alt="User Avatar"
                         class="rounded-circle">
                 </div>
@@ -136,7 +136,7 @@ const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
                 <h5>Additional Information</h5>
                 <p>${profile.additionalInfo || 'No additional information available.'}</p>
                 <h5>Stats:</h5>
-                
+
                 <!-- Stats Summary -->
                 <div class="card bg-dark text-light shadow-sm rounded-3 p-3">
                     <div class="row text-center">
@@ -148,8 +148,8 @@ const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
                         </div>
                         <div class="col border-start border-secondary">
                             <div class="p-2">
-                                <h6 class="fw-bold text-primary">Total Wins</h6>
-                                <span class="fs-5 text-primary">${stats.totalWins}</span>
+                                <h6 class="fw-bold text-win">Total Wins</h6>
+                                <span class="fs-5 text-win">${stats.totalWins}</span>
                             </div>
                         </div>
                         <div class="col border-start border-secondary">
@@ -160,7 +160,7 @@ const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Detailed User Stats -->
                 <div class="stats-list mt-3">
                     ${statsByUser.map(stat => {
@@ -262,9 +262,9 @@ const renderProfiles = (profiles, profilesContainer) => {
                 <div class="d-flex align-items-center">
                     <div class="avatar me-3">
                         <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-                            <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}" 
-                                 alt="Profile Avatar" 
-                                 class="rounded-circle" 
+                            <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}"
+                                 alt="Profile Avatar"
+                                 class="rounded-circle"
                                  style="width: 50px; height: 50px; object-fit: cover;">
                         </a>
                     </div>
@@ -275,9 +275,9 @@ const renderProfiles = (profiles, profilesContainer) => {
                         <p class="small mb-0" style="color:white;">${profile.bio || 'No bio available.'}</p>
                     </div>
                 </div>
-                <button 
-                    class="btn ${isFriendAlready ? 'btn-secondary' : 'btn-success'} btn-sm" 
-                    data-friend-id="${profile.userId}" 
+                <button
+                    class="btn ${isFriendAlready ? 'btn-secondary' : 'btn-success'} btn-sm"
+                    data-friend-id="${profile.userId}"
                     ${isFriendAlready ? 'disabled' : ''}>
                     ${isFriendAlready ? 'Friend Added' : 'Add Friend'}
                 </button>
