@@ -179,6 +179,7 @@ func resetBall(game *Game) {
 }
 
 func checkWinner(game *Game) {
+	var winnerId int32
 	if game.state.Points.Player1 >= winningPoints || game.state.Points.Player2 >= winningPoints {
 		game.State = GameStateFinished
 		if game.state.Points.Player1 >= winningPoints {
@@ -186,13 +187,15 @@ func checkWinner(game *Game) {
 				"type":   "gameOver",
 				"winner": 1,
 			})
+			winnerId = int32(game.info.PlayerAId)
 		} else if game.state.Points.Player2 >= winningPoints {
 			broadcast(game, map[string]interface{}{
 				"type":   "gameOver",
 				"winner": 2,
 			})
+			winnerId = int32(game.info.PlayerBId)
 		}
-		err := grpc.GameCon.HandleGameFinished(int32(game.id), int32(game.state.Points.Player1), int32(game.state.Points.Player2), int32(game.state.Direction))
+		err := grpc.GameCon.HandleGameFinished(int32(game.id), int32(game.state.Points.Player1), int32(game.state.Points.Player2), winnerId)
 		if err != nil {
 			logGame(game, "GRPC error handling game finished: "+err.Error())
 		}
