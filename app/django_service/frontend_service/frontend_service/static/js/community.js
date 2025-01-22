@@ -1,4 +1,5 @@
-import { fetchFriendships, fetchFriendsWithProfiles, addFriend } from './friendservice.js';
+
+import { fetchFriendships, fetchFriendsWithProfiles, addFriend, deleteFriendship } from './friendservice.js';
 import { fetchUserProfileAndStats, fetchProfiles } from './profileservice.js';
 import { showError, gql } from './utils.js';
 import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
@@ -16,28 +17,42 @@ let cachedFriendships = null; // Holds the friendships in memory
 const generateFriendHTML = (friendship, profile) => {
     const avatarUrl = profile.avatarUrl || DEFAULT_AVATAR;
     const establishedDate = formatDate(friendship.establishedAt);
-
-    return createElement(
-        'li',
-        `
-        <div class="avatar me-3">
-            <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-                <img src="${avatarUrl}" 
-                    alt="${profile.nickname || 'Friend Avatar'}" 
-                    class="rounded-circle"
-                    style="width: 50px; height: 50px; object-fit: cover;" />
-            </a>
-        </div>
-        <div>
-            <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-                <h6>${profile.nickname || 'Unknown Friend'}</h6>
-            </a>
-            <p class="small mb-0" style="color:white">${profile.bio || 'No bio available.'}</p>
-            <p class="small" style="color:white">Friends since: ${establishedDate}</p>
-        </div>
-        `,
-        'list-group-item bg-dark text-light d-flex align-items-center p-3 rounded-3 mb-2'
-    );
+    console.log("friendid", friendship.id);
+return createElement(
+    'li', // tagName
+    `
+    <div class="avatar me-3">
+        <a href="/home/profile/${profile.userId}" class="text-decoration-none">
+            <img src="${avatarUrl}" 
+                alt="${profile.nickname || 'Friend Avatar'}" 
+                class="rounded-circle"
+                style="width: 50px; height: 50px; object-fit: cover;" />
+        </a>
+    </div>
+    <div>
+        <a href="/home/profile/${profile.userId}" class="text-decoration-none">
+            <h6>${profile.nickname || 'Unknown Friend'}</h6>
+        </a>
+        <p class="small mb-0" style="color:white">${profile.bio || 'No bio available.'}</p>
+        <p class="small" style="color:white">Friends since: ${establishedDate}</p>
+    </div>
+    <div class="ms-auto d-flex gap-2">
+      
+        <button class="btn btn-primary btn-sm start-chat-room" data-friendship-id="${friendship.id}">
+            Start Chat
+        </button>
+        <button class="btn btn-success btn-sm start-game" data-friendship-id="${friendship.id}">
+            Play a Game
+        </button>
+        <button class="btn btn-danger btn-sm delete-friend" data-friendship-id="${friendship.id}">
+            Delete
+        </button>
+    </div>
+    `,
+    'list-group-item bg-dark text-light d-flex align-items-center p-3 rounded-3 mb-2', // className
+    {},
+    { id: `friendship-${friendship.id}` }
+);
 };
 
 /**
@@ -103,6 +118,9 @@ const loadFriends = async (friendsContainer) => {
         showError(friendsContainer, 'Failed to load friends. Try again later.');
     }
 };
+
+
+/*************************************************************************************************************/
 
 /**
  * Renders the profile and stats of the logged-in user.
@@ -223,16 +241,55 @@ const loadUserProfile = async (profileContainer, profileLoading) => {
     }
 };
 
+
+
+
+
+
 document.addEventListener('DOMContentLoaded', async () => {
     const friendsContainer = document.querySelector('#friends ul');
     const profileContainer = document.getElementById('profile');
     const profileLoading = document.getElementById('profile-loading');
 
     await Promise.all([loadFriends(friendsContainer), loadUserProfile(profileContainer, profileLoading)]);
+
+    friendsContainer.addEventListener('click', async (event) => {
+        if (event.target.classList.contains('delete-friend')) {
+            const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
+            console.log("Target friendship ID:", friendshipId);
+
+            if (!isNaN(friendshipId)) {
+                try {
+                    console.log("Attempting to delete friendship with ID:", friendshipId);
+                    const response = await deleteFriendship(friendshipId);
+                    console.log("Delete response:", response);
+
+                    if (response && response.success) {
+                        console.log(`Friendship ${friendshipId} deleted successfully.`);
+                        const elementToRemove = document.getElementById(`friendship-${friendshipId}`);
+                        if (elementToRemove) {
+                            elementToRemove.remove(); // Remove from the DOM
+                        } else {
+                            console.error(`Element with id "friendship-${friendshipId}" not found.`);
+                        }
+                    } else {
+                        console.error(`Failed to delete friendship: ${response ? response.message : 'Unknown error'}`);
+                        alert(`Error: ${response.message || 'Failed to delete friendship.'}`);
+                    }
+                } catch (error) {
+                    console.error("An unexpected error occurred while deleting friendship:", error);
+                    alert("An error occurred while deleting the friendship. Please try again later.");
+                }
+            }
+        }
+    });
 });
 
 const NO_PROFILES_HTML = '<p class="text-light">No profiles found.</p>';
 const LOADING_PROFILES_HTML = '<p class="text-light">Loading profiles, please wait...</p>';
+
+
+
 
 /**
  * Renders profiles into the DOM.
@@ -355,6 +412,9 @@ const fetchAndRenderProfiles = async (
         profilesContainer.innerHTML = `<p class="text-danger">Failed to load profiles. Please try again later.</p>`;
     }
 };
+
+
+
 
 document.addEventListener('DOMContentLoaded', async () => {
     const profilesContainer = document.querySelector('#profilesContainer');

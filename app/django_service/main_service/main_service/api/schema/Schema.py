@@ -46,6 +46,7 @@ type_defs = """
     }
 
     type Friendship {
+        id: Int!
         userId: Int!
         friendId: Int!
         establishedAt: DateTime
@@ -277,7 +278,7 @@ type_defs = """
     type UserStat {
         id: Int!
         userId: Int!
-        stat: Stat! # Replace statId with a nested Stat object
+        stat: Stat!
         didWin: Boolean!
     }
 
