@@ -151,6 +151,8 @@
 
 .nav-item-group {
   position: relative;
+  display: flex;
+  flex-direction: row;
 }
 
 .nav-item-group .profile-link-wrapper {
