@@ -107,6 +107,7 @@ function createWebSocket() {
         if (state.type === 'updateState') {
             if (!gameStarted) {
                 gameStarted = true;
+                updateScene();
             }
             if (state.paddle1 !== undefined) {
                 paddle1.position.x = state.paddle1.x;
