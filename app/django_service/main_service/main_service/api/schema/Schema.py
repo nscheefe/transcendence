@@ -281,7 +281,7 @@ type_defs = """
     type UserStat {
         id: Int!
         userId: Int!
-        statId: Int!
+        stat: Stat! # Replace statId with a nested Stat object
         didWin: Boolean!
     }
 

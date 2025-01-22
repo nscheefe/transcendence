@@ -110,9 +110,10 @@ const loadFriends = async (friendsContainer) => {
  * @param {Object} stats - User stats object returned from the API.
  * @param {HTMLElement} profileContainer - The DOM container for the user profile.
  */
-const renderUserProfile = (user, stats, profileContainer) => {
+const renderUserProfile = (user, stats, statsByUser, profileContainer) => {
     const profile = user.profile;
 
+    // Create the user profile section
     profileContainer.appendChild(
         createElement(
             'div',
@@ -135,6 +136,8 @@ const renderUserProfile = (user, stats, profileContainer) => {
                 <h5>Additional Information</h5>
                 <p>${profile.additionalInfo || 'No additional information available.'}</p>
                 <h5>Stats:</h5>
+                
+                <!-- Stats Summary -->
                 <div class="card bg-dark text-light shadow-sm rounded-3 p-3">
                     <div class="row text-center">
                         <div class="col">
@@ -157,13 +160,48 @@ const renderUserProfile = (user, stats, profileContainer) => {
                         </div>
                     </div>
                 </div>
+                
+                <!-- Detailed User Stats -->
+                <div class="stats-list mt-3">
+                    ${statsByUser.map(stat => {
+                        const date = stat.stat.createdAt; // Assume createdAt exists in stat.stat
+                        const result = stat.didWin ? 'win' : 'loss';
+                        const isWinner = stat.stat.winnerId === user.id;
+                        const opponent = {
+                            avatarUrl: stat.opponentAvatar || 'https://via.placeholder.com/50',
+                            nickname: stat.opponentNickname || 'Unknown Player',
+                        };
+
+                        return `
+                            <div class="game-stat bg-dark ${result === 'win' ? 'victory' : 'defeat'}">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span>${new Date(date).toLocaleDateString()}</span>
+                                    <span class="badge ${result === 'win' ? 'bg-success' : 'bg-danger'}">
+                                        ${result === 'win' ? 'Victory' : 'Defeat'}
+                                    </span>
+                                </div>
+                                <div class="d-flex justify-content-around">
+                                    <div class="player">
+                                        <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}" alt="${profile.nickname}">
+                                        <span>${isWinner ? 'You' : profile.nickname}</span>
+                                    </div>
+                                    <div class="vs text-bold">
+                                        <span>VS</span>
+                                    </div>
+                                    <div class="opponent">
+                                        <img src="${opponent.avatarUrl}" alt="${opponent.nickname}">
+                                        <span>${opponent.nickname}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
             </div>
-            `,
-            'user-profile'
+            `
         )
     );
 };
-
 /**
  * Loads the profile and stats of the logged-in user.
  * @param {HTMLElement} profileContainer - The DOM container for the user profile.
@@ -171,12 +209,11 @@ const renderUserProfile = (user, stats, profileContainer) => {
  */
 const loadUserProfile = async (profileContainer, profileLoading) => {
     try {
-        const userId = 1; // Replace with actual user ID
         const data = await fetchUserProfileAndStats(userId);
         profileLoading.remove();
 
         if (data?.user) {
-            renderUserProfile(data.user, data.calculateUserStats, profileContainer);
+            renderUserProfile(data.user, data.calculateUserStats, data.statsByUser, profileContainer);
         } else {
             throw new Error('User data is missing.');
         }

@@ -31,6 +31,16 @@ import { executeQuery, gql } from './utils.js';
                 totalWins
                 totalLosses
             }
+            statsByUser(userId: $userId) {
+                id
+                userId
+                stat {
+                    winnerId
+                    loserId
+                    createdAt
+                    }
+                didWin
+            }
         }
        `;
 

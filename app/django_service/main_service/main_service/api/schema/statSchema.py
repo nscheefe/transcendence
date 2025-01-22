@@ -49,26 +49,53 @@ def resolve_stat(_, info, id):
 @query.field("statsByUser")
 def resolve_stats_by_user(_, info, userId):
     """
-    Fetch UserStats by the User ID from the StatService.
+    Fetch UserStats by the User ID from the StatService,
+    and include the full Stat details for each statId.
     """
     try:
+        # Step 1: Fetch stats by userId (initial query for user stats)
         request = GetStatsByUserIdRequest(user_id=userId)
         response = stat_stub.GetStatsByUserId(request)
-        return [
-            {
-                "id": user_stat.id,
-                "userId": user_stat.user_id,
-                "statId": user_stat.stat_id,
-                "didWin": user_stat.did_win,
-            }
-            for user_stat in response.user_stats
-        ]
+
+        # Step 2: Fetch full stat details for each statId
+        enriched_stats = []  # List to store user stats with full stat details
+
+        for user_stat in response.user_stats:
+            try:
+                # Fetch the full stat details for statId
+                stat_request = GetStatRequest(id=user_stat.stat_id)
+                stat_response = stat_stub.GetStat(stat_request)
+
+                # Add the full stat details to the userStat
+                enriched_stats.append({
+                    "id": user_stat.id,
+                    "userId": user_stat.user_id,
+                    "didWin": user_stat.did_win,
+                    "stat": {
+                        "id": stat_response.stat.id,
+                        "gameId": stat_response.stat.game_id,
+                        "winnerId": stat_response.stat.winner_id,
+                        "loserId": stat_response.stat.loser_id,
+                        "createdAt": datetime.fromtimestamp(stat_response.stat.created_at.seconds).isoformat()
+                        if stat_response.stat.HasField("created_at")
+                        else None,
+                    },
+                })
+            except grpc.RpcError as e:
+                if e.code() == grpc.StatusCode.NOT_FOUND:
+                    # If the stat is not found, skip it (or handle it accordingly)
+                    continue
+                else:
+                    raise e
+
+        # Return the enriched stats with full stat details
+        return enriched_stats
+
     except grpc.RpcError as e:
         if e.code() == grpc.StatusCode.NOT_FOUND:
-            return []
+            return []  # Return an empty list if no stats are found
         else:
             raise e
-
 
 @query.field("calculateUserStats")
 def resolve_calculate_user_stats(_, info, userId):
