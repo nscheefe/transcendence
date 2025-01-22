@@ -3,7 +3,7 @@ import { fetchFriendships, fetchFriendsWithProfiles, addFriend, deleteFriendship
 import { fetchUserProfileAndStats, fetchProfiles } from './profileservice.js';
 import { showError, gql } from './utils.js';
 import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
-
+import { createFriendGame } from "./gameService.js"
 const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';
 const LOADING_FRIENDS_HTML = '<p class="text-light">Loading friends...</p>';
 const NO_FRIENDS_WARNING = 'Sad ... you don\'t seem to have any friends 😞.';
@@ -41,7 +41,7 @@ return createElement(
         <button class="btn btn-primary btn-sm start-chat-room" data-friendship-id="${friendship.id}">
             Start Chat
         </button>
-        <button class="btn btn-success btn-sm start-game" data-friendship-id="${friendship.id}">
+        <button class="btn btn-success btn-sm start-game" data-friendship-id="${profile.userId}">
             Play a Game
         </button>
         <button class="btn btn-danger btn-sm delete-friend" data-friendship-id="${friendship.id}">
@@ -283,6 +283,32 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
         }
     });
+    friendsContainer.addEventListener('click', async (event) => {
+    // Handle "Play a Game" button click
+    if (event.target.classList.contains('start-game')) {
+        const friendUserId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
+
+        if (!isNaN(friendUserId)) {
+            try {
+                console.log(`Creating a game between userId: ${userId} and friendUserId: ${friendUserId}`);
+
+                // Call the createFriendGame GraphQL mutation
+                const game = await createFriendGame(userId, friendUserId);
+
+                console.log('Game created successfully', game);
+                alert(`Game created successfully! Game ID: ${game.id}`);
+
+                // Optionally redirect to the game screen
+                window.location.href = `/home/game`;
+            } catch (error) {
+                console.error("Error creating the game:", error);
+                alert("Failed to create the game. Please try again later.");
+            }
+        } else {
+            console.error("Invalid friendUserId in the data-friendship-id attribute.");
+        }
+    }
+});
 });
 
 const NO_PROFILES_HTML = '<p class="text-light">No profiles found.</p>';

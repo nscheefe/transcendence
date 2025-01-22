@@ -7,6 +7,8 @@ from main_service.protos.game_pb2 import (
     GetGameRequest,
     GetOngoingGamesRequest,
     CreateGameRequest,
+CreateFriendGameRequest,
+UpdateGameStateRequest,
     StartGameRequest,
 )
 from main_service.protos.tournament_pb2 import (
@@ -20,7 +22,9 @@ ListTournamentRoomsRequest,
     ListTournamentGameMappingsRequest,
     CreateTournamentGameMappingRequest,
 )
-
+from main_service.protos.notification_pb2_grpc import NotificationServiceStub
+from main_service.protos.notification_pb2 import GetNotificationsByUserIdRequest, CreateNotificationRequest, DeleteNotificationRequest, UpdateNotificationRequest
+from .userSchema import resolve_profile
 from main_service.protos.gameEvent_pb2_grpc import GameEventServiceStub
 from main_service.protos.gameEvent_pb2 import GetGameEventRequest, CreateGameEventRequest
 from main_service.api.schema.objectTypes import query, mutation, subscription  # Shared objects
@@ -350,6 +354,67 @@ def resolve_create_tournament_game(_, info: GraphQLResolveInfo, game_id: int, to
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
 
+@mutation.field("create_friend_game")
+def resolve_create_friend_game(_, info: GraphQLResolveInfo, player_a: int, player_b: int):
+    """
+    Create a game between two specific players.
+    """
+    user_id = info.context["request"].user_id
+    user_chanel = grpc.insecure_channel("user_service:50051")
+    try:
+        with grpc.insecure_channel(GRPC_TARGET) as channel:
+            client = GameServiceStub(channel)
+            request = CreateFriendGameRequest(player_a=player_a, player_b=player_b)
+            response = client.CreateFriendGame(request)
+            notification_stub = NotificationServiceStub(user_chanel)
+            profile = resolve_profile(_, info, user_id)
+            nickname = profile["nickname"]
+            notification_request = CreateNotificationRequest(
+                user_id=player_b,
+                message=f"User {nickname} sent you an Game invitation.",
+                read=False,
+                sent_at=datetime.utcnow()
+            )
+            notification_stub.CreateNotification(notification_request)
+            return {
+                "id": response.id,
+                "state": response.state,
+                "points_player_a": response.points_player_a,
+                "points_player_b": response.points_player_b,
+                "player_a_id": response.player_a_id,
+                "player_b_id": response.player_b_id,
+                "finished": response.finished,
+                "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
+                "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
+            }
+    except grpc.RpcError as e:
+        raise Exception(f"gRPC error: {e.details()}")
+
+
+@mutation.field("update_game_state")
+def resolve_update_game_state(_, info: GraphQLResolveInfo, game_id: int, state: str):
+    """
+    Update the state of a specific game.
+    """
+    try:
+        with grpc.insecure_channel(GRPC_TARGET) as channel:
+            client = GameServiceStub(channel)
+            request = UpdateGameStateRequest(id=game_id, state=state)
+            response = client.UpdateGameState(request)
+
+            return {
+                "id": response.id,
+                "state": response.state,
+                "points_player_a": response.points_player_a,
+                "points_player_b": response.points_player_b,
+                "player_a_id": response.player_a_id,
+                "player_b_id": response.player_b_id,
+                "finished": response.finished,
+                "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
+                "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
+            }
+    except grpc.RpcError as e:
+        raise Exception(f"gRPC error: {e.details()}")
 
 
 # ---------------------------------------
