@@ -6,7 +6,6 @@ import { executeQuery, gql } from './utils.js';
  * @returns {Promise<object>} The user's profile and stats.
  */
    export const fetchUserProfileAndStats = async (userId) => {
-       console.log("Received userId:", userId); // Debugging
        const GET_USER_PROFILE_AND_STATS_QUERY = gql`
         query GetUserProfileAndStats($userId: Int!) {
             user {
@@ -60,8 +59,8 @@ import { executeQuery, gql } from './utils.js';
  * @returns {Promise<object>} The paginated list of profiles.
  */
 export const fetchProfiles = async (limit, offset) => {
-       console.log('Limit:', limit);
-   console.log('Offset:', offset);
+
+
     const GET_ALL_PROFILES_QUERY = gql`
         query GetAllProfiles($limit: Int!, $offset: Int!) {
             getAllProfiles(limit: $limit, offset: $offset) {
@@ -81,6 +80,35 @@ export const fetchProfiles = async (limit, offset) => {
         return result;
     } catch (error) {
         console.error('Error fetching profiles with pagination:', error);
+        throw error;
+    }
+};
+
+/**
+ * Fetches a user's profile by the provided user ID.
+ * @param {number} userId - The user's ID.
+ * @returns {Promise<object>} The user's profile.
+ */
+export const fetchProfileByUserId = async (userId) => {
+
+    const GET_PROFILE_BY_USER_ID_QUERY = gql`
+        query GetProfile($userId: Int!) {
+            profile(userId: $userId) {
+                id
+                userId
+                avatarUrl
+                nickname
+                bio
+                additionalInfo
+            }
+        }
+    `;
+
+    try {
+        const result = await executeQuery(GET_PROFILE_BY_USER_ID_QUERY, { userId });
+        return result;
+    } catch (error) {
+        console.error('Error fetching profile by user ID:', error);
         throw error;
     }
 };

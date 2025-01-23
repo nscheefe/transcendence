@@ -24,41 +24,23 @@ const subscriptionClient = new SubscriptionClient(
   }
 );
 
-subscriptionClient.onConnected(() => console.log("[DEBUG] WebSocket connected."));
-subscriptionClient.onReconnected(() => console.log("[DEBUG] WebSocket reconnected."));
-subscriptionClient.onDisconnected(() => console.log("[DEBUG] WebSocket disconnected."));
 subscriptionClient.onError((error) => console.error("[DEBUG] WebSocket error:", error));
-subscriptionClient.onReconnecting(() => {
-  console.log("[DEBUG] Attempting to reconnect to:", subscriptionClient.url);
-});
-subscriptionClient.client.onmessage = (message) => {
-  console.log("[DEBUG] Message from server:", message.data);
-};
 
 const wsLink = new WebSocketLink( subscriptionClient);
 
 const splitLink = split(
   ({ query }) => {
-    console.log("[DEBUG] Incoming Query in SplitLink:", query);
-
     if (!query) {
       console.error("[DEBUG] Query is undefined or null!");
       return false;
     }
     const definition = getMainDefinition(query);
 
-    console.log("[DEBUG] Main Definition Extracted:", definition);
-
     if (!definition) {
       console.error("[DEBUG] getMainDefinition returned null or undefined!");
       return false;
     }
-    console.log("[DEBUG] SplitLink Routing:", {
-      operation: definition.operation,
-      operationName: definition.name ? definition.name.value : "Unnamed",
-    });
     if (!definition.operation) {
-      console.error("[DEBUG] Operation type is missing in definition!");
       return false;
     }
     return definition.operation === "subscription";
