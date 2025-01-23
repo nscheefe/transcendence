@@ -9,7 +9,7 @@ import {executeSubscription, gql} from "./utils.js"
 export const subscribeToUserChatRooms = (onChatRoomUpdate, onError) => {
 
 const subscriptionQuery = {
-  query: gql`
+  query: `
     subscription ChatRoomUpdates {
         chatRoomsForUser {
             id,
@@ -18,12 +18,13 @@ const subscriptionQuery = {
     }
   `,
   variables: {},
+  extensions: {},
+  operationName: "ChatRoomUpdates",
 };
 
 executeSubscription(subscriptionQuery,
-  (data) => console.log("Subscription data:", data),
-  (error) => console.error("Subscription error:", error),
-  () => console.log("Subscription complete.")
+    onChatRoomUpdate,
+    onError,
 );
 
 };

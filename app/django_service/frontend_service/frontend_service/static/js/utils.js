@@ -1,58 +1,16 @@
+import { SubscriptionClient } from 'https://cdn.jsdelivr.net/npm/@httptoolkit/subscriptions-transport-ws@0.11.2/+esm';
 // utils.js
-import { SubscriptionClient } from 'https://cdn.jsdelivr.net/npm/subscriptions-transport-ws@0.9.18/+esm';
-import {ApolloClient, InMemoryCache, HttpLink, gql as gqlPars } from 'https://esm.sh/@apollo/client@3.3.19';
-import { split } from "https://cdn.jsdelivr.net/npm/apollo-link@1.2.14/+esm";
-import { getMainDefinition } from 'https://cdn.jsdelivr.net/npm/apollo-utilities@1.3.4/+esm';
-import { WebSocketLink } from 'https://cdn.jsdelivr.net/npm/apollo-link-ws@1.0.20/+esm';
-
+import { parse } from "https://cdn.jsdelivr.net/npm/graphql@15.8.0/+esm";
 const protocol = window.location.protocol === "https:" ? "https:" : "http:";
 const wsProtocol = protocol === "https:" ? "wss:" : "ws:";
 const host = window.location.host;
 const httpUrl = `${protocol}//${host}/graphql/`;
 const wsUrl = `${wsProtocol}//${host}/graphql/`;
 
-const httpLink = new HttpLink({
-  uri: httpUrl,
+const wsClient = new SubscriptionClient('wss://localhost/graphql/', {
+  reconnect: true,
 });
 
-const subscriptionClient = new SubscriptionClient(
-  'wss://localhost/graphql',
-  {
-    reconnect: true,
-    timeout: 20000,
-    lazy: false,
-  }
-);
-
-subscriptionClient.onError((error) => console.error("[DEBUG] WebSocket error:", error));
-
-const wsLink = new WebSocketLink( subscriptionClient);
-
-const splitLink = split(
-  ({ query }) => {
-    if (!query) {
-      console.error("[DEBUG] Query is undefined or null!");
-      return false;
-    }
-    const definition = getMainDefinition(query);
-
-    if (!definition) {
-      console.error("[DEBUG] getMainDefinition returned null or undefined!");
-      return false;
-    }
-    if (!definition.operation) {
-      return false;
-    }
-    return definition.operation === "subscription";
-  },
-  wsLink,
-  httpLink
-);
-
-const Client = new ApolloClient({
-    cache: new InMemoryCache(),
-    link: splitLink,
-});
 /**
  * Executes a query using the HTTP client.
  * @param {Object} query - GraphQL query.
@@ -60,16 +18,22 @@ const Client = new ApolloClient({
  * @returns {Promise<Object>} - Query result.
  */
 export async function executeQuery(query, variables = {}) {
-    try {
-        const result = await Client.query({
-            query,
-            variables,
-        });
-        return result.data;
-    } catch (error) {
-        console.error("[DEBUG] Query Error:", error);
-        throw error;
-    }
+  const response = await fetch(httpUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query,
+      variables,
+    }),
+  });
+
+  const result = await response.json();
+  if (result.errors) {
+    console.error("[DEBUG] GraphQL errors:", result.errors);
+  }
+  return result.data;
 }
 
 /**
@@ -90,7 +54,6 @@ export async function executeMutation(mutation, variables = {}) {
         throw error;
     }
 }
-import { getOperationAST, parse } from "https://cdn.jsdelivr.net/npm/graphql@15.8.0/+esm";
 
 /**
  * Executes a subscription using the WebSocket client.
@@ -104,38 +67,17 @@ export function executeSubscription(
   onError = (error) => console.error("[DEBUG] Subscription Error:", error),
   onComplete = () => console.log("[DEBUG] Subscription Complete.")
 ) {
-  try {
-    if (!Client) {
-      const error = new Error("[DEBUG] Apollo Client is not initialized.");
-      console.error(error.message);
-      onError(error);
-      return;
-    }
-    if (!subscriptionQuery || !subscriptionQuery.query) {
-  console.error("[DEBUG] Invalid subscription query:", subscriptionQuery);
-  throw new Error("Invalid subscription query. Ensure the 'query' field contains a valid GraphQL subscription.");
-}
-    console.log("[DEBUG] Executing subscription...");
 
 
-    const observable = Client.subscribe({
-      query: subscriptionQuery.query,
-      variables: subscriptionQuery.variables || {},
-    });
-
-    return observable.subscribe({
+    const subscription = wsClient.request(subscriptionQuery).subscribe({
       next: onNext,
       error: onError,
       complete: onComplete,
     });
-  } catch (error) {
-    console.error("[DEBUG] Failed to execute subscription:", error);
-    onError?.(error);
-  }
 }
 
 
-export const gql = gqlPars;
+export const gql = parse;
 
 /**
  * Adds an error message to a container for display.
