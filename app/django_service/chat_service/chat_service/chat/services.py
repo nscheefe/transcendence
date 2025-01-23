@@ -20,11 +20,6 @@ class ChatRoomService(generics.AsyncModelService):
     queryset = ChatRoom.objects.all()
     serializer_class = ChatRoomProtoSerializer
 
-    @grpc_action(request=[], response=ChatRoomProtoSerializer)
-    def ListChatRooms(self, request, context):
-        for chat_room in self.get_queryset():
-            yield self.serializer_class(chat_room).data
-
 
 class ChatRoomMessageService(generics.AsyncModelService):
     queryset = ChatRoomMessage.objects.all()
