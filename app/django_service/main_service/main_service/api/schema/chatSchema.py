@@ -2,7 +2,7 @@ import asyncio
 from asyncio.log import logger
 from datetime import datetime
 import grpc
-from ariadne import QueryType, MutationType, SubscriptionType, make_executable_schema, gql
+from ariadne import ObjectType
 from ariadne.asgi import GraphQL
 
 from main_service.protos import chat_pb2, chat_pb2_grpc
@@ -20,14 +20,25 @@ async def chat_rooms_for_user_source(_, info):
         raise Exception("Authentication required")
     logger.info(f"User {user_id} is subscribing to chat rooms")
     async with grpc.aio.insecure_channel(GRPC_CHAT_TARGET) as channel:
-        stub = chat_pb2_grpc.ChatRoomUserControllerStub(channel)
-        grpc_request = chat_pb2.ChatRoomUserGetChatRoomByUserIdRequest(user_id=user_id)
+        stub = chat_pb2_grpc.ChatRoomControllerStub(channel)
+        grpc_request = chat_pb2.ChatRoomGetChatRoomByUserIdRequest(user_id=user_id)
         async for chat_room in stub.GetChatRoomByUserId(grpc_request):
+            logger.info(f"Chat room {chat_room.id} found for user {user_id}")
+            participants = [
+                {
+                    "user_id": participant.user_id,
+                    "chat_room_id": participant.chat_room,  # Ensure this matches the expected field name
+                    "id": participant.id,
+                    "joined_at": datetime.fromtimestamp(participant.joined_at.seconds).isoformat() if hasattr(participant.joined_at, 'seconds') else participant.joined_at,
+                }
+                for participant in chat_room.participants
+            ]
             yield {
                 "id": chat_room.id,
                 "name": chat_room.name,
-                "created_at": datetime.fromtimestamp(chat_room.created_at.seconds) if hasattr(chat_room.created_at, 'seconds') else chat_room.created_at,
+                "created_at": datetime.fromtimestamp(chat_room.created_at.seconds).isoformat() if hasattr(chat_room.created_at, 'seconds') else chat_room.created_at,
                 "game_id": chat_room.game_id,
+                "users": participants if participants else [],
             }
 
 @subscription.field("chatRoomsForUser")
@@ -48,13 +59,14 @@ def ping_test_resolver(message, info):
 async def chat_room_message_source(_, info, chat_room_id):
     async with grpc.aio.insecure_channel(GRPC_CHAT_TARGET) as channel:
         stub = chat_pb2_grpc.ChatRoomMessageControllerStub(channel)
-        async for response_message in stub.SubscribeChatRoomMessages(chat_pb2.ChatRoomMessageSubscribeChatRoomMessagesRequest(chat_room_id=chat_room_id)):
+        grpc_request = chat_pb2.ChatRoomMessageSubscribeChatRoomMessagesRequest(chat_room_id=chat_room_id)
+        async for message in stub.SubscribeChatRoomMessages(grpc_request):
             yield {
-                "id": response_message.id,
-                "content": response_message.content,
-                "sender_id": response_message.sender_id,
-                "chat_room_id": response_message.chat_room,
-                "timestamp": datetime.fromtimestamp(response_message.timestamp.seconds).isoformat() if hasattr(response_message.timestamp, 'seconds') else response_message.timestamp,
+                "id": message.id,
+                "chat_room_id": message.chat_room_id,
+                "user_id": message.user_id,
+                "content": message.content,
+                "created_at": datetime.fromtimestamp(message.created_at.seconds).isoformat() if hasattr(message.created_at, 'seconds') else message.created_at,
             }
 
 @subscription.field("chat_room_message")
