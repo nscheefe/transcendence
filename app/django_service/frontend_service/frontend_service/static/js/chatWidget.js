@@ -88,15 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const existingRoomIds = new Set();
 
             // Subscribe to real-time updates for chat rooms
-            const unsubscribe = subscribeToUserChatRooms(
-                (chatRoomUpdate) => {
-
-                    if (!Array.isArray(chatRoomUpdate)) {
-                        console.error("Unexpected format for chat room update:", chatRoomUpdate);
-                        return;
-                    }
-
-                    chatRoomUpdate.forEach((room) => {
+            const subscribe = subscribeToUserChatRooms(
+                (room) => {
+                    console.log('Subscription data:', room);
+                        room = room.data.chatRoomsForUser;
                         // If the chat room is not already in the DOM, add it
                         if (!existingRoomIds.has(room.id)) {
                             existingRoomIds.add(room.id); // Track added chat room
@@ -131,7 +126,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Add an event listener for chat room selection
                             newRoomElement.querySelector('a').addEventListener('click', () => selectChatRoom(room));
                         }
-                    });
                 },
                 (error) => {
                     console.error("Subscription error:", error);
@@ -144,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Optionally, provide a way to stop the subscription later
             // Save `unsubscribe` to use it when needed (e.g., when navigating away)
-            window.chatRoomUnsubscriber = unsubscribe;
+            //window.chatRoomUnsubscriber = unsubscribe;
         } catch (error) {
             console.error("Error loading chat rooms:", error);
 
