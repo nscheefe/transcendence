@@ -1,6 +1,8 @@
 import asyncio
 from asyncio.log import logger
 from datetime import datetime
+from re import S
+
 import grpc
 from ariadne import ObjectType
 from ariadne.asgi import GraphQL
@@ -63,15 +65,68 @@ async def chat_room_message_source(_, info, chat_room_id):
         async for message in stub.SubscribeChatRoomMessages(grpc_request):
             yield {
                 "id": message.id,
-                "chat_room_id": message.chat_room_id,
-                "user_id": message.user_id,
+                "chat_room_id": message.chat_room,
+                "sender_id": message.sender_id,
                 "content": message.content,
-                "created_at": datetime.fromtimestamp(message.created_at.seconds).isoformat() if hasattr(message.created_at, 'seconds') else message.created_at,
+                "timestamp": datetime.fromtimestamp(message.timestamp.seconds).isoformat() if hasattr(message.timestamp, 'seconds') else message.timestamp,
             }
 
 @subscription.field("chat_room_message")
 def chat_room_message_resolver(message, info, chat_room_id):
     return message
 
+
+@mutation.field("create_chat_room")
+def resolve_create_chat_room(_, info, name, game_id=None):
+    user_id = info.context["request"].user_id
+    if not user_id:
+        raise Exception("Authentication required: user_id is missing")
+    try:
+        with grpc.insecure_channel(GRPC_CHAT_TARGET) as channel:
+            stub = chat_pb2_grpc.ChatRoomControllerStub(channel)
+            grpc_request = chat_pb2.ChatRoomRequest(name=name, game_id=game_id)
+            response = stub.Create(grpc_request)
+            stub = chat_pb2_grpc.ChatRoomUserControllerStub(channel)
+            grpc_request = chat_pb2.ChatRoomUserRequest(chat_room=response.id, user_id=user_id)
+            user_response = stub.Create(grpc_request)
+            participants = [{
+                "user_id": user_response.user_id,
+                "chat_room_id": user_response.chat_room,
+                "id": user_response.id,
+                "joined_at": datetime.fromtimestamp(user_response.joined_at.seconds).isoformat() if hasattr(user_response.joined_at, 'seconds') else user_response.joined_at,
+            }]
+            logger.info(f"Rpc response: {response}")
+            logger.info(f"Chat room {response.id} created")
+            return {
+                "id": response.id,
+                "name": response.name,
+                "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat() if hasattr(response.created_at, 'seconds') else response.created_at,
+                "game_id": response.game_id,
+                "users": participants
+            }
+    except grpc.RpcError as e:
+        if e.code() == grpc.StatusCode.ALREADY_EXISTS:
+            logger.error(f"Room with this Name already exists: {e}")
+            return None
+        else:
+            logger.error(f"An error occurred: {e}")
+            raise e
+
+@mutation.field("create_chat_room_message")
+def resolve_create_chat_room_message(_, info, chat_room_id, content):
+    sender_id = info.context["request"].user_id
+    with grpc.insecure_channel(GRPC_CHAT_TARGET) as channel:
+        stub = chat_pb2_grpc.ChatRoomMessageControllerStub(channel)
+        grpc_request = chat_pb2.ChatRoomMessageRequest(chat_room=chat_room_id, content=content, sender_id=sender_id)
+        response = stub.Create(grpc_request)
+        return {
+            "id": response.id,
+            "content": response.content,
+            "sender_id": response.sender_id,
+            "timestamp": datetime.fromtimestamp(response.timestamp.seconds).isoformat() if hasattr(response.timestamp, 'seconds') else response.timestamp,
+            "chat_room_id": response.chat_room
+        }
+
+# Add the mutation to the resolver list
 resolver = [query, mutation, subscription]
 

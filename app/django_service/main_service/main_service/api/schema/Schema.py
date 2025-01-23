@@ -172,23 +172,23 @@ type_defs = """
        update: FriendshipUpdateInput
        delete: FriendshipDeleteInput
    }
-    
+
     input NotificationCreateInput {
         message: String!
         read: Boolean!
         sentAt: DateTime
     }
-    
+
     input NotificationUpdateInput {
-        id: Int!    
+        id: Int!
         message: String!
-        read: Boolean!   
+        read: Boolean!
     }
-    
+
     input NotificationDeleteInput {
-        id: Int!          
+        id: Int!
     }
-    
+
     input NotificationInput {
         create: NotificationCreateInput
         update: NotificationUpdateInput
@@ -248,9 +248,10 @@ type_defs = """
         create_tournament(name: String!): Tournament
         create_tournament_user(tournament_id: Int!, user_id: Int!): TournamentUserResponse
         create_tournament_game(game_id: Int!, tournament_id: Int!, user_id: Int!): TournamentGame
-            create_friend_game(player_a: Int!, player_b: Int!): Game!
-    update_game_state(game_id: Int!, state: String!): Game!
-
+        create_friend_game(player_a: Int!, player_b: Int!): Game!
+        update_game_state(game_id: Int!, state: String!): Game!
+        create_chat_room(name: String!, game_id: Int): ChatRoom
+        create_chat_room_message(chat_room_id: Int!, content: String!): ChatRoomMessage
     }
 
     type ProfileMutationResponse {
