@@ -17,7 +17,7 @@ let cachedFriendships = null; // Holds the friendships in memory
 const generateFriendHTML = (friendship, profile) => {
     const avatarUrl = profile.avatarUrl || DEFAULT_AVATAR;
     const establishedDate = formatDate(friendship.establishedAt);
-    console.log("friendid", friendship.id);
+
 return createElement(
     'li', // tagName
     `
@@ -64,7 +64,6 @@ return createElement(
 const renderFriendsList = (friendships, combinedData, friendsContainer) => {
     friendsContainer.innerHTML = '';
     let friendCount = 0;
-    console.log("friends combined to render", friendships, combinedData)
     friendships.forEach((friendship, index) => {
         const profile = combinedData[`friend${index}`];
         if (friendship.accepted && profile) {
@@ -89,14 +88,12 @@ const loadFriends = async (friendsContainer) => {
     friendsContainer.innerHTML = LOADING_FRIENDS_HTML;
     try {
         const data = await fetchFriendships(); // Fetch friendships data
-        console.log("Received friendships data", data);
 
         // Ensure data is an array of objects
         const friendships = Array.isArray(data)
             ? data
             : Object.values(data); // If it's an object (with numeric keys), convert it to an array
 
-        console.log("Is friendships an array?", Array.isArray(friendships)); // True if valid array
 
         // Check if friendships array is empty
         if (!friendships.length) {
@@ -105,11 +102,9 @@ const loadFriends = async (friendsContainer) => {
         }
                 cachedFriendships = friendships; // Cache friendships here
 
-        console.log("Received friendships data", friendships);
 
         // Fetch more data based on friendships
         const combinedData = await fetchFriendsWithProfiles(friendships);
-        console.log("Received friendships cobined data", friendships);
 
         // Render the friends list
         renderFriendsList(combinedData.friendships, combinedData, friendsContainer);
@@ -124,7 +119,7 @@ const loadFriends = async (friendsContainer) => {
 async function loadOpponentProfile(opponentId) {
     try {
         const opponent = await fetchProfileByUserId(opponentId);
-        console.log('Opponent profile:', opponent.profile.nickname);
+
         return opponent; // Use the resolved value if needed later
     } catch (error) {
         console.error('Failed to fetch opponent profile:', error);
@@ -270,16 +265,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     friendsContainer.addEventListener('click', async (event) => {
         if (event.target.classList.contains('delete-friend')) {
             const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
-            console.log("Target friendship ID:", friendshipId);
 
             if (!isNaN(friendshipId)) {
                 try {
-                    console.log("Attempting to delete friendship with ID:", friendshipId);
+
                     const response = await deleteFriendship(friendshipId);
-                    console.log("Delete response:", response);
 
                     if (response && response.success) {
-                        console.log(`Friendship ${friendshipId} deleted successfully.`);
+
                         const elementToRemove = document.getElementById(`friendship-${friendshipId}`);
                         if (elementToRemove) {
                             elementToRemove.remove(); // Remove from the DOM
@@ -304,12 +297,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (!isNaN(friendUserId)) {
             try {
-                console.log(`Creating a game between userId: ${userId} and friendUserId: ${friendUserId}`);
 
                 // Call the createFriendGame GraphQL mutation
                 const game = await createFriendGame(userId, friendUserId);
 
-                console.log('Game created successfully', game);
+
                 alert(`Game created successfully! Game ID: ${game.id}`);
 
                 // Optionally redirect to the game screen
@@ -344,7 +336,7 @@ const renderProfiles = (profiles, profilesContainer) => {
         profilesContainer.innerHTML = NO_PROFILES_HTML;
         return;
     }
-    console.log("cached",cachedFriendships);
+
     const flattenedFriendships = cachedFriendships?.flat() || [];
 
     profiles.forEach((profile) => {
@@ -353,7 +345,7 @@ const renderProfiles = (profiles, profilesContainer) => {
             (friendship) => friendship.friendId == profile.userId
         );
 
-        console.log("isalread friend:", isFriendAlready);
+
         const profileHTML = `
             <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center p-3 rounded-3 mb-2">
                 <div class="d-flex align-items-center">
@@ -400,7 +392,7 @@ const renderProfiles = (profiles, profilesContainer) => {
                 const response = await addFriend(friendId);
 
                 if (response && response.success) {
-                    console.log(`Friend added successfully: ${response.message}`);
+
                     button.textContent = "Friend Added!";
                     button.classList.remove("btn-success");
                     button.classList.add("btn-secondary");

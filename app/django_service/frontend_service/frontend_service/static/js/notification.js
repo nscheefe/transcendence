@@ -9,7 +9,6 @@ async function fetchNotifications() {
   try {
     // Fetch notifications from the notification service
     const response = await getNotifications();
-    console.log("API Response:", response);
 
     // Access notifications from the API response
     const notifications = response?.user?.notifications || []; // Safely handle missing fields
@@ -55,10 +54,9 @@ async function handleDeleteNotification(notification, listItem, notifications) {
     try {
         // Send delete request to the server
         const deleteResponse = await deleteNotification(notification.id);
-        console.log("Delete Response:", deleteResponse);
 
        if (deleteResponse && deleteResponse.manageNotification.success === true) {
-  console.log("Notification deleted successfully!");
+
   const listItem = document.getElementById(`notification-${notification.id}`);
       if (listItem) {
         listItem.remove();

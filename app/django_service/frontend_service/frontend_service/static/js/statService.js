@@ -62,7 +62,6 @@ export const getStatList = async () => {
   try {
     // Log the raw response to see what is returned
     const response = await executeQuery(GET_STAT_LIST_QUERY);
-    console.log("Raw GraphQL Response:", response);
 
     // Check if response and data exist, otherwise throw an error
     if (!response || !response.StatList) {

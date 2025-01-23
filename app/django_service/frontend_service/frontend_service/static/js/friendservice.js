@@ -20,7 +20,7 @@ export const fetchFriendships = async () => {
 
     try {
         const friendships = await executeQuery(GET_FRIENDSHIPS_QUERY);
-        console.log("friendships", friendships);
+
         return friendships || [];
     } catch (error) {
         console.error('Failed to fetch friendships:', error);
@@ -35,13 +35,11 @@ export const fetchFriendships = async () => {
  */
 const buildProfileQuery = (friendships) => {
     // Debug: Log the original nested friendships array
-    console.log("Input friendships (nested):", friendships);
 
     // Step 1: Flatten the friendships array
     const flattenedFriendships = friendships.flat();
 
     // Debug: Log the flattened friendships array
-    console.log("Flattened friendships array:", flattenedFriendships);
 
     const query = flattenedFriendships
         .map((friendship, index) => {
@@ -67,7 +65,6 @@ const buildProfileQuery = (friendships) => {
         `;
 
             // Debug: Log the generated query segment
-            console.log(`Generated query segment for friend${index}:\n`, querySegment);
 
             return querySegment;
         })
@@ -75,7 +72,6 @@ const buildProfileQuery = (friendships) => {
         .join("\n");
 
     // Debug: Log the final generated query
-    console.log("Generated profile query:\n", query);
 
     return query;
 };
@@ -87,7 +83,6 @@ const buildProfileQuery = (friendships) => {
  */
 export const fetchFriendsWithProfiles = async (friendships) => {
     // Debug: Log the input friendships before processing
-    console.log("Fetching profiles with friendships data:", friendships);
 
     // Handle edge cases with a warning
     if (!friendships || friendships.length === 0) {
@@ -98,7 +93,6 @@ export const fetchFriendsWithProfiles = async (friendships) => {
     const profileQueries = buildProfileQuery(friendships);
 
     // Debug: Log the dynamic GraphQL query to be sent
-    console.log("Final GraphQL query for fetching friendships and profiles:\n", profileQueries);
 
     const GET_FRIENDSHIPS_AND_PROFILES_QUERY = gql`
         query GetFriendshipsAndProfiles {
@@ -116,12 +110,10 @@ export const fetchFriendsWithProfiles = async (friendships) => {
 
     try {
         // Debug: Indicate that the query execution is starting
-        console.log("Executing GraphQL query for friendships and profiles...");
 
         const result = await executeQuery(GET_FRIENDSHIPS_AND_PROFILES_QUERY);
 
         // Debug: Log the result of the GraphQL query
-        console.log("GraphQL query result:", result);
 
         return result;
     } catch (error) {

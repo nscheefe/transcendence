@@ -90,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Subscribe to real-time updates for chat rooms
             const unsubscribe = subscribeToUserChatRooms(
                 (chatRoomUpdate) => {
-                    console.log("New chat room update received:", chatRoomUpdate);
 
                     if (!Array.isArray(chatRoomUpdate)) {
                         console.error("Unexpected format for chat room update:", chatRoomUpdate);

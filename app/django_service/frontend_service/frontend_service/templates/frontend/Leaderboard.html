@@ -189,6 +189,7 @@
 }
 /* General styling for the list item */
 li {
+    width:98%;
     list-style-type: none; /* Remove default bullet points */
     margin-bottom: 1rem; /* Add spacing between list items */
     transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth animation */
@@ -216,9 +217,9 @@ li:hover .card {
     {% include "frontend/chatWidget.html" %}
     <section class="section leaderboard">
     <br>
-        <div class="container rounded" style="background-color:#181818;">
+        <div class="container rounded" style="background-color:#181818; width: 80%;">
             <h1>Leaderboard</h1>
-            <ul id="Leaderboard" class="scrollable">
+            <ul id="Leaderboard" class="scrollable" style="width:100%">
                 <span> Loading Leaderboard ....</span>
             </ul>
         </div>
