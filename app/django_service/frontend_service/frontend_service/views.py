@@ -1,10 +1,19 @@
+from pprint import pprint
+
 from django.shortcuts import render, redirect
 from django.conf import settings
 from .logic.auth.utils import jwt_required, isJwtSet
 from .logic.auth.sign_in import signIn, exchange_code_for_token
 from .logic.gql.query.get_user_data import getUserProfileData
+from .logic.gql.query.get_user_chat import getDetailedChatRoomData
+from .logic.gql.query.get_profile_data import getProfileData
 from .logic.gql.mutation.update_user_profile import update_user_profile
 from django.core.files.storage import default_storage
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.core.files.base import ContentFile
+import os
+import jwt
 
 def root_redirect(request):
     """
@@ -43,7 +52,7 @@ def oauth_callback(request):
 
     # Store the JWT as a cookie
     response = redirect('home')
-    response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='Lax')
+    response.set_cookie('jwt_token', access_token, httponly=True, secure=settings.SECURE_COOKIE, samesite='None')
     return response
 
 @jwt_required
@@ -92,9 +101,11 @@ def stats(request):
 
 @jwt_required
 def friends(request):
+    user_data = getUserProfileData(request)
     context = {
-        'user_name': request.user.username,
-        'friends_data': get_user_friends(request.user),  # Example function for getting friends data
+        'show_nav': True,
+        'user': user_data,
+        #'friends_data': get_user_friends(request.user),  # Example function for getting friends data
     }
     return render(request, 'frontend/friends.html', context)
 
@@ -105,3 +116,67 @@ def game(request):
         'game_data': get_game_data(request.user),  # Example function for getting game data
     }
     return render(request, 'frontend/game.html', context)
+
+@jwt_required
+def chat(request):
+    user_data = getUserProfileData(request)
+    ChatRooms = getDetailedChatRoomData(request)
+    context = {
+        'show_nav': True,
+        'user': user_data,
+    }
+    pprint(ChatRooms)
+
+    return render(request, 'frontend/chat.html', context)
+
+@jwt_required
+def publicProfile(request, user_id):
+    # Example: Fetch data or log the user_id
+    referrer = request.META.get('HTTP_REFERER', None)
+    print(f"User ID is: {user_id}")
+    profile_data = getProfileData(request, user_id)
+    user_data = getUserProfileData(request)
+    context = {
+        'show_nav': True,
+        'user': user_data,
+        'profile': profile_data,
+        'referrer': referrer,  # Add referrer to the context if needed
+    }
+    return render(request, 'frontend/publicProfile.html', context)
+
+@csrf_exempt
+def upload_avatar(request):
+    if request.method == 'POST' and request.FILES.get('filename'):
+        token = request.COOKIES.get('jwt_token')
+        if not token:
+            return JsonResponse({'success': False, 'message': 'Authentication token is missing'}, status=401)
+
+        try:
+            decoded_token = jwt.decode(token, settings.JWT_SECRET, algorithms=['HS256'])
+            user_id = decoded_token.get('user_id')
+        except jwt.ExpiredSignatureError:
+            return JsonResponse({'success': False, 'message': 'Token has expired'}, status=401)
+        except jwt.InvalidTokenError:
+            return JsonResponse({'success': False, 'message': 'Invalid token'}, status=401)
+        except jwt.InvalidSignatureError:
+            return JsonResponse({'success': False, 'message': 'Signature verification failed'}, status=401)
+
+        avatar_file = request.FILES['filename']
+        user_upload_dir = os.path.join(settings.MEDIA_ROOT, 'avatars', str(user_id))
+
+        if not os.path.exists(user_upload_dir):
+            os.makedirs(user_upload_dir)
+
+        # Delete old avatar if it exists
+        for filename in os.listdir(user_upload_dir):
+            file_path = os.path.join(user_upload_dir, filename)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+
+        file_name = default_storage.save(os.path.join('avatars', str(user_id), avatar_file.name), ContentFile(avatar_file.read()))
+        file_url = default_storage.url(file_name)
+        return JsonResponse({'success': True, 'url': file_url})
+    return JsonResponse({'success': False, 'message': 'File upload failed'}, status=400)
+
+def pong_view(request):
+    return render(request, 'frontend/pong.html')

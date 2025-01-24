@@ -1,0 +1,8 @@
+query GetChatRoomData($id: ID!) {
+  chatRoom(id: $id) {
+    id
+    gameId
+    createdAt
+    name
+  }
+}

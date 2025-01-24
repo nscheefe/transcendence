@@ -8,7 +8,7 @@ def load_query(filename):
         return file.read()
 
 
-def execute_query(query, request):
+def execute_query(query, request, variables=None):
     headers = {"Host": "localhost:8000"}
 
     # Include cookies from the request
@@ -24,5 +24,5 @@ def execute_query(query, request):
     )
     client = Client(transport=transport, fetch_schema_from_transport=False)
 
-    response = client.execute(gql(query))
+    response = client.execute(gql(query), variable_values=variables)
     return response
