@@ -19,6 +19,7 @@ class Friendship(models.Model):
     friend = models.ForeignKey(User, on_delete=models.CASCADE, related_name='friend_friendships')
     established_at = models.DateTimeField(default=timezone.now)
     accepted = models.BooleanField(default=False)
+    blocked = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ('user', 'friend')

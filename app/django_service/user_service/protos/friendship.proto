@@ -10,6 +10,7 @@ message Friendship {
   int32 friend_id = 3;
   google.protobuf.Timestamp established_at = 4;
   bool accepted = 5;
+  bool blocked = 6;
 }
 
 service FriendshipService {
@@ -27,10 +28,12 @@ message DeleteFriendshipRequest {
 message DeleteFriendshipResponse {
   bool success = 1;
 }
+
 message UpdateFriendshipRequest {
   int32 id = 1;
   bool accepted = 2;
-  google.protobuf.Timestamp established_at = 3;
+  bool blocked = 3;
+  google.protobuf.Timestamp established_at = 4;
 }
 
 message CreateFriendshipRequest {

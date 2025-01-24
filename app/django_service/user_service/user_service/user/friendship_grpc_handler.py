@@ -17,6 +17,7 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
         try:
             user = User.objects.get(id=request.user_id)
             friend = User.objects.get(id=request.friend_id)
+            blocked = request.blocked if request.HasField("blocked") else False
 
             # Create a new friendship or return an existing one
             friendship, created = Friendship.objects.get_or_create(
@@ -24,7 +25,8 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
                 friend=friend,
                 defaults={
                     'established_at': datetime.utcnow(),
-                    'accepted': True
+                    'accepted': True,
+                    'blocked': blocked
                 }
             )
 
@@ -73,6 +75,8 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
                 friendship.accepted = request.accepted
             if request.HasField("established_at"):
                 friendship.established_at = request.established_at.ToDatetime()  # Convert protobuf Timestamp to datetime
+            if request.HasField("blocked"):
+                friendship.blocked = request.blocked
 
             # Save the updated Friendship
             friendship.save()
@@ -87,7 +91,8 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
                 user_id=friendship.user.id,
                 friend_id=friendship.friend.id,
                 established_at=established_at_proto,
-                accepted=friendship.accepted
+                accepted=friendship.accepted,
+                blocked=friendship.blocked,
             )
         except Friendship.DoesNotExist:
             # Handle the case where the Friendship does not exist
@@ -142,7 +147,8 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
                 user_id=friendship.user.id,
                 friend_id=friendship.friend.id,
                 established_at=established_at_proto,
-                accepted=friendship.accepted
+                accepted=friendship.accepted,
+                blocked=friendship.blocked
             )
         except Friendship.DoesNotExist:
             context.set_code(grpc.StatusCode.NOT_FOUND)
@@ -167,7 +173,8 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
                     user_id=friendship.user.id,
                     friend_id=friendship.friend.id,
                     established_at=Timestamp(seconds=int(friendship.established_at.timestamp())),
-                    accepted=friendship.accepted
+                    accepted=friendship.accepted,
+                    blocked=friendship.blocked
                 )
                 for friendship in friendships
             ]
@@ -200,7 +207,8 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
                         user_id=friendship.user.id,
                         friend_id=friendship.friend.id,
                         established_at=established_at_proto,
-                        accepted=friendship.accepted
+                        accepted=friendship.accepted,
+                        bl0cked=friendship.blocked
                     )
                 )
 
