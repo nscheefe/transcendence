@@ -25,7 +25,7 @@ _sym_db = _symbol_database.Default()
 from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x66riendship.proto\x12\x06models\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\x01\n\nFriendship\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07user_id\x18\x02 \x01(\x05\x12\x11\n\tfriend_id\x18\x03 \x01(\x05\x12\x32\n\x0e\x65stablished_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x05 \x01(\x08\x12\x0f\n\x07\x62locked\x18\x06 \x01(\x08\"%\n\x17\x44\x65leteFriendshipRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"+\n\x18\x44\x65leteFriendshipResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"|\n\x17UpdateFriendshipRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x02 \x01(\x08\x12\x0f\n\x07\x62locked\x18\x03 \x01(\x08\x12\x32\n\x0e\x65stablished_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x83\x01\n\x17\x43reateFriendshipRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\tfriend_id\x18\x02 \x01(\x05\x12\x32\n\x0e\x65stablished_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x04 \x01(\x08\"&\n\x18GetFriendshipByIdRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"0\n\x1dGetFriendshipsByUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"4\n\x1fGetFriendshipsByFriendIdRequest\x12\x11\n\tfriend_id\x18\x01 \x01(\x05\">\n\x13\x46riendshipsResponse\x12\'\n\x0b\x66riendships\x18\x01 \x03(\x0b\x32\x12.models.Friendship2\x87\x04\n\x11\x46riendshipService\x12G\n\x10\x43reateFriendship\x12\x1f.models.CreateFriendshipRequest\x1a\x12.models.Friendship\x12I\n\x11GetFriendshipById\x12 .models.GetFriendshipByIdRequest\x1a\x12.models.Friendship\x12\\\n\x16GetFriendshipsByUserId\x12%.models.GetFriendshipsByUserIdRequest\x1a\x1b.models.FriendshipsResponse\x12`\n\x18GetFriendshipsByFriendId\x12\'.models.GetFriendshipsByFriendIdRequest\x1a\x1b.models.FriendshipsResponse\x12G\n\x10UpdateFriendship\x12\x1f.models.UpdateFriendshipRequest\x1a\x12.models.Friendship\x12U\n\x10\x44\x65leteFriendship\x12\x1f.models.DeleteFriendshipRequest\x1a .models.DeleteFriendshipResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x10\x66riendship.proto\x12\x06models\x1a\x1fgoogle/protobuf/timestamp.proto\"\x93\x01\n\nFriendship\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x0f\n\x07user_id\x18\x02 \x01(\x05\x12\x11\n\tfriend_id\x18\x03 \x01(\x05\x12\x32\n\x0e\x65stablished_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x05 \x01(\x08\x12\x0f\n\x07\x62locked\x18\x06 \x01(\x08\"%\n\x17\x44\x65leteFriendshipRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"+\n\x18\x44\x65leteFriendshipResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"|\n\x17UpdateFriendshipRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x02 \x01(\x08\x12\x0f\n\x07\x62locked\x18\x03 \x01(\x08\x12\x32\n\x0e\x65stablished_at\x18\x04 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"\x94\x01\n\x17\x43reateFriendshipRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\x12\x11\n\tfriend_id\x18\x02 \x01(\x05\x12\x32\n\x0e\x65stablished_at\x18\x03 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12\x10\n\x08\x61\x63\x63\x65pted\x18\x04 \x01(\x08\x12\x0f\n\x07\x62locked\x18\x05 \x01(\x08\"&\n\x18GetFriendshipByIdRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"0\n\x1dGetFriendshipsByUserIdRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"4\n\x1fGetFriendshipsByFriendIdRequest\x12\x11\n\tfriend_id\x18\x01 \x01(\x05\">\n\x13\x46riendshipsResponse\x12\'\n\x0b\x66riendships\x18\x01 \x03(\x0b\x32\x12.models.Friendship2\x87\x04\n\x11\x46riendshipService\x12G\n\x10\x43reateFriendship\x12\x1f.models.CreateFriendshipRequest\x1a\x12.models.Friendship\x12I\n\x11GetFriendshipById\x12 .models.GetFriendshipByIdRequest\x1a\x12.models.Friendship\x12\\\n\x16GetFriendshipsByUserId\x12%.models.GetFriendshipsByUserIdRequest\x1a\x1b.models.FriendshipsResponse\x12`\n\x18GetFriendshipsByFriendId\x12\'.models.GetFriendshipsByFriendIdRequest\x1a\x1b.models.FriendshipsResponse\x12G\n\x10UpdateFriendship\x12\x1f.models.UpdateFriendshipRequest\x1a\x12.models.Friendship\x12U\n\x10\x44\x65leteFriendship\x12\x1f.models.DeleteFriendshipRequest\x1a .models.DeleteFriendshipResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -41,15 +41,15 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_UPDATEFRIENDSHIPREQUEST']._serialized_start=295
   _globals['_UPDATEFRIENDSHIPREQUEST']._serialized_end=419
   _globals['_CREATEFRIENDSHIPREQUEST']._serialized_start=422
-  _globals['_CREATEFRIENDSHIPREQUEST']._serialized_end=553
-  _globals['_GETFRIENDSHIPBYIDREQUEST']._serialized_start=555
-  _globals['_GETFRIENDSHIPBYIDREQUEST']._serialized_end=593
-  _globals['_GETFRIENDSHIPSBYUSERIDREQUEST']._serialized_start=595
-  _globals['_GETFRIENDSHIPSBYUSERIDREQUEST']._serialized_end=643
-  _globals['_GETFRIENDSHIPSBYFRIENDIDREQUEST']._serialized_start=645
-  _globals['_GETFRIENDSHIPSBYFRIENDIDREQUEST']._serialized_end=697
-  _globals['_FRIENDSHIPSRESPONSE']._serialized_start=699
-  _globals['_FRIENDSHIPSRESPONSE']._serialized_end=761
-  _globals['_FRIENDSHIPSERVICE']._serialized_start=764
-  _globals['_FRIENDSHIPSERVICE']._serialized_end=1283
+  _globals['_CREATEFRIENDSHIPREQUEST']._serialized_end=570
+  _globals['_GETFRIENDSHIPBYIDREQUEST']._serialized_start=572
+  _globals['_GETFRIENDSHIPBYIDREQUEST']._serialized_end=610
+  _globals['_GETFRIENDSHIPSBYUSERIDREQUEST']._serialized_start=612
+  _globals['_GETFRIENDSHIPSBYUSERIDREQUEST']._serialized_end=660
+  _globals['_GETFRIENDSHIPSBYFRIENDIDREQUEST']._serialized_start=662
+  _globals['_GETFRIENDSHIPSBYFRIENDIDREQUEST']._serialized_end=714
+  _globals['_FRIENDSHIPSRESPONSE']._serialized_start=716
+  _globals['_FRIENDSHIPSRESPONSE']._serialized_end=778
+  _globals['_FRIENDSHIPSERVICE']._serialized_start=781
+  _globals['_FRIENDSHIPSERVICE']._serialized_end=1300
 # @@protoc_insertion_point(module_scope)

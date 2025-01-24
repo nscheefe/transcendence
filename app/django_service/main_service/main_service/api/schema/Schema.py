@@ -51,6 +51,7 @@ type_defs = """
         friendId: Int!
         establishedAt: DateTime
         accepted: Boolean!
+        blocked: Boolean!
     }
 
     type Notification {
@@ -158,9 +159,16 @@ type_defs = """
        friendId: Int!
    }
 
+    input FriendshipBlockInput {
+        id: Int
+        friendId: Int!
+        blocked: Boolean!
+    }
+
    input FriendshipUpdateInput {
-       friendId: Int!
+       id: Int!
        accepted: Boolean!
+       blocked: Boolean
    }
 
    input FriendshipDeleteInput {
@@ -169,6 +177,7 @@ type_defs = """
 
    input FriendshipInput {
        create: FriendshipCreateInput
+       block: FriendshipBlockInput
        update: FriendshipUpdateInput
        delete: FriendshipDeleteInput
    }

@@ -17,7 +17,8 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
         try:
             user = User.objects.get(id=request.user_id)
             friend = User.objects.get(id=request.friend_id)
-            blocked = request.blocked if request.HasField("blocked") else False
+            blocked = request.blocked
+            accepted = True if blocked is False else False
 
             # Create a new friendship or return an existing one
             friendship, created = Friendship.objects.get_or_create(
@@ -25,8 +26,8 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
                 friend=friend,
                 defaults={
                     'established_at': datetime.utcnow(),
-                    'accepted': True,
-                    'blocked': blocked
+                    'accepted': accepted,
+                    'blocked': blocked,
                 }
             )
 
@@ -46,7 +47,8 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
                 user_id=friendship.user.id,
                 friend_id=friendship.friend.id,
                 established_at=established_at_proto,
-                accepted=friendship.accepted
+                accepted=friendship.accepted,
+                blocked=friendship.blocked
             )
 
         except User.DoesNotExist:
@@ -71,11 +73,11 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
             friendship = Friendship.objects.get(id=request.id)
 
             # Update fields if they are provided in the request
-            if request.HasField("accepted"):
+            if request.accepted != None:
                 friendship.accepted = request.accepted
             if request.HasField("established_at"):
                 friendship.established_at = request.established_at.ToDatetime()  # Convert protobuf Timestamp to datetime
-            if request.HasField("blocked"):
+            if request.blocked != None:
                 friendship.blocked = request.blocked
 
             # Save the updated Friendship
