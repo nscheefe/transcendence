@@ -1,4 +1,4 @@
-import {fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms} from './chatservice.js';
+import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages } from './chatservice.js';
 import {showError} from './utils.js';
 import {addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, formatTime} from './domHelpers.js';
 
@@ -15,57 +15,52 @@ document.addEventListener('DOMContentLoaded', () => {
      * Populates chat room messages in the UI.
      * @param {number} chatRoomId - ID of the chat room.
      */
-    const populateChatRoomMessages = async (chatRoomId) => {
+    const populateChatRoomMessages = (chatRoomId) => {
         chatRoomMessagesContainer.innerHTML = '';
-        try {
-            const result = await fetchChatRoomMessages(chatRoomId);
-            const messages = result?.chatRoom?.messages;
+
+        const onMessageUpdate = (message) => {
+            const { timestamp, sender_id, content } = message.data.chat_room_message;
+            const messageDate = formatDate(timestamp);
+            const formattedTime = formatTime(timestamp);
             let lastMessageDate = null;
-            messages.forEach(({
-                                  timestamp,
-                                  senderId,
-                                  content
-                              }) => {
-                const messageDate = formatDate(timestamp);
-                const formattedTime = formatTime(timestamp);
-                if (lastMessageDate !== messageDate) {
-                    const dateElement = createElement('li', messageDate, 'text-center my-3', {
-                        color: '#ffffff'
-                    });
-                    chatRoomMessagesContainer.appendChild(dateElement);
-                    lastMessageDate = messageDate;
-                }
-                const messageElement = createElement(
-                    'li',
-                    `
-                        <img src="${DEFAULT_AVATAR}" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60" style="flex-shrink: 0;">
-                        <div class="card flex-grow-1">
-                            <div class="card-header d-flex justify-content-between py-1 px-2">
-                                <p class="text-muted mb-0" style="font-size: 0.875rem;">User ${senderId}</p>
-                                <p class="text-muted small mb-0">
-                                    <i class="far fa-clock"></i> ${formattedTime}
-                                </p>
-                            </div>
-                            <div class="card-body" style="background-color: #202020; color: #ffffff;">
-                                <p class="mb-0">${content}</p>
-                            </div>
-                        </div>
-                    `,
-                    'chat-message d-flex align-items-start mb-3', {
-                        maxWidth: '100%'
-                    }
-                );
-                chatRoomMessagesContainer.appendChild(messageElement);
-            });
-            if (messages.length === 0) {
-                addMessageToContainer(chatRoomMessagesContainer, NO_MESSAGES_TEXT, 'p-2 text-light', {
-                    backgroundColor: '#181818'
+
+            if (lastMessageDate !== messageDate) {
+                const dateElement = createElement('li', messageDate, 'text-center my-3', {
+                    color: '#ffffff'
                 });
+                chatRoomMessagesContainer.appendChild(dateElement);
+                lastMessageDate = messageDate;
             }
-        } catch (error) {
+
+            const messageElement = createElement(
+                'li',
+                `
+                    <img src="${DEFAULT_AVATAR}" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60" style="flex-shrink: 0;">
+                    <div class="card flex-grow-1">
+                        <div class="card-header d-flex justify-content-between py-1 px-2">
+                            <p class="text-muted mb-0" style="font-size: 0.875rem;">User ${sender_id}</p>
+                            <p class="text-muted small mb-0">
+                                <i class="far fa-clock"></i> ${formattedTime}
+                            </p>
+                        </div>
+                        <div class="card-body" style="background-color: #202020; color: #ffffff;">
+                            <p class="mb-0">${content}</p>
+                        </div>
+                    </div>
+                `,
+                'chat-message d-flex align-items-start mb-3', {
+                maxWidth: '100%'
+            }
+            );
+            chatRoomMessagesContainer.appendChild(messageElement);
+        };
+
+        const onError = (error) => {
             console.error('Error populating messages:', error);
             showError(chatRoomMessagesContainer, 'Failed to load messages. Please try again.');
-        }
+        };
+
+        subscribeToChatRoomMessages(chatRoomId, onMessageUpdate, onError);
     };
 
     /**

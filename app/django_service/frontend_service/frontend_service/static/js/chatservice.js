@@ -7,26 +7,41 @@ import {executeSubscription, gql} from "./utils.js"
  * @returns {function} - A function to unsubscribe from the subscription.
  */
 export const subscribeToUserChatRooms = (onChatRoomUpdate, onError) => {
-
-const subscriptionQuery = {
-  query: `
-    subscription ChatRoomUpdates {
-        chatRoomsForUser {
-            id,
-            name
+    const subscriptionQuery = {
+        query: `
+        subscription ChatRoomUpdates {
+            chatRoomsForUser {
+                id,
+                name
+            }
         }
-    }
-  `,
-  variables: {},
-  extensions: {},
-  operationName: "ChatRoomUpdates",
+        `,
+        variables: {},
+        extensions: {},
+        operationName: "ChatRoomUpdates",
+    };
+    executeSubscription(subscriptionQuery, onChatRoomUpdate, onError,);
 };
 
-executeSubscription(subscriptionQuery,
-    onChatRoomUpdate,
-    onError,
-);
 
+export const subscribeToChatRoomMessages = (chatRoomId, onMessageUpdate, onError) => {
+    const subscriptionQuery = {
+        query: `
+        subscription Chat_room_message($id: Int!) {
+            chat_room_message(chat_room_id: $id) {
+                id
+                content
+                sender_id
+                chat_room_id
+                timestamp
+            }
+        }
+        `,
+        variables: { id: chatRoomId },
+        extensions: {},
+        operationName: "Chat_room_message",
+    };
+    executeSubscription(subscriptionQuery, onMessageUpdate, onError);
 };
 
 
