@@ -46,22 +46,38 @@ export const subscribeToChatRoomMessages = (chatRoomId, onMessageUpdate, onError
 
 export const sendChatRoomMessage = async (chatRoomId, content, senderId) => {
     const mutation = `
-        mutation Create_chat_room_message($id: Int!, $content: String!) {
-            create_chat_room_message(
-                chat_room_id: $id,
-                content: $content
-            ) {
-                id
-                content
-                sender_id
-                chat_room_id
-                timestamp
-            }
+    mutation Create_chat_room_message($id: Int!, $content: String!) {
+        create_chat_room_message(
+            chat_room_id: $id,
+            content: $content
+        ) {
+            id
+            content
+            sender_id
+            chat_room_id
+            timestamp
         }
+    }
     `;
     const variables = { id: parseInt(chatRoomId, 10), content: content };
     return executeMutation(mutation, variables);
 };
+
+
+export const fetchUserDetails = async (userId) => {
+    const query = `
+    query Profile($userId: Int!) {
+        profile(userId: $userId) {
+            nickname
+            avatarUrl
+            userId
+        }
+    }
+    `;
+    const variables = { userId: parseInt(userId, 10) };
+    return executeQuery(query, variables);
+};
+
 
 
 export const fetchChatRoomMessages = async (chatRoomId) => {
