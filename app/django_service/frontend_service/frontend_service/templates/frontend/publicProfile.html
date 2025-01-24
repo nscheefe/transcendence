@@ -68,37 +68,50 @@
                         <!-- Individual Game Stats -->
                         <div class="mt-4">
     <div id="user-games-stats" class="text-center">
-        {% if profile.statsByUser %}
-            <!-- Loop through the game stats -->
-            {% for stat in profile.statsByUser %}
 
-                <div class="game-stat bg-dark {{ stat.didWin|yesno:'victory,defeat' }}" data-game-id="{{ stat.game_id }}">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span>{{ stat.date|date:"F j, Y" }}</span>
-
-                        <span class="badge {{ stat.didWin|yesno:'bg-success,bg-danger' }}">
-                            {{ stat.didWin|yesno:'Win,Loss' }}
-                        </span>
-                    </div>
-                    <div class="d-flex justify-content-around">
-                            <img src="{{ stat.player.avatar_url|default:'https://via.placeholder.com/50' }}" alt="{{ stat.player.username }}">
-                            <a href="{{ stat.player.profile_url }}">{{ stat.player.name }}</a>
-                            <span>{{ stat.player.name }}</span>
-                        </div>
-                        <div class="vs text-bold">
-                            <span>VS</span>
-                        </div>
-                        <div class="opponent">
-                            <img src="{{ stat.opponent.avatar_url|default:'https://via.placeholder.com/50' }}" alt="{{ stat.opponent.username }}">
-                            <a href="{{ stat.opponent.profile_url }}">{{ stat.opponent.name }}</a>
-                        </div>
-                    </div>
-            {% endfor %}
-        {% else %}
-            <!-- If no stats are available -->
-            <p class="text-light">No stats available.</p>
-        {% endif %}
     </div>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const statsByUser = []; // Retrieve this data from your API or server-side rendering
+        const opponents = []; // Retrieve this data from your API or server-side rendering
+        const user = { id: '' }; // Replace with the currently logged-in user's id
+        const profile = { avatarUrl: 'https://via.placeholder.com/50', nickname: 'You' }; // Replace with user's data
+        const statsContainer = document.getElementById('user-games-stats');
+        statsContainer.innerHTML = `
+            ${statsByUser.map((stat, index) => {
+                const date = stat.stat.createdAt;
+                const result = stat.didWin ? 'win' : 'loss';
+                const opponentData = opponents.find(o => o.opponentId === (stat.stat.winnerId === user.id ? stat.stat.loserId : stat.stat.winnerId));
+                const opponent = opponentData?.opponent?.profile || {};
+                return `
+                    <div class="game-stat bg-dark ${result === 'win' ? 'victory' : 'defeat'}">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>${new Date(date).toLocaleDateString()}</span>
+                            <span class="badge ${result === 'win' ? 'bg-success' : 'bg-danger'}">
+                                ${result === 'win' ? 'Victory' : 'Defeat'}
+                            </span>
+                        </div>
+                        <div class="d-flex justify-content-around">
+                            <div class="player">
+                                <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}" alt="${profile.nickname}">
+                                <span>You</span>
+                            </div>
+                            <div class="vs text-bold">
+                                <span>VS</span>
+                           </div>
+                           <div class="opponent">
+                           <a href="/home/profile/${opponent.userId}">
+                               <img src="${opponent.avatarUrl || 'https://via.placeholder.com/50'}" alt="${opponent.nickname || 'Opponent'}">
+                               <span>${opponent.nickname || 'Opponent'}</span>
+                           </a>
+                           </div>
+                       </div>
+                   </div>
+               `;
+           }).join('')}
+       `;
+   });
+</script>
 </div>
                     </div>
                 </div>

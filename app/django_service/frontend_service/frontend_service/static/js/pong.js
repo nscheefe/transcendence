@@ -87,7 +87,7 @@ function createWebSocket() {
 
     console.log('Attempting to connect to WebSocket server...');
     isConnecting = true;
-    socket = new WebSocket(`wss://${document.location.hostname}:9001/game`);
+    socket = new WebSocket(`wss://${document.location.hostname}/game`);
 
     socket.onopen = () => {
         console.log('Connected to the server');

@@ -9,7 +9,7 @@ from game_service.protos import tournament_pb2_grpc
 
 # Import Django models
 from .models import TournamentRoom, TournamentUser, TournamentGameMapping
-
+from django.db.models import Max
 
 # Implementation of the TournamentService Servicer
 class TournamentServiceHandler:
@@ -121,13 +121,21 @@ class TournamentServiceHandler:
 
     def CreateTournamentUser(self, request, context):
         try:
-            # Ensure uniqueness: Check if user already exists in the tournament room
+            # Fetch the highest play_order for the given tournament_room_id
+            max_play_order = (
+                    TournamentUser.objects.filter(tournament_room_id=request.tournament_room_id)
+                    .aggregate(max_order=Max("play_order"))
+                    .get("max_order") or 0  # Defaults to 0 if no users exist
+            )
+
+            # Assign the next play_order
+            next_play_order = max_play_order + 1
+
+            # Ensure uniqueness
             user, created = TournamentUser.objects.get_or_create(
                 tournament_room_id=request.tournament_room_id,
                 user_id=request.user_id,
-                defaults={
-                    "play_order": request.play_order
-                }
+                defaults={"play_order": next_play_order},
             )
 
             if not created:
@@ -136,8 +144,8 @@ class TournamentServiceHandler:
                     f"User {request.user_id} is already registered in Tournament Room {request.tournament_room_id}."
                 )
 
-            # Construct the response
-            response = tournament_pb2.TournamentUser(
+            # Construct and return only the `TournamentUser` Protobuf object
+            return tournament_pb2.TournamentUser(
                 id=user.id,
                 tournament_room_id=user.tournament_room_id,
                 user_id=user.user_id,
@@ -146,9 +154,9 @@ class TournamentServiceHandler:
                 created_at=datetime_to_proto(user.created_at),
                 updated_at=datetime_to_proto(user.updated_at),
             )
-            return response
 
         except Exception as e:
+            # Return an internal error message if something fails
             context.abort(grpc.StatusCode.INTERNAL, f"Failed to create tournament user: {str(e)}")
 
     def UpdateTournamentUser(self, request, context):

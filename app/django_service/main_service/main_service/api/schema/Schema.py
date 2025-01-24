@@ -318,20 +318,21 @@ type_defs = """
     type Tournament {
         id: Int
         name: String
-        description: String
         users: [TournamentUser] # Extend tournament type
         created_at: String
         updated_at: String
     }
 
-    type TournamentUser {
-        id: Int
-        name: String
-        tournament_id: Int
-        created_at: String
-        updated_at: String
-    }
-
+type TournamentUser {
+    id: Int
+    name: String
+    user_id: Int
+    tournament_id: Int
+    play_order: Int  # Add play order field
+    games_played: Int # Add games played field
+    created_at: String
+    updated_at: String
+}
     type TournamentGame {
         id: Int
         game_id: Int

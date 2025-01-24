@@ -70,21 +70,54 @@ def resolve_game(_, info: GraphQLResolveInfo, game_id: int):
 
 @query.field("tournament")
 def resolve_tournament(_, info: GraphQLResolveInfo, tournament_id: int):
-    """Fetch a specific tournament by ID."""
+    """Fetch a specific tournament by ID, including its users."""
     try:
         with grpc.insecure_channel(GRPC_TARGET) as channel:
+            # Fetch tournament details
             client = TournamentServiceStub(channel)
             request = GetTournamentRoomRequest(tournament_room_id=tournament_id)
             response = client.GetTournamentRoom(request)
 
+            # Fetch tournament users
+            users_request = ListTournamentUsersRequest(tournament_room_id=tournament_id)
+            users_response = client.ListTournamentUsers(users_request)
+
+            # Debug the structure of users_response
+            print("Users Response:", users_response)
+
+            # Adjust this based on the actual structure of the response
+            if hasattr(users_response, "users"):
+                user_list = users_response.users
+            elif hasattr(users_response, "tournament_users"):
+                user_list = users_response.tournament_users
+            else:
+                user_list = []
+
+            # Map users to a list of dictionaries
+            users = [
+                {
+                    "id": user.id,
+                    "user_id": user.user_id,
+                    "play_order": getattr(user, "play_order", None),  # Handle missing fields gracefully
+                    "games_played": getattr(user, "games_played", None),
+                    "created_at": datetime.fromtimestamp(user.created_at.seconds).isoformat(),
+                    "updated_at": datetime.fromtimestamp(user.updated_at.seconds).isoformat()
+                }
+                for user in user_list
+            ]
+
+            # Return tournament details with users
             return {
                 "id": response.id,
                 "name": response.name,
                 "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
-                "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat()
+                "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
+                "users": users  # Add the users list to the response
             }
-    except grpc.RpcError as e:
-        raise Exception(f"gRPC error: {e.details()}")
+    except Exception as e:
+        print(f"Error fetching tournament or users: {str(e)}")
+        raise e
+
 
 @query.field("tournaments")
 def resolve_tournaments(_, info: GraphQLResolveInfo):
@@ -250,7 +283,6 @@ def resolve_create_tournament_user(_, info: GraphQLResolveInfo, tournament_id: i
             request = CreateTournamentUserRequest(
                 tournament_room_id=tournament_id,
                 user_id=user_id,  # Pass the user_id explicitly
-                play_order=1  # Or any default order
             )
             response = client.CreateTournamentUser(request)
 
