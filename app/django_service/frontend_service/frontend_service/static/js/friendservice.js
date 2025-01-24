@@ -12,6 +12,7 @@ export const fetchFriendships = async () => {
                     id
                     friendId
                     accepted
+                    blocked
                     establishedAt
                     userId
                 }
@@ -194,3 +195,43 @@ export const deleteFriendship = async (friendshipId) => {
         throw error; // Re-throw the error for the caller to handle
     }
 };
+
+export const blockUser = async (id, blocked, userId) => {
+    // Define the Block User mutation
+    const BLOCK_USER_MUTATION = `
+        mutation BlockUser($id: Int, $blocked: Boolean!, $userId: Int!) {
+            manageFriendship(
+                friendshipData: {
+                    block: {
+                        id: $id
+                        blocked: $blocked
+                        friendId: $userId
+                    }
+                }
+            ) {
+                success
+                message
+            }
+        }
+    `;
+
+    // Example variables
+    const variables = {
+        id, // Pass friendship ID dynamically
+        blocked, // Pass blocked status dynamically
+        userId, // Pass user ID dynamically
+    };
+
+    try {
+        // Execute the mutation using the utility function
+        if (blocked) {
+            const { manageFriendship} = await executeMutation(BLOCK_USER_MUTATION, variables)
+            return manageFriendship;
+        }
+        else
+            return await deleteFriendship(id);
+    } catch (error) {
+        console.error('Error blocking user:', error);
+        throw error; // Re-throw the error for the caller to handle
+    }
+}

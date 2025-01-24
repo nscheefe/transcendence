@@ -1,5 +1,4 @@
-
-import { fetchFriendships, fetchFriendsWithProfiles, addFriend, deleteFriendship } from './friendservice.js';
+import { fetchFriendships, fetchFriendsWithProfiles, addFriend, deleteFriendship, blockUser } from './friendservice.js';
 import { fetchUserProfileAndStats, fetchProfiles, fetchProfileByUserId } from './profileservice.js';
 import { showError,  } from './utils.js';
 import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
@@ -8,6 +7,17 @@ const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';
 const LOADING_FRIENDS_HTML = '<p class="text-light">Loading friends...</p>';
 const NO_FRIENDS_WARNING = 'Sad ... you don\'t seem to have any friends 😞.';
 let cachedFriendships = null; // Holds the friendships in memory
+
+const refetchFriends = async () => {
+    const data = await fetchFriendships(); // Fetch friendships data
+
+    // Ensure data is an array of objects
+    const friendships = Array.isArray(data)
+        ? data
+        : Object.values(data); // If it's an object (with numeric keys), convert it to an array
+    cachedFriendships = friendships;
+};
+
 /**
  * Generates individual friend's HTML using the friendship and profile data.
  * @param {Object} friendship - Friendship object.
@@ -23,8 +33,8 @@ return createElement(
     `
     <div class="avatar me-3">
         <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-            <img src="${avatarUrl}" 
-                alt="${profile.nickname || 'Friend Avatar'}" 
+            <img src="${avatarUrl}"
+                alt="${profile.nickname || 'Friend Avatar'}"
                 class="rounded-circle"
                 style="width: 50px; height: 50px; object-fit: cover;" />
         </a>
@@ -37,7 +47,7 @@ return createElement(
         <p class="small" style="color:white">Friends since: ${establishedDate}</p>
     </div>
     <div class="ms-auto d-flex gap-2">
-      
+
         <button class="btn btn-primary btn-sm start-chat-room" data-friendship-id="${friendship.id}">
             Start Chat
         </button>
@@ -149,7 +159,7 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
             `
             <div class="d-flex align-items-center mb-3">
                 <div class="avatar me-3">
-                    <img src="${profile.avatarUrl || DEFAULT_USER_AVATAR}" 
+                    <img src="${profile.avatarUrl || DEFAULT_USER_AVATAR}"
                         alt="User Avatar"
                         class="rounded-circle">
                 </div>
@@ -165,7 +175,7 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                 <h5>Additional Information</h5>
                 <p>${profile.additionalInfo || 'No additional information available.'}</p>
                 <h5>Stats:</h5>
-                
+
                 <!-- Stats Summary -->
                 <div class="card bg-dark text-light shadow-sm rounded-3 p-3">
                     <div class="row text-center">
@@ -189,7 +199,7 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Detailed User Stats -->
                 <div class="stats-list mt-3">
                     ${statsByUser.map((stat, index) => {
@@ -249,10 +259,6 @@ const loadUserProfile = async (profileContainer, profileLoading) => {
         showError(profileLoading, 'Failed to load profile. Please try again later.');
     }
 };
-
-
-
-
 
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -320,8 +326,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 const NO_PROFILES_HTML = '<p class="text-light">No profiles found.</p>';
 const LOADING_PROFILES_HTML = '<p class="text-light">Loading profiles, please wait...</p>';
 
-
-
+const updateFlattendFriendships = async (flattenedFriendships) => {
+    await refetchFriends();
+    flattenedFriendships = Array.isArray(cachedFriendships) ? cachedFriendships.flat() : [];
+    return flattenedFriendships;
+};
 
 /**
  * Renders profiles into the DOM.
@@ -337,23 +346,32 @@ const renderProfiles = (profiles, profilesContainer) => {
         return;
     }
 
-    const flattenedFriendships = cachedFriendships?.flat() || [];
+    let flattenedFriendships = Array.isArray(cachedFriendships) ? cachedFriendships.flat() : [];
 
     profiles.forEach((profile) => {
         // Check if the profile userId exists in cachedFriendships
-  const isFriendAlready = flattenedFriendships.some(
-            (friendship) => friendship.friendId == profile.userId
-        );
+    const isFriendAlready = flattenedFriendships.some(
+            (friendship) => friendship.friendId == profile.userId && friendship.accepted
+    );
 
+    const isBlocked = flattenedFriendships.some(
+        (friendship) => friendship.friendId == profile.userId && friendship.blocked
+    );
+
+    const friendship = flattenedFriendships.find(
+        (friendship) => friendship.friendId == profile.userId
+    );
+
+    const friendshipId = friendship ? friendship.id : 0;
 
         const profileHTML = `
             <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center p-3 rounded-3 mb-2">
                 <div class="d-flex align-items-center">
                     <div class="avatar me-3">
                         <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-                            <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}" 
-                                 alt="Profile Avatar" 
-                                 class="rounded-circle" 
+                            <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}"
+                                 alt="Profile Avatar"
+                                 class="rounded-circle"
                                  style="width: 50px; height: 50px; object-fit: cover;">
                         </a>
                     </div>
@@ -364,12 +382,21 @@ const renderProfiles = (profiles, profilesContainer) => {
                         <p class="small mb-0" style="color:white;">${profile.bio || 'No bio available.'}</p>
                     </div>
                 </div>
-                <button 
-                    class="btn ${isFriendAlready ? 'btn-secondary' : 'btn-success'} btn-sm" 
-                    data-friend-id="${profile.userId}" 
-                    ${isFriendAlready ? 'disabled' : ''}>
-                    ${isFriendAlready ? 'Friend Added' : 'Add Friend'}
-                </button>
+                <div>
+                    <button
+                        class="btn ${isFriendAlready ? 'btn-secondary' : 'btn-success'} btn-sm"
+                        data-friend-id="${profile.userId}"
+                        ${isFriendAlready ? 'disabled' : ''}>
+                        ${isFriendAlready ? 'Friend Added' : 'Add Friend'}
+                    </button>
+                    <button id="block-user"
+                        class="btn ${isBlocked ? 'btn-outline-danger' : 'btn-danger'} btn-sm"
+                        data-user-id="${profile.userId}"
+                        data-blocked="${isBlocked}"
+                        data-friendship-id="${friendshipId}">
+                            ${isBlocked ? 'Unblock' : 'Block'}
+                    </button>
+                </div>
             </li>
         `;
         profilesContainer.innerHTML += profileHTML;
@@ -401,6 +428,55 @@ const renderProfiles = (profiles, profilesContainer) => {
                     cachedFriendships.push({ friendId }); // Add the new friend to the cache
                 } else {
                     console.error(`Failed to add friend: ${response.message}`);
+                    alert(`Error: ${response.message}`);
+                }
+            } catch (error) {
+                console.error("An unexpected error occurred:", error);
+                alert("An unexpected error occurred. Please try again later.");
+            }
+        });
+    });
+
+    // Attach event listeners to "Block/Unblock" buttons
+    const blockButtons = profilesContainer.querySelectorAll('#block-user');
+    blockButtons.forEach((button) => {
+        button.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            const block = button.getAttribute('data-blocked') === 'false';
+            const id = parseInt(button.getAttribute('data-friendship-id'), 10);
+            const userId = parseInt(button.getAttribute('data-user-id'), 10);
+            if (isNaN(userId)) {
+                console.error("Invalid user ID.");
+                return;
+            }
+
+            try {
+                console.log(`Block status: ${block}`);
+                console.log(`Friendship ID: ${id}`);
+                console.log(`User ID: ${userId}`);
+                // Call the blockUser service function
+                const response = await blockUser(id, block, userId);
+
+                if (response && response.success) {
+                    flattenedFriendships = await updateFlattendFriendships(flattenedFriendships); // Refresh the cached friendships
+                    const updatedFriendship = flattenedFriendships.find((friendship) => friendship.friendId == userId);
+                    if (block) {
+                        button.textContent = "Unblock";
+                        button.setAttribute('data-blocked', 'true');
+                        button.classList.remove("btn-danger");
+                        button.classList.add("btn-outline-danger");
+                        if (updatedFriendship) {
+                            button.setAttribute('data-friendship-id', updatedFriendship.id);
+                        }
+                    } else {
+                        button.textContent = "Block";
+                        button.setAttribute('data-blocked', 'false');
+                        button.classList.remove("btn-outline-danger");
+                        button.classList.add("btn-danger");
+                    }
+                } else {
+                    console.error(`Failed to update block status: ${response.message}`);
                     alert(`Error: ${response.message}`);
                 }
             } catch (error) {
