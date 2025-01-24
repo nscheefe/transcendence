@@ -1,4 +1,4 @@
-import {executeSubscription, gql} from "./utils.js"
+import { executeSubscription, executeMutation, executeQuery, gql} from "./utils.js"
 
 /**
  * Subscribes to real-time updates for the user's chat rooms.
@@ -44,6 +44,25 @@ export const subscribeToChatRoomMessages = (chatRoomId, onMessageUpdate, onError
     executeSubscription(subscriptionQuery, onMessageUpdate, onError);
 };
 
+export const sendChatRoomMessage = async (chatRoomId, content, senderId) => {
+    const mutation = `
+        mutation Create_chat_room_message($id: Int!, $content: String!) {
+            create_chat_room_message(
+                chat_room_id: $id,
+                content: $content
+            ) {
+                id
+                content
+                sender_id
+                chat_room_id
+                timestamp
+            }
+        }
+    `;
+    const variables = { id: parseInt(chatRoomId, 10), content: content };
+    return executeMutation(mutation, variables);
+};
+
 
 export const fetchChatRoomMessages = async (chatRoomId) => {
     const query = gql`
@@ -59,7 +78,7 @@ export const fetchChatRoomMessages = async (chatRoomId) => {
             }
         }
     `;
-    return fetchGraphQL(query);
+    return executeQuery(query);
 };
 
 /**

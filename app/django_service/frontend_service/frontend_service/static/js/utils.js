@@ -38,16 +38,40 @@ export async function executeQuery(query, variables = {}) {
 
 /**
  * Executes a mutation using the HTTP client.
- * @param {Object} mutation - GraphQL mutation.
+ * @param {string} mutation - GraphQL mutation.
  * @param {Object} [variables] - Variables for the mutation (optional).
  * @returns {Promise<Object>} - Mutation result.
  */
 export async function executeMutation(mutation, variables = {}) {
+    const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+    };
+
+    const body = JSON.stringify({
+        query: mutation,
+        variables: variables,
+    });
+
+    console.log("[DEBUG] Mutation Request Body:", body); // Log the request body
+
     try {
-        const result = await Client.mutate({
-            mutation,
-            variables,
+        const response = await fetch(httpUrl, {
+            method: 'POST',
+            headers: headers,
+            body: body,
         });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("[DEBUG] HTTP Error Response:", errorText); // Log the error response
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+        if (result.errors) {
+            console.error("[DEBUG] GraphQL errors:", result.errors);
+        }
         return result.data;
     } catch (error) {
         console.error("[DEBUG] Mutation Error:", error);

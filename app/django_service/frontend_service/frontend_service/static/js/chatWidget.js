@@ -1,4 +1,4 @@
-import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages } from './chatservice.js';
+import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage } from './chatservice.js';
 import {showError} from './utils.js';
 import {addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, formatTime} from './domHelpers.js';
 
@@ -8,6 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleButton = document.getElementById('toggleOffcanvasButton');
     const offcanvas = document.getElementById('offcanvasBottom');
     const closeButton = document.getElementById('closeOffcanvasButton');
+    const messageInput = document.getElementById('chatMessageInput');
+    const sendMessageButton = document.getElementById('sendChatMessageButton');
 
     const NO_MESSAGES_TEXT = 'No messages in this chat room.';
 
@@ -62,6 +64,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
         subscribeToChatRoomMessages(chatRoomId, onMessageUpdate, onError);
     };
+
+    const sendMessage = async () => {
+        const chatRoomId = document.querySelector('.chat-room.active').dataset.chatRoomId;
+        const messageContent = messageInput.value.trim();
+
+        if (messageContent) {
+            try {
+                await sendChatRoomMessage(chatRoomId, messageContent);
+                messageInput.value = '';
+            } catch (error) {
+                console.error('Error sending message:', error);
+                showError(chatRoomMessagesContainer, 'Failed to send message. Please try again.');
+            }
+        }
+    }
 
     /**
      * Selects and fetches messages for a given chat room.
@@ -150,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    sendMessageButton?.addEventListener('click', sendMessage);
     toggleButton?.addEventListener('click', toggleOffcanvas);
     closeButton?.addEventListener('click', toggleOffcanvas);
     loadChatRoomData();
