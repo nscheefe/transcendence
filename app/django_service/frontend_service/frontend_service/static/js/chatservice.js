@@ -13,6 +13,12 @@ export const subscribeToUserChatRooms = (onChatRoomUpdate, onError) => {
             chatRoomsForUser {
                 id,
                 name
+                users {
+                    id
+                    user_id
+                    chat_room_id
+                    joined_at
+                }
             }
         }
         `,

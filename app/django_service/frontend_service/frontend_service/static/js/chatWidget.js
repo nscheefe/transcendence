@@ -2,6 +2,21 @@ import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, 
 import { showError } from './utils.js';
 import { addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, formatTime } from './domHelpers.js';
 
+const userCache = {}; // Cache to store user details
+
+const fillUserCache = async (users) => {
+    for (const user of users) {
+        if (!userCache[user.user_id]) {
+            try {
+                const userDetails = await fetchUserDetails(user.user_id);
+                userCache[user.user_id] = userDetails.profile;
+            } catch (error) {
+                console.error('Error fetching user details:', error);
+            }
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     const chatRoomList = document.getElementById('chatRoomList');
     const chatRoomMessagesContainer = document.getElementById('chat-Room-Messages');
@@ -12,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const sendMessageButton = document.getElementById('sendChatMessageButton');
 
     const NO_MESSAGES_TEXT = 'No messages in this chat room.';
-    const userCache = {}; // Cache to store user details
+    let lastMessageDate = null; // Track the date of the last message
 
     /**
      * Populates chat room messages in the UI.
@@ -25,15 +40,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const { timestamp, sender_id, content } = message.data.chat_room_message;
             const messageDate = formatDate(timestamp);
             const formattedTime = formatTime(timestamp);
-            let lastMessageDate = null;
 
             // Check if the user is in the cache
             if (!userCache[sender_id]) {
                 try {
                     // Fetch user details and update the cache
-                    const userDetails = await fetchUserDetails(sender_id);
-                    userCache[sender_id] = userDetails["profile"];
-                    console.log('User details:', userDetails);
+                    await fillUserCache([{ user_id: sender_id }]);
+                    console.log('User details:', userCache[sender_id]);
                 } catch (error) {
                     console.error('Error fetching user details:', error);
                     showError(chatRoomMessagesContainer, 'Failed to load user details. Please try again.');
@@ -119,9 +132,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Subscribe to real-time updates for chat rooms
             const subscribe = subscribeToUserChatRooms(
-                (room) => {
+                async (room) => {
                     console.log('Subscription data:', room);
                     room = room.data.chatRoomsForUser;
+
+                    // Fill user cache
+                    await fillUserCache(room.users);
+
                     // If the chat room is not already in the DOM, add it
                     if (!existingRoomIds.has(room.id)) {
                         existingRoomIds.add(room.id); // Track added chat room
