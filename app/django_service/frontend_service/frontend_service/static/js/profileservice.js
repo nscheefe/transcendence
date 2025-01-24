@@ -1,4 +1,4 @@
-import { executeQuery, gql } from './utils.js';
+import { executeQuery,  } from './utils.js';
 
 /**
  * Fetches the user's profile and stats.
@@ -6,7 +6,7 @@ import { executeQuery, gql } from './utils.js';
  * @returns {Promise<object>} The user's profile and stats.
  */
    export const fetchUserProfileAndStats = async (userId) => {
-       const GET_USER_PROFILE_AND_STATS_QUERY = gql`
+       const GET_USER_PROFILE_AND_STATS_QUERY = `
         query GetUserProfileAndStats($userId: Int!) {
             user {
                 id
@@ -61,7 +61,7 @@ import { executeQuery, gql } from './utils.js';
 export const fetchProfiles = async (limit, offset) => {
 
 
-    const GET_ALL_PROFILES_QUERY = gql`
+    const GET_ALL_PROFILES_QUERY = `
         query GetAllProfiles($limit: Int!, $offset: Int!) {
             getAllProfiles(limit: $limit, offset: $offset) {
                 profiles {
@@ -91,7 +91,7 @@ export const fetchProfiles = async (limit, offset) => {
  */
 export const fetchProfileByUserId = async (userId) => {
 
-    const GET_PROFILE_BY_USER_ID_QUERY = gql`
+    const GET_PROFILE_BY_USER_ID_QUERY = `
         query GetProfile($userId: Int!) {
             profile(userId: $userId) {
                 id

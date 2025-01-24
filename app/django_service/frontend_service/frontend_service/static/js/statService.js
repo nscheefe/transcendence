@@ -1,7 +1,7 @@
-import { executeQuery, gql } from './utils.js';
+import { executeQuery,  } from './utils.js';
 
-// Define the GraphQL query using gql
-const GET_STATS_BY_USER_QUERY = gql`
+// Define the GraphQL query using 
+const GET_STATS_BY_USER_QUERY = `
   query StatsByUser($userId: Int!) {
     statsByUser(userId: $userId) {
       id
@@ -33,7 +33,7 @@ export const getStatsByUser = async (userId) => {
   }
 };
 
-const GET_STAT_LIST_QUERY = gql`
+const GET_STAT_LIST_QUERY = `
   query StatList {
     StatList {
       profile {

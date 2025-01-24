@@ -1,4 +1,4 @@
-import { executeQuery, executeMutation, gql } from './utils.js';
+import { executeQuery, executeMutation,  } from './utils.js';
 
 /**
  * Fetches friendships for the logged-in user using plain string queries.
@@ -6,7 +6,7 @@ import { executeQuery, executeMutation, gql } from './utils.js';
  */
 export const fetchFriendships = async () => {
     // Defining the GraphQL query as a plain string
-    const GET_FRIENDSHIPS_QUERY = gql`
+    const GET_FRIENDSHIPS_QUERY = `
         query GetFriendships {
                 friendships {
                     id
@@ -94,7 +94,7 @@ export const fetchFriendsWithProfiles = async (friendships) => {
 
     // Debug: Log the dynamic GraphQL query to be sent
 
-    const GET_FRIENDSHIPS_AND_PROFILES_QUERY = gql`
+    const GET_FRIENDSHIPS_AND_PROFILES_QUERY = `
         query GetFriendshipsAndProfiles {
    friendships {
                     id
@@ -133,7 +133,7 @@ export const fetchFriendsWithProfiles = async (friendships) => {
  */
 export const addFriend = async (friendId) => {
     // Define the Add Friend mutation
-const ADD_FRIEND_MUTATION = gql`
+const ADD_FRIEND_MUTATION = `
   mutation AddFriend($friendId: Int!) {
       manageFriendship(
           friendshipData: {
@@ -165,7 +165,7 @@ const variables = {
 
 export const deleteFriendship = async (friendshipId) => {
     // Define the Delete Friendship mutation
-    const DELETE_FRIENDSHIP_MUTATION = gql`
+    const DELETE_FRIENDSHIP_MUTATION = `
         mutation DeleteFriendship($friendshipId: Int!) {
             manageFriendship(
                 friendshipData: {

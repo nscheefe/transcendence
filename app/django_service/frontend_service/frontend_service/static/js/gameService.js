@@ -1,7 +1,7 @@
-import { executeMutation, gql } from './utils.js';
+import { executeMutation,  } from './utils.js';
 
 export async function createFriendGame(playerA, playerB) {
-    const mutation = gql`
+    const mutation = `
         mutation CreateFriendGame($playerA: Int!, $playerB: Int!) {
             create_friend_game(player_a: $playerA, player_b: $playerB) {
                 id
@@ -32,7 +32,7 @@ export async function createFriendGame(playerA, playerB) {
 }
 
 export async function updateGameState(gameId, state) {
-    const mutation = gql`
+    const mutation = `
         mutation UpdateGameState($gameId: Int!, $state: String!) {
             update_game_state(game_id: $gameId, state: $state) {
                 id

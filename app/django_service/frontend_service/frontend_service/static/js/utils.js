@@ -101,7 +101,6 @@ export function executeSubscription(
 }
 
 
-export const gql = parse;
 
 /**
  * Adds an error message to a container for display.

@@ -1,8 +1,8 @@
-import { executeQuery, executeMutation, gql } from './utils.js';
+import { executeQuery, executeMutation,  } from './utils.js';
 
 // Query for getting notifications
 export const getNotifications = async (userId) => {
-  const query = gql`
+  const query = `
       query GetNotifications {
         user {
           notifications {
@@ -22,7 +22,7 @@ export const getNotifications = async (userId) => {
 
 // Mutation for creating a notification
 export const createNotification = async (notificationData) => {
-  const mutation = gql`
+  const mutation = `
     mutation CreateNotification($notificationData: NotificationCreateInput!) {
       manageNotification(notificationData: { create: $notificationData }) {
         success
@@ -39,7 +39,7 @@ export const createNotification = async (notificationData) => {
 
 // Mutation for updating a notification
 export const updateNotification = async (notificationData) => {
-  const mutation = gql`
+  const mutation = `
     mutation UpdateNotification($notificationData: NotificationUpdateInput!) {
       manageNotification(notificationData: { update: $notificationData }) {
         success
@@ -56,7 +56,7 @@ export const updateNotification = async (notificationData) => {
 
 // Mutation for deleting a notification (if needed)
 export const deleteNotification = async (notificationId) => {
-  const mutation = gql`
+  const mutation = `
     mutation DeleteNotification($notificationId: Int!) {
       manageNotification(notificationData: { delete: { id: $notificationId } }) {
         success

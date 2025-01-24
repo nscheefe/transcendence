@@ -1,7 +1,7 @@
 
 import { fetchFriendships, fetchFriendsWithProfiles, addFriend, deleteFriendship } from './friendservice.js';
 import { fetchUserProfileAndStats, fetchProfiles, fetchProfileByUserId } from './profileservice.js';
-import { showError, gql } from './utils.js';
+import { showError,  } from './utils.js';
 import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
 import { createFriendGame } from "./gameService.js"
 const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';

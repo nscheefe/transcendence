@@ -1,4 +1,4 @@
-import { executeSubscription, executeMutation, executeQuery, gql} from "./utils.js"
+import { executeSubscription, executeMutation, executeQuery, } from "./utils.js"
 
 /**
  * Subscribes to real-time updates for the user's chat rooms.
@@ -87,7 +87,7 @@ export const fetchUserDetails = async (userId) => {
 
 
 export const fetchChatRoomMessages = async (chatRoomId) => {
-    const query = gql`
+    const query = `
         query {
             chatRoom(id: ${chatRoomId}) {
                 messages {
@@ -122,7 +122,7 @@ export const buildChatRoomDetailsQuery = (ids) => {
         queryBody += `chatRoom${i + 1}: chatRoom(id: ${sanitizedIds[i]}) { id name users { userId } }\n`;
     }
 
-    return gql`
+    return `
         query {
             ${queryBody}
         }
