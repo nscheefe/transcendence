@@ -45,15 +45,15 @@ class ChatRoomControllerStub(object):
                 request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomDestroyRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
+        self.GetChatRoomByUserId = channel.unary_stream(
+                '/chat_service.chat.ChatRoomController/GetChatRoomByUserId',
+                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomGetChatRoomByUserIdRequest.SerializeToString,
+                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
+                _registered_method=True)
         self.List = channel.unary_unary(
                 '/chat_service.chat.ChatRoomController/List',
                 request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListRequest.SerializeToString,
                 response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListResponse.FromString,
-                _registered_method=True)
-        self.ListChatRooms = channel.unary_unary(
-                '/chat_service.chat.ChatRoomController/ListChatRooms',
-                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
                 _registered_method=True)
         self.PartialUpdate = channel.unary_unary(
                 '/chat_service.chat.ChatRoomController/PartialUpdate',
@@ -87,13 +87,13 @@ class ChatRoomControllerServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def List(self, request, context):
+    def GetChatRoomByUserId(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ListChatRooms(self, request, context):
+    def List(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -130,15 +130,15 @@ def add_ChatRoomControllerServicer_to_server(servicer, server):
                     request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomDestroyRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
+            'GetChatRoomByUserId': grpc.unary_stream_rpc_method_handler(
+                    servicer.GetChatRoomByUserId,
+                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomGetChatRoomByUserIdRequest.FromString,
+                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.SerializeToString,
+            ),
             'List': grpc.unary_unary_rpc_method_handler(
                     servicer.List,
                     request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListRequest.FromString,
                     response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListResponse.SerializeToString,
-            ),
-            'ListChatRooms': grpc.unary_unary_rpc_method_handler(
-                    servicer.ListChatRooms,
-                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.SerializeToString,
             ),
             'PartialUpdate': grpc.unary_unary_rpc_method_handler(
                     servicer.PartialUpdate,
@@ -221,6 +221,33 @@ class ChatRoomController(object):
             _registered_method=True)
 
     @staticmethod
+    def GetChatRoomByUserId(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(
+            request,
+            target,
+            '/chat_service.chat.ChatRoomController/GetChatRoomByUserId',
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomGetChatRoomByUserIdRequest.SerializeToString,
+            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
     def List(request,
             target,
             options=(),
@@ -237,33 +264,6 @@ class ChatRoomController(object):
             '/chat_service.chat.ChatRoomController/List',
             chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListRequest.SerializeToString,
             chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomListResponse.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def ListChatRooms(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(
-            request,
-            target,
-            '/chat_service.chat.ChatRoomController/ListChatRooms',
-            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -705,11 +705,6 @@ class ChatRoomUserControllerStub(object):
                 request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserDestroyRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 _registered_method=True)
-        self.GetChatRoomByUserId = channel.unary_stream(
-                '/chat_service.chat.ChatRoomUserController/GetChatRoomByUserId',
-                request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.SerializeToString,
-                response_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
-                _registered_method=True)
         self.List = channel.unary_unary(
                 '/chat_service.chat.ChatRoomUserController/List',
                 request_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserListRequest.SerializeToString,
@@ -742,12 +737,6 @@ class ChatRoomUserControllerServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def Destroy(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def GetChatRoomByUserId(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -789,11 +778,6 @@ def add_ChatRoomUserControllerServicer_to_server(servicer, server):
                     servicer.Destroy,
                     request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserDestroyRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            ),
-            'GetChatRoomByUserId': grpc.unary_stream_rpc_method_handler(
-                    servicer.GetChatRoomByUserId,
-                    request_deserializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.FromString,
-                    response_serializer=chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.SerializeToString,
             ),
             'List': grpc.unary_unary_rpc_method_handler(
                     servicer.List,
@@ -870,33 +854,6 @@ class ChatRoomUserController(object):
             '/chat_service.chat.ChatRoomUserController/Destroy',
             chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserDestroyRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-            options,
-            channel_credentials,
-            insecure,
-            call_credentials,
-            compression,
-            wait_for_ready,
-            timeout,
-            metadata,
-            _registered_method=True)
-
-    @staticmethod
-    def GetChatRoomByUserId(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_stream(
-            request,
-            target,
-            '/chat_service.chat.ChatRoomUserController/GetChatRoomByUserId',
-            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomUserGetChatRoomByUserIdRequest.SerializeToString,
-            chat__service_dot_chat_dot_grpc_dot_chat__pb2.ChatRoomResponse.FromString,
             options,
             channel_credentials,
             insecure,

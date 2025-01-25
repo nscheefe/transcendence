@@ -35,10 +35,11 @@ service GameService {
 
     // Create a new game
     rpc CreateGame (CreateGameRequest) returns (Game);
-
+    rpc CreateFriendGame (CreateFriendGameRequest) returns (Game);
     rpc StartGame (StartGameRequest) returns (StartGameResponse); // Start a game and provide WebSocket updates URL
     rpc HandleGameFinished (GameFinishedRequest) returns (google.protobuf.Empty); // Receive update if the game is finished
     rpc GameReady (GameReadyRequest) returns (stream Game);
+    rpc UpdateGameState (UpdateGameStateRequest) returns ( Game );
 }
 
 // Requests and Responses for RPCs
@@ -66,6 +67,15 @@ message CreateGameRequest {
     int32 player_id = 1;
 }
 
+message CreateFriendGameRequest {
+    int32 player_b = 1;
+    int32 player_a = 2;
+}
+
+message UpdateGameStateRequest {
+    int32 id = 1;
+    string state = 2;
+}
 // Request to start a game
 message StartGameRequest {
     int32 game_id = 1; // ID of the game to start

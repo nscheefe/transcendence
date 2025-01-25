@@ -46,13 +46,16 @@ type_defs = """
     }
 
     type Friendship {
+        id: Int!
         userId: Int!
         friendId: Int!
         establishedAt: DateTime
         accepted: Boolean!
+        blocked: Boolean!
     }
 
     type Notification {
+        id: Int!
         userId: Int!
         message: String!
         read: Boolean!
@@ -94,6 +97,9 @@ type_defs = """
         tournaments: [Tournament]
                 tournament_users(tournament_id: Int!): [TournamentUser]
         tournament_games(tournament_id: Int!): [TournamentGame]
+        friendships: [Friendship!]
+            StatList: [StatsWithProfile!]!
+
     }
 
     type Subscription {
@@ -149,16 +155,53 @@ type_defs = """
         messages: [ChatRoomMessage!]
     }
 
-    input FriendshipInput {
+   input FriendshipCreateInput {
+       friendId: Int!
+   }
+
+    input FriendshipBlockInput {
+        id: Int
         friendId: Int!
-        establishedAt: DateTime
-        accepted: Boolean!
+        blocked: Boolean!
     }
 
-    input NotificationInput {
+   input FriendshipUpdateInput {
+       id: Int!
+       accepted: Boolean!
+       blocked: Boolean
+   }
+
+   input FriendshipDeleteInput {
+       id: Int!
+   }
+
+   input FriendshipInput {
+       create: FriendshipCreateInput
+       block: FriendshipBlockInput
+       update: FriendshipUpdateInput
+       delete: FriendshipDeleteInput
+   }
+
+    input NotificationCreateInput {
         message: String!
         read: Boolean!
         sentAt: DateTime
+    }
+
+    input NotificationUpdateInput {
+        id: Int!
+        message: String!
+        read: Boolean!
+    }
+
+    input NotificationDeleteInput {
+        id: Int!
+    }
+
+    input NotificationInput {
+        create: NotificationCreateInput
+        update: NotificationUpdateInput
+        delete: NotificationDeleteInput
     }
 
     input SettingInput {
@@ -189,7 +232,17 @@ type_defs = """
         lastLogin: DateTime
         lastLoginIp: String
     }
+    type StatsWithProfile {
+        profile: Profile!
+        stats: ProfileStats!
+    }
 
+    type ProfileStats {
+        totalGames: Int!
+        totalWins: Int!
+        totalLosses: Int!
+        winRatio: Float!
+    }
     type Mutation {
         createUser(input: UserInput!): User
         manageProfile(avatarUrl: String, nickname: String, bio: String, additionalInfo: String): ProfileMutationResponse
@@ -204,6 +257,12 @@ type_defs = """
         create_tournament(name: String!): Tournament
         create_tournament_user(tournament_id: Int!, user_id: Int!): TournamentUserResponse
         create_tournament_game(game_id: Int!, tournament_id: Int!, user_id: Int!): TournamentGame
+        create_friend_game(player_a: Int!, player_b: Int!): Game!
+        update_game_state(game_id: Int!, state: String!): Game!
+        create_chat_room(name: String!, game_id: Int): ChatRoom
+        add_user_to_chat_room(chat_room_id: Int!, user_id: Int!): ChatRoomUser
+        startChatWithUser(user_id: Int!, game_id: Int): ChatRoom
+        create_chat_room_message(chat_room_id: Int!, content: String!): ChatRoomMessage
     }
 
     type ProfileMutationResponse {
@@ -245,7 +304,7 @@ type_defs = """
     type UserStat {
         id: Int!
         userId: Int!
-        statId: Int!
+        stat: Stat!
         didWin: Boolean!
     }
 
@@ -270,20 +329,21 @@ type_defs = """
     type Tournament {
         id: Int
         name: String
-        description: String
         users: [TournamentUser] # Extend tournament type
         created_at: String
         updated_at: String
     }
 
-    type TournamentUser {
-        id: Int
-        name: String
-        tournament_id: Int
-        created_at: String
-        updated_at: String
-    }
-
+type TournamentUser {
+    id: Int
+    name: String
+    user_id: Int
+    tournament_id: Int
+    play_order: Int  # Add play order field
+    games_played: Int # Add games played field
+    created_at: String
+    updated_at: String
+}
     type TournamentGame {
         id: Int
         game_id: Int

@@ -9,8 +9,15 @@ from chat_service.chat.grpc.chat_pb2 import (
     ChatRoomMessageResponse,
     ChatRoomUserResponse,
 )
+class ChatRoomUserProtoSerializer(proto_serializers.ModelProtoSerializer):
+    class Meta:
+        model = ChatRoomUser
+        proto_class = ChatRoomUserResponse
+        proto_class_list = ChatRoomUserListResponse
+        fields = "__all__"
 
 class ChatRoomProtoSerializer(proto_serializers.ModelProtoSerializer):
+    participants = ChatRoomUserProtoSerializer(many=True, read_only=True)
     class Meta:
         model = ChatRoom
         proto_class = ChatRoomResponse
@@ -25,9 +32,3 @@ class ChatRoomMessageProtoSerializer(proto_serializers.ModelProtoSerializer):
         proto_class_list = ChatRoomMessageListResponse
         fields = "__all__"
 
-class ChatRoomUserProtoSerializer(proto_serializers.ModelProtoSerializer):
-    class Meta:
-        model = ChatRoomUser
-        proto_class = ChatRoomUserResponse
-        proto_class_list = ChatRoomUserListResponse
-        fields = "__all__"

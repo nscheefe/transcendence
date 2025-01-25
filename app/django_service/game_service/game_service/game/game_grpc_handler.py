@@ -4,6 +4,14 @@ from datetime import datetime
 import grpc
 import google
 from game_service.protos import game_pb2_grpc, game_pb2
+from game_service.protos.stat_pb2 import (
+    GetStatRequest,
+    CreateStatRequest,
+    GetStatsByUserIdRequest,
+    CalculateStatsRequest,
+)
+from game_service.protos.stat_pb2_grpc import StatServiceStub
+
 from google.protobuf.empty_pb2 import Empty
 from .models import Game
 
@@ -229,6 +237,12 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         """
         Update the game as finished with the information provided from WebSocket callback.
         """
+        GRPC_STAT_HOST = "stat_service"
+        GRPC_STAT_PORT = "50051"
+        GRPC_STAT_TARGET = f"{GRPC_STAT_HOST}:{GRPC_STAT_PORT}"
+        stat_channel = grpc.insecure_channel(GRPC_STAT_TARGET)
+        stat_stub = StatServiceStub(stat_channel)
+
         try:
             # Fetch the game from the database
             game = Game.objects.get(id=request.game_id)
@@ -241,14 +255,23 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
 
             # Determine the winner and save it as part of the game's state
             if request.winner_player_id == game.player_a_id:
-                game.state = "finished - Player A won"
+                winner_id = game.player_a_id
+                loser_id = game.player_b_id
             elif request.winner_player_id == game.player_b_id:
-                game.state = "finished - Player B won"
+                winner_id = game.player_b_id
+                loser_id = game.player_a_id
             else:
-                game.state = "finished - Draw"
+                game.save()
+                return Empty()
 
             # Save updates to the database
             game.save()
+            create_stat_request = CreateStatRequest(
+                game_id=request.game_id,
+                winner_id=winner_id,
+                loser_id=loser_id
+            )
+            create_stat_response = stat_stub.CreateStat(create_stat_request)
 
             # Return empty response as acknowledgment
             return Empty()
@@ -322,6 +345,123 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             context.set_code(grpc.StatusCode.INTERNAL)
             context.set_details(f"Error monitoring game readiness: {str(e)}")
             return
+
+    def CreateFriendGame(self, request, context):
+        """
+            Creates a game between two specific players (player_a and player_b).
+            The game is directly set to state "READY".
+            Input: CreateFriendGameRequest contains both players' IDs.
+            """
+        try:
+            # Validate that both players are provided
+            if not request.player_a or not request.player_b:
+                context.set_details("Both player_a and player_b must be provided.")
+                context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
+                return game_pb2.Game()
+
+            # Check if either player is already in an unfinished game
+            existing_game_a = Game.objects.filter(
+                finished=False,
+                player_a_id=request.player_a
+            ).first() or Game.objects.filter(
+                finished=False,
+                player_b_id=request.player_a
+            ).first()
+
+            existing_game_b = Game.objects.filter(
+                finished=False,
+                player_a_id=request.player_b
+            ).first() or Game.objects.filter(
+                finished=False,
+                player_b_id=request.player_b
+            ).first()
+
+            if existing_game_a or existing_game_b:
+                context.set_details("One of the players is already in an active game.")
+                context.set_code(grpc.StatusCode.ALREADY_EXISTS)
+                return game_pb2.Game()
+
+            # Create the new game in the "READY" state
+            new_game = Game(
+                player_a_id=request.player_a,
+                player_b_id=request.player_b,
+                points_player_a=0,
+                points_player_b=0,
+                state="READY",
+                finished=False,
+                created_at=datetime.now(),
+                updated_at=datetime.now()
+            )
+            new_game.save()
+
+            # Prepare the gRPC response
+            response = game_pb2.Game(
+                id=new_game.id,
+                state=new_game.state,
+                points_player_a=new_game.points_player_a,
+                points_player_b=new_game.points_player_b,
+                player_a_id=new_game.player_a_id,
+                player_b_id=new_game.player_b_id,
+                finished=new_game.finished,
+            )
+            if new_game.created_at:
+                created_at = google.protobuf.timestamp_pb2.Timestamp()
+                created_at.FromDatetime(new_game.created_at)
+                response.created_at.CopyFrom(created_at)
+            if new_game.updated_at:
+                updated_at = google.protobuf.timestamp_pb2.Timestamp()
+                updated_at.FromDatetime(new_game.updated_at)
+                response.updated_at.CopyFrom(updated_at)
+
+            return response
+
+        except Exception as e:
+            # Handle unexpected errors
+            context.set_details(f"Error creating friend game: {str(e)}")
+            context.set_code(grpc.StatusCode.INTERNAL)
+            return game_pb2.Game()
+
+    def UpdateGameState(self, request, context):
+        """
+            Updates the state of a game.
+            Input: UpdateGameStateRequest contains the game ID and the new state.
+            """
+        try:
+            # Fetch game by ID
+            game = Game.objects.get(id=request.id)
+            updated_state = request.state.upper()
+
+            # Update the game state
+            game.state = updated_state
+            if updated_state == "FINISHED":
+                game.finished = True
+            game.updated_at = datetime.now()  # Update the timestamp
+            game.save()
+
+            # Prepare the gRPC response
+            response = game_pb2.Game(
+                id=game.id,
+                state=game.state,
+                points_player_a=game.points_player_a,
+                points_player_b=game.points_player_b,
+                player_a_id=game.player_a_id,
+                player_b_id=game.player_b_id,
+                finished=game.finished,
+                created_at=google.protobuf.timestamp_pb2.Timestamp(seconds=int(game.created_at.timestamp())),
+                updated_at=google.protobuf.timestamp_pb2.Timestamp(seconds=int(game.updated_at.timestamp()))
+            )
+
+            return response
+        except Game.DoesNotExist:
+            # Handle case where the game does not exist
+            context.set_code(grpc.StatusCode.NOT_FOUND)
+            context.set_details(f"Game with ID {request.id} not found.")
+            return game_pb2.Game()
+        except Exception as e:
+            # Handle unexpected errors
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(f"Error updating game state: {str(e)}")
+            return game_pb2.Game()
 
     @classmethod
     def as_servicer(cls):

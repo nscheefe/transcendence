@@ -7,6 +7,8 @@ from main_service.protos.game_pb2 import (
     GetGameRequest,
     GetOngoingGamesRequest,
     CreateGameRequest,
+CreateFriendGameRequest,
+UpdateGameStateRequest,
     StartGameRequest,
 )
 from main_service.protos.tournament_pb2 import (
@@ -20,7 +22,9 @@ ListTournamentRoomsRequest,
     ListTournamentGameMappingsRequest,
     CreateTournamentGameMappingRequest,
 )
-
+from main_service.protos.notification_pb2_grpc import NotificationServiceStub
+from main_service.protos.notification_pb2 import GetNotificationsByUserIdRequest, CreateNotificationRequest, DeleteNotificationRequest, UpdateNotificationRequest
+from .userSchema import resolve_profile
 from main_service.protos.gameEvent_pb2_grpc import GameEventServiceStub
 from main_service.protos.gameEvent_pb2 import GetGameEventRequest, CreateGameEventRequest
 from main_service.api.schema.objectTypes import query, mutation, subscription  # Shared objects
@@ -66,21 +70,54 @@ def resolve_game(_, info: GraphQLResolveInfo, game_id: int):
 
 @query.field("tournament")
 def resolve_tournament(_, info: GraphQLResolveInfo, tournament_id: int):
-    """Fetch a specific tournament by ID."""
+    """Fetch a specific tournament by ID, including its users."""
     try:
         with grpc.insecure_channel(GRPC_TARGET) as channel:
+            # Fetch tournament details
             client = TournamentServiceStub(channel)
             request = GetTournamentRoomRequest(tournament_room_id=tournament_id)
             response = client.GetTournamentRoom(request)
 
+            # Fetch tournament users
+            users_request = ListTournamentUsersRequest(tournament_room_id=tournament_id)
+            users_response = client.ListTournamentUsers(users_request)
+
+            # Debug the structure of users_response
+            print("Users Response:", users_response)
+
+            # Adjust this based on the actual structure of the response
+            if hasattr(users_response, "users"):
+                user_list = users_response.users
+            elif hasattr(users_response, "tournament_users"):
+                user_list = users_response.tournament_users
+            else:
+                user_list = []
+
+            # Map users to a list of dictionaries
+            users = [
+                {
+                    "id": user.id,
+                    "user_id": user.user_id,
+                    "play_order": getattr(user, "play_order", None),  # Handle missing fields gracefully
+                    "games_played": getattr(user, "games_played", None),
+                    "created_at": datetime.fromtimestamp(user.created_at.seconds).isoformat(),
+                    "updated_at": datetime.fromtimestamp(user.updated_at.seconds).isoformat()
+                }
+                for user in user_list
+            ]
+
+            # Return tournament details with users
             return {
                 "id": response.id,
                 "name": response.name,
                 "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
-                "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat()
+                "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
+                "users": users  # Add the users list to the response
             }
-    except grpc.RpcError as e:
-        raise Exception(f"gRPC error: {e.details()}")
+    except Exception as e:
+        print(f"Error fetching tournament or users: {str(e)}")
+        raise e
+
 
 @query.field("tournaments")
 def resolve_tournaments(_, info: GraphQLResolveInfo):
@@ -246,7 +283,6 @@ def resolve_create_tournament_user(_, info: GraphQLResolveInfo, tournament_id: i
             request = CreateTournamentUserRequest(
                 tournament_room_id=tournament_id,
                 user_id=user_id,  # Pass the user_id explicitly
-                play_order=1  # Or any default order
             )
             response = client.CreateTournamentUser(request)
 
@@ -350,6 +386,67 @@ def resolve_create_tournament_game(_, info: GraphQLResolveInfo, game_id: int, to
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
 
+@mutation.field("create_friend_game")
+def resolve_create_friend_game(_, info: GraphQLResolveInfo, player_a: int, player_b: int):
+    """
+    Create a game between two specific players.
+    """
+    user_id = info.context["request"].user_id
+    user_chanel = grpc.insecure_channel("user_service:50051")
+    try:
+        with grpc.insecure_channel(GRPC_TARGET) as channel:
+            client = GameServiceStub(channel)
+            request = CreateFriendGameRequest(player_a=player_a, player_b=player_b)
+            response = client.CreateFriendGame(request)
+            notification_stub = NotificationServiceStub(user_chanel)
+            profile = resolve_profile(_, info, user_id)
+            nickname = profile["nickname"]
+            notification_request = CreateNotificationRequest(
+                user_id=player_b,
+                message=f"User {nickname} sent you an Game invitation.",
+                read=False,
+                sent_at=datetime.utcnow()
+            )
+            notification_stub.CreateNotification(notification_request)
+            return {
+                "id": response.id,
+                "state": response.state,
+                "points_player_a": response.points_player_a,
+                "points_player_b": response.points_player_b,
+                "player_a_id": response.player_a_id,
+                "player_b_id": response.player_b_id,
+                "finished": response.finished,
+                "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
+                "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
+            }
+    except grpc.RpcError as e:
+        raise Exception(f"gRPC error: {e.details()}")
+
+
+@mutation.field("update_game_state")
+def resolve_update_game_state(_, info: GraphQLResolveInfo, game_id: int, state: str):
+    """
+    Update the state of a specific game.
+    """
+    try:
+        with grpc.insecure_channel(GRPC_TARGET) as channel:
+            client = GameServiceStub(channel)
+            request = UpdateGameStateRequest(id=game_id, state=state)
+            response = client.UpdateGameState(request)
+
+            return {
+                "id": response.id,
+                "state": response.state,
+                "points_player_a": response.points_player_a,
+                "points_player_b": response.points_player_b,
+                "player_a_id": response.player_a_id,
+                "player_b_id": response.player_b_id,
+                "finished": response.finished,
+                "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
+                "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
+            }
+    except grpc.RpcError as e:
+        raise Exception(f"gRPC error: {e.details()}")
 
 
 # ---------------------------------------

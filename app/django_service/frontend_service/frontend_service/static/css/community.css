@@ -22,18 +22,18 @@
         /* Hover effect for navigation links */
 
         #onpage-nav .nav-link:hover {
-            border-color: #007bff; /* Change border to solid gray */
-            color: #007bff; /* Add hover text color (blue hint) */
+            border-color: var(--neon-pink); /* Change border to solid gray */
+            color: var(--neon-pink); /* Add hover text color (blue hint) */
         }
 
         /* Active/Selected navigation link */
 
         #onpage-nav .nav-link.active {
-            border-left: 5px solid #007bff; /* Blue left border for the active state */
-            border-color: #007bff;
+            border-left: 5px solid var(--neon-pink); /* Blue left border for the active state */
+            border-color: var(--neon-pink);
             box-shadow: 0 0 10px rgba(0, 123, 255, 0.3); /* Blue shadow around active link */
             font-weight: bold; /* Font weight for selected tab */
-            color: #007bff !important; /* Blue text color for active link */
+            color: var(--neon-pink) !important; /* Blue text color for active link */
         }
 
         /* Optional: Global navigation container shadow */
@@ -65,14 +65,14 @@
         }
 
         .tab-content .list-group-item:hover {
-            border-color: #007bff; /* Blue border on hover */
+            border-color: var(--neon-pink); /* Blue border on hover */
             transform: scale(1.02); /* Slight scaling effect */
             box-shadow: 0 4px 8px rgba(0, 123, 255, 0.5); /* Blue shadow around hovered item */
         }
 
         .tab-content .list-group-item.active {
             background-color: #eef6ff; /* Light blue for active state */
-            border-left: 5px solid #007bff; /* Blue left border for active state */
+            border-left: 5px solid var(--neon-pink); /* Blue left border for active state */
             box-shadow: 0 0 10px rgba(0, 123, 255, 0.5); /* Blue shadow */
         }
 
@@ -105,7 +105,41 @@
         }
 
         #profile h5 {
-            color: #007bff; /* Highlight section headings in blue */
+            color: var(--42-turqois); /* Highlight section headings in blue */
             margin-top: 20px;
         }
+     .game-stat {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.game-stat .player,
+.game-stat .opponent {
+    display: flex;
+    align-items: center;
+}
+
+.game-stat .player img,
+.game-stat .opponent img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.game-stat.victory {
+    border-left: 5px solid #28a745; /* Green for win */
+}
+
+.game-stat.defeat {
+    border-left: 5px solid #dc3545; /* Red for loss */
+}
+
+.game-stat .vs {
+    text-align: center;
+    font-weight: bold;
+}
     }

@@ -156,21 +156,35 @@ def profile(request):
 
 @jwt_required
 def stats(request):
+    user_data = getUserProfileData(request)
+
     context = {
         'show_nav': True,
-        'stats_data': get_user_stats(request.user),  # Example function for getting stats data
+        'user': user_data,
+
     }
-    return render(request, 'frontend/stats.html', context)
+    return render(request, 'frontend/Leaderboard.html', context)
 
 @jwt_required
-def friends(request):
+def tournament(request):
+    user_data = getUserProfileData(request)
+    context = {
+        'show_nav': True,
+        'user': user_data,
+
+    }
+    return render(request, 'frontend/tournament.html', context)
+
+
+@jwt_required
+def community(request):
     user_data = getUserProfileData(request)
     context = {
         'show_nav': True,
         'user': user_data,
         #'friends_data': get_user_friends(request.user),  # Example function for getting friends data
     }
-    return render(request, 'frontend/friends.html', context)
+    return render(request, 'frontend/community.html', context)
 
 
 @jwt_required
@@ -201,32 +215,6 @@ def publicProfile(request, user_id):
     return render(request, 'frontend/publicProfile.html', context)
 
 
-@jwt_required
-def chat(request):
-    user_data = getUserProfileData(request)
-    ChatRooms = getDetailedChatRoomData(request)
-    context = {
-        'show_nav': True,
-        'user': user_data,
-    }
-    pprint(ChatRooms)
-
-    return render(request, 'frontend/chat.html', context)
-
-@jwt_required
-def publicProfile(request, user_id):
-    # Example: Fetch data or log the user_id
-    referrer = request.META.get('HTTP_REFERER', None)
-    print(f"User ID is: {user_id}")
-    profile_data = getProfileData(request, user_id)
-    user_data = getUserProfileData(request)
-    context = {
-        'show_nav': True,
-        'user': user_data,
-        'profile': profile_data,
-        'referrer': referrer,  # Add referrer to the context if needed
-    }
-    return render(request, 'frontend/publicProfile.html', context)
 
 
 def pong_view(request):

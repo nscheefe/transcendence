@@ -1,10 +1,112 @@
-import {fetchGraphQL} from './utils.js';
+import { executeSubscription, executeMutation, executeQuery, } from "./utils.js"
+
+export const startChatWithUser = async (userId, gameId = null) => {
+    const mutation = `
+    mutation StartChatWithUser($userId: Int!, $gameId: Int) {
+        startChatWithUser(user_id: $userId, game_id: $gameId) {
+            id
+            name
+            created_at
+            game_id
+            users {
+                id
+                user_id
+                chat_room_id
+                joined_at
+            }
+        }
+    }
+    `;
+    const variables = { userId: parseInt(userId, 10), gameId: gameId };
+    return executeMutation(mutation, variables);
+};
 
 /**
- * Fetches chat room messages by ID.
- * @param {number} chatRoomId - The ID of the chat room.
- * @returns {Promise<Array>} The list of messages.
+ * Subscribes to real-time updates for the user's chat rooms.
+ * @param {function} onChatRoomUpdate - Callback function, triggered on receiving a new update.
+ * @param {function} [onError] - Callback function, triggered on error during the subscription.
+ * @returns {function} - A function to unsubscribe from the subscription.
  */
+export const subscribeToUserChatRooms = (onChatRoomUpdate, onError) => {
+    const subscriptionQuery = {
+        query: `
+        subscription ChatRoomUpdates {
+            chatRoomsForUser {
+                id,
+                name
+                users {
+                    id
+                    user_id
+                    chat_room_id
+                    joined_at
+                }
+            }
+        }
+        `,
+        variables: {},
+        extensions: {},
+        operationName: "ChatRoomUpdates",
+    };
+    executeSubscription(subscriptionQuery, onChatRoomUpdate, onError,);
+};
+
+
+export const subscribeToChatRoomMessages = (chatRoomId, onMessageUpdate, onError) => {
+    const subscriptionQuery = {
+        query: `
+        subscription Chat_room_message($id: Int!) {
+            chat_room_message(chat_room_id: $id) {
+                id
+                content
+                sender_id
+                chat_room_id
+                timestamp
+            }
+        }
+        `,
+        variables: { id: chatRoomId },
+        extensions: {},
+        operationName: "Chat_room_message",
+    };
+    executeSubscription(subscriptionQuery, onMessageUpdate, onError);
+};
+
+export const sendChatRoomMessage = async (chatRoomId, content, senderId) => {
+    const mutation = `
+    mutation Create_chat_room_message($id: Int!, $content: String!) {
+        create_chat_room_message(
+            chat_room_id: $id,
+            content: $content
+        ) {
+            id
+            content
+            sender_id
+            chat_room_id
+            timestamp
+        }
+    }
+    `;
+    const variables = { id: parseInt(chatRoomId, 10), content: content };
+    return executeMutation(mutation, variables);
+};
+
+
+export const fetchUserDetails = async (userId) => {
+    const query = `
+    query Profile($userId: Int!) {
+        profile(userId: $userId) {
+            nickname
+            avatarUrl
+            userId
+        }
+    }
+    `;
+    const variables = { userId: parseInt(userId, 10) };
+    return executeQuery(query, variables);
+};
+
+
+
 export const fetchChatRoomMessages = async (chatRoomId) => {
     const query = `
         query {
@@ -19,22 +121,7 @@ export const fetchChatRoomMessages = async (chatRoomId) => {
             }
         }
     `;
-    return fetchGraphQL(query);
-};
-
-/**
- * Fetches the list of all chat rooms for a user.
- * @returns {Promise<Array>} The list of chat rooms.
- */
-export const fetchUserChatRooms = async () => {
-    const query = `
-        query {
-            chatRoomsForUser {
-                id
-            }
-        }
-    `;
-    return fetchGraphQL(query);
+    return executeQuery(query);
 };
 
 /**
