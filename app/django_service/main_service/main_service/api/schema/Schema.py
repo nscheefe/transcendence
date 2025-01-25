@@ -260,6 +260,8 @@ type_defs = """
         create_friend_game(player_a: Int!, player_b: Int!): Game!
         update_game_state(game_id: Int!, state: String!): Game!
         create_chat_room(name: String!, game_id: Int): ChatRoom
+        add_user_to_chat_room(chat_room_id: Int!, user_id: Int!): ChatRoomUser
+        startChatWithUser(user_id: Int!, game_id: Int): ChatRoom
         create_chat_room_message(chat_room_id: Int!, content: String!): ChatRoomMessage
     }
 
