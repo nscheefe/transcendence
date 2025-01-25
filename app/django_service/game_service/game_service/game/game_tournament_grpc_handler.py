@@ -101,6 +101,7 @@ class TournamentServiceHandler:
                 id=user.id,
                 tournament_room_id=user.tournament_room_id,
                 user_id=user.user_id,
+                state=user.state,
                 play_order=user.play_order,
                 games_played=user.games_played,
                 created_at=datetime_to_proto(user.created_at),
@@ -119,6 +120,7 @@ class TournamentServiceHandler:
                     tournament_room_id=user.tournament_room_id,
                     user_id=user.user_id,
                     play_order=user.play_order,
+                    state=user.state,
                     games_played=user.games_played,
                     created_at=datetime_to_proto(user.created_at),
                     updated_at=datetime_to_proto(user.updated_at),
@@ -144,6 +146,7 @@ class TournamentServiceHandler:
             user, created = TournamentUser.objects.get_or_create(
                 tournament_room_id=request.tournament_room_id,
                 user_id=request.user_id,
+                state="WAITING",
                 defaults={"play_order": next_play_order},
             )
 
@@ -157,6 +160,7 @@ class TournamentServiceHandler:
             return tournament_pb2.TournamentUser(
                 id=user.id,
                 tournament_room_id=user.tournament_room_id,
+                state=user.state,
                 user_id=user.user_id,
                 play_order=user.play_order,
                 games_played=user.games_played,
@@ -173,11 +177,13 @@ class TournamentServiceHandler:
             user = TournamentUser.objects.get(id=request.tournament_user_id)
             user.play_order = request.play_order
             user.games_played = request.games_played
+            user.state = request.state
             user.save()
             response = tournament_pb2.TournamentUser(
                 id=user.id,
                 tournament_room_id=user.tournament_room_id,
                 user_id=user.user_id,
+                state=user.state,
                 play_order=user.play_order,
                 games_played=user.games_played,
                 created_at=datetime_to_proto(user.created_at),
