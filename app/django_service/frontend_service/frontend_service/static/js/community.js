@@ -3,6 +3,7 @@ import { fetchUserProfileAndStats, fetchProfiles, fetchProfileByUserId } from '.
 import { showError,  } from './utils.js';
 import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
 import { createFriendGame } from "./gameService.js"
+import { startChatWithUser } from "./chatservice.js"
 const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';
 const LOADING_FRIENDS_HTML = '<p class="text-light">Loading friends...</p>';
 const NO_FRIENDS_WARNING = 'Sad ... you don\'t seem to have any friends 😞.';
@@ -48,7 +49,7 @@ return createElement(
     </div>
     <div class="ms-auto d-flex gap-2">
 
-        <button class="btn btn-primary btn-sm start-chat-room" data-friendship-id="${friendship.id}">
+        <button class="btn btn-primary btn-sm start-chat-room" data-friendship-id="${friendship.id}" data-user-id="${profile.userId}">
             Start Chat
         </button>
         <button class="btn btn-success btn-sm start-game" data-friendship-id="${profile.userId}">
@@ -269,6 +270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await Promise.all([loadFriends(friendsContainer), loadUserProfile(profileContainer, profileLoading)]);
 
     friendsContainer.addEventListener('click', async (event) => {
+        // Handle "Delete Friend" button click
         if (event.target.classList.contains('delete-friend')) {
             const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
 
@@ -294,32 +296,43 @@ document.addEventListener('DOMContentLoaded', async () => {
                     alert("An error occurred while deleting the friendship. Please try again later.");
                 }
             }
-        }
-    });
-    friendsContainer.addEventListener('click', async (event) => {
-    // Handle "Play a Game" button click
-    if (event.target.classList.contains('start-game')) {
-        const friendUserId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
+        } else if (event.target.classList.contains('start-game')) {
+            // Handle "Play a Game" button click
+            const friendUserId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
 
-        if (!isNaN(friendUserId)) {
-            try {
+            if (!isNaN(friendUserId)) {
+                try {
+                    // Call the createFriendGame GraphQL mutation
+                    const game = await createFriendGame(userId, friendUserId);
+                    alert(`Game created successfully! Game ID: ${game.id}`);
 
-                // Call the createFriendGame GraphQL mutation
-                const game = await createFriendGame(userId, friendUserId);
-
-
-                alert(`Game created successfully! Game ID: ${game.id}`);
-
-                // Optionally redirect to the game screen
-                window.location.href = `/home/game`;
-            } catch (error) {
-                console.error("Error creating the game:", error);
-                alert("Failed to create the game. Please try again later.");
+                    // Optionally redirect to the game screen
+                    window.location.href = `/home/game`;
+                } catch (error) {
+                    console.error("Error creating the game:", error);
+                    alert("Failed to create the game. Please try again later.");
+                }
+            } else {
+                console.error("Invalid friendUserId in the data-friendship-id attribute.");
             }
-        } else {
-            console.error("Invalid friendUserId in the data-friendship-id attribute.");
+        } else if (event.target.classList.contains('start-chat-room')) {
+            // Handle "Start Chat" button click
+            const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
+            const friendUserId = parseInt(event.target.getAttribute('data-user-id'), 10);
+
+            if (!isNaN(friendUserId)) {
+                try {
+                    // Call the startChatWithUser function
+                    const chatRoom = await startChatWithUser(friendUserId);
+                    showToast(`Chat room created successfully! Chat Room ID: ${chatRoom.id}`);
+                } catch (error) {
+                    console.error("Error starting the chat:", error);
+                    showToast("Failed to start the chat. Please try again later.");
+                }
+            } else {
+                console.error("Invalid friendUserId in the data-friendship-id attribute.");
+            }
         }
-    }
 });
 });
 

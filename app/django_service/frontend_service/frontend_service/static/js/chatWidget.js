@@ -155,6 +155,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!existingRoomIds.has(room.id)) {
                         existingRoomIds.add(room.id); // Track added chat room
 
+                        if (room.name.includes('User-to-User')) {
+                            const userIds = room.name.match(/\d+/g);
+                            if (userIds && userIds.length === 2) {
+                                const user1 = userCache[userIds[0]];
+                                const user2 = userCache[userIds[1]];
+                                room.name = `Chat of ${user1.nickname} and ${user2.nickname}`;
+                            }
+                        }
                         // Create and add the chat room element to the list
                         const newRoomElement = createElement(
                             'li',
