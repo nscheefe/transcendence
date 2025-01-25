@@ -32,6 +32,9 @@ class TournamentRoom(models.Model):
     id = models.AutoField(primary_key=True)  # Auto-incremented ID
     name = models.CharField(max_length=255)  # Name of the tournament room
     is_active = models.BooleanField(default=True)  # Whether the room is active
+    started = models.BooleanField(default=True)
+    tournament_size = models.IntegerField()
+    start_time = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)  # Timestamp of room creation
     updated_at = models.DateTimeField(auto_now=True)  # Timestamp of last update
 

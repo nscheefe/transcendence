@@ -25,6 +25,9 @@ class TournamentServiceHandler:
                 id=room.id,
                 name=room.name,
                 is_active=room.is_active,
+                tournament_size = room.tournament_size,
+                started = room.started,
+                start_time = room.start_time,
                 created_at=datetime_to_proto(room.created_at),
                 updated_at=datetime_to_proto(room.updated_at),
             )
@@ -40,6 +43,9 @@ class TournamentServiceHandler:
                     id=room.id,
                     name=room.name,
                     is_active=room.is_active,
+                    tournament_size=room.tournament_size,
+                    started=room.started,
+                    start_time=room.start_time,
                     created_at=datetime_to_proto(room.created_at),
                     updated_at=datetime_to_proto(room.updated_at),
                 )
@@ -69,6 +75,9 @@ class TournamentServiceHandler:
                 id=room.id,
                 name=room.name,
                 is_active=room.is_active,
+                tournament_size=room.tournament_size,
+                started=room.started,
+                start_time=room.start_time,
                 created_at=datetime_to_proto(room.created_at),
                 updated_at=datetime_to_proto(room.updated_at),
             )

@@ -9,8 +9,11 @@ message TournamentRoom {
     int32 id = 1;
     string name = 2;                          // Name of the tournament room
     bool is_active = 3;                       // Whether the tournament room is active
-    google.protobuf.Timestamp created_at = 4; // Timestamp of creation
-    google.protobuf.Timestamp updated_at = 5; // Timestamp of last update
+    bool started =4;
+    int32 tournament_size = 5;
+    google.protobuf.Timestamp start_time = 6;
+    google.protobuf.Timestamp created_at = 7; // Timestamp of creation
+    google.protobuf.Timestamp updated_at = 8; // Timestamp of last update
 }
 
 message TournamentUser {
