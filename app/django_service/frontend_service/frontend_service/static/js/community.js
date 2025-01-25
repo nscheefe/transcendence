@@ -110,7 +110,7 @@ const loadFriends = async (friendsContainer) => {
             friendsContainer.innerHTML = `<p class="text-light">${NO_FRIENDS_WARNING}</p>`;
             return;
         }
-                cachedFriendships = friendships; // Cache friendships here
+        cachedFriendships = friendships; // Cache friendships here
 
 
         // Fetch more data based on friendships
@@ -419,7 +419,7 @@ const renderProfiles = (profiles, profilesContainer) => {
                 const response = await addFriend(friendId);
 
                 if (response && response.success) {
-
+                refetchFriends(); // Refresh the cached friendships
                     button.textContent = "Friend Added!";
                     button.classList.remove("btn-success");
                     button.classList.add("btn-secondary");

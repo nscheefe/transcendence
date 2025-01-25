@@ -1,4 +1,5 @@
 import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage, fetchUserDetails } from './chatservice.js';
+import { blockUser, fetchFriendships } from './friendservice.js';
 import { showError } from './utils.js';
 import { addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, formatTime } from './domHelpers.js';
 
@@ -33,11 +34,22 @@ document.addEventListener('DOMContentLoaded', () => {
      * Populates chat room messages in the UI.
      * @param {number} chatRoomId - ID of the chat room.
      */
-    const populateChatRoomMessages = (chatRoomId) => {
+    const populateChatRoomMessages = async (chatRoomId) => {
         chatRoomMessagesContainer.innerHTML = '';
+        let friendships = await fetchFriendships(); // Await the result of fetchFriendships
+        console.log('Fetched Friendships:', friendships);
+
+        friendships = Array.isArray(friendships) ? friendships.flat() : Object.values(friendships).flat(); // Ensure friendships is an array
+        console.log('Processed Friendships:', friendships);
+
+        let blockedUsers = friendships.filter(friendship => friendship.blocked).map(friendship => friendship.friendId);
+        console.log('Blocked users:', blockedUsers);
 
         const onMessageUpdate = async (message) => {
             const { timestamp, sender_id, content } = message.data.chat_room_message;
+            if (blockedUsers.includes(sender_id)) {
+                return;
+            }
             const messageDate = formatDate(timestamp);
             const formattedTime = formatTime(timestamp);
 
