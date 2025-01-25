@@ -7,7 +7,7 @@ const host = window.location.host;
 const httpUrl = `${protocol}//${host}/graphql/`;
 const wsUrl = `${wsProtocol}//${host}/graphql/`;
 
-const wsClient = new SubscriptionClient('wss://localhost/graphql/', {
+const wsClient = new SubscriptionClient(wsUrl, {
   reconnect: true,
 });
 

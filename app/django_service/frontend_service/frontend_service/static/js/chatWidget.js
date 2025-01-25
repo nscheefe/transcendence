@@ -82,10 +82,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 'li',
                 `
                 <div class="d-flex ${isOwnMessage ? 'flex-row-reverse align-self-end' : 'flex-row align-self-start'}">
-                <div class="d-flex flex-column align-items-center">
-                    <img src="${avatar}" alt="avatar" class="rounded-circle d-flex ${isOwnMessage ? 'ms-3' : 'me-3'} shadow-1-strong" width="60" style="flex-shrink: 0;">
-                    <p class="text-light small mb-0">
-                        <i class="far fa-clock ms-1"></i> ${formattedTime}
+                <div class="d-flex flex-column align-items-center justify-content-center">
+                    <img src="${avatar}" alt="avatar" class="rounded-circle d-flex ${isOwnMessage ? 'ms-3' : 'me-3'} shadow-1-strong object-fit-cover" width="60" height="60" style="flex-shrink: 0;">
+                    <p class="text-light small text-center mb-0">
+                        <i class="far fa-clock mt-1"> ${formattedTime} </i>
                     </p>
                 </div>
                     <div class="card flex-grow-1 ${isOwnMessage ? 'text-end' : 'text-start'}">
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
                 `,
-                'chat-message d-flex flex-row ${isOwnMessage ? justify-content-end : justify-content-start} mb-3', {
+                `chat-message d-flex flex-row ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'} mb-3`, {
                 maxWidth: '100%'
             }
             );

@@ -9,7 +9,7 @@
         aria-labelledby="offcanvasBottomLabel"
         style="visibility: hidden; height: 0; color: #ffffff;">
 
-        <div class="offcanvas-body overflow-y-visible" style="color: #ffffff; padding: 0px;">
+        <div class="offcanvas-body overflow-y-auto" style="color: #ffffff; padding: 0px;">
     <button
         id="closeOffcanvasButton"
         type="button"
@@ -38,15 +38,15 @@
                             <ul class="list-unstyled chat-messages-container" id="chat-Room-Messages">
                                 <!-- Chat messages will be dynamically populated by JavaScript -->
                             </ul>
-                        </div>
 
-                        <div data-mdb-input-init class="form-outline mt-2">
-                            <label class="form-label" for="textAreaExample2" style="color: #ffffff;">Message</label>
-                            <textarea class="form-text-input-transparent w-input" id="chatMessageInput" style="color:white" rows="3"></textarea>
-                        </div>
-                        <button type="button" data-mdb-button-init data-mdb-ripple-init id="sendChatMessageButton"
+                            <div data-mdb-input-init class="form-outline mt-2">
+                                <label class="form-label" for="textAreaExample2" style="color: #ffffff;">Message</label>
+                                <textarea class="form-text-input-transparent w-input" id="chatMessageInput" style="color:white" rows="3"></textarea>
+                            </div>
+                            <button type="button" data-mdb-button-init data-mdb-ripple-init id="sendChatMessageButton"
                             class="btn btn-rounded btn-outline-light float-end" style="background-color: #e32285; color: #ffffff;">Send
                         </button>
+                    </div>
                     </div>
                 </div>
             </div>
