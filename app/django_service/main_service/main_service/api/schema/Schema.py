@@ -247,6 +247,13 @@ type_defs = """
         start_game(game_id: Int!): StartGameResponse
         create_tournament(name: String!): Tournament
         create_tournament_user(tournament_id: Int!, user_id: Int!): TournamentUserResponse
+        update_tournament_user(
+           tournament_id: Int!,
+           user_id: Int!,
+           state: String,
+           play_order: Int,
+           games_played: Int
+       ): TournamentUserResponse
         create_tournament_game(game_id: Int!, tournament_id: Int!, user_id: Int!): TournamentGame
         create_friend_game(player_a: Int!, player_b: Int!): Game!
         update_game_state(game_id: Int!, state: String!): Game!
@@ -319,6 +326,10 @@ type_defs = """
         id: Int
         name: String
         users: [TournamentUser] # Extend tournament type
+        is_active: Boolean
+        started: Boolean
+        tournament_size: Int
+        start_time: String
         created_at: String
         updated_at: String
     }
@@ -330,6 +341,7 @@ type TournamentUser {
     tournament_id: Int
     play_order: Int  # Add play order field
     games_played: Int # Add games played field
+    state: String
     created_at: String
     updated_at: String
 }

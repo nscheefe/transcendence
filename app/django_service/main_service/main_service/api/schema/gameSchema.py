@@ -99,8 +99,9 @@ def resolve_tournament(_, info: GraphQLResolveInfo, tournament_id: int):
                 {
                     "id": user.id,
                     "user_id": user.user_id,
-                    "play_order": getattr(user, "play_order", None),  # Handle missing fields gracefully
-                    "games_played": getattr(user, "games_played", None),
+                    "state": user.state,
+                    "play_order": user.play_order,  # Handle missing fields gracefully
+                    "games_played": user.games_played,
                     "created_at": datetime.fromtimestamp(user.created_at.seconds).isoformat(),
                     "updated_at": datetime.fromtimestamp(user.updated_at.seconds).isoformat()
                 }
@@ -244,6 +245,7 @@ def resolve_tournament_users(_, info: GraphQLResolveInfo, tournament_id: int):
                 {
                     "id": user.id,
                     "user_id": user.user_id,  # Assuming `user_id` maps to FK User
+                    "state": user.state,
                     "tournament_id": user.tournament_room_id,  # Maps directly to tournament FK
                     "created_at": datetime.fromtimestamp(user.created_at.seconds).isoformat(),
                     "updated_at": None,  # Add updated_at if your response doesn't have it
@@ -299,7 +301,7 @@ def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str):
 
 @mutation.field("create_tournament_user")
 def resolve_create_tournament_user(_, info: GraphQLResolveInfo, tournament_id: int, user_id: int):
-    """Create a new user in a tournament."""  # @Todo this is wrong impolemented
+    """Create a new user in a tournament."""
     try:
         with grpc.insecure_channel(GRPC_TARGET) as channel:
             client = TournamentServiceStub(channel)
@@ -324,6 +326,30 @@ def resolve_create_tournament_user(_, info: GraphQLResolveInfo, tournament_id: i
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
 
+@mutation.field("update_tournament_user")
+def resolve_update_tournament_user(_, info: GraphQLResolveInfo, tournament_id: int, user_id: int, state: str):
+    """Update a user in a tournament."""
+    try:
+        with grpc.insecure_channel(GRPC_TARGET) as channel:
+            client = TournamentServiceStub(channel)
+            request = CreateTournamentUserRequest(
+                tournament_room_id=tournament_id,
+                user_id=user_id,
+                state=state,  # Update state explicitly for the user
+            )
+            response = client.UpdateTournamentUser(request)
+            return {
+                "id": response.id,
+                "tournament_room_id": response.tournament_room_id,
+                "user_id": response.user_id,
+                "state": response.state,
+                "play_order": response.play_order,
+                "games_played": response.games_played,
+                "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
+                "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
+            }
+    except grpc.RpcError as e:
+        raise Exception(f"gRPC error: {e.details()}")
 
 @mutation.field("create_game")
 def resolve_create_game(_, info: GraphQLResolveInfo):
