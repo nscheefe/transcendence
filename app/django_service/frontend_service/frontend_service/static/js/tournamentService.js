@@ -190,7 +190,7 @@ export const getTournamentById = async (tournamentId) => {
         updated_at
         users {
             id
-play_order
+          play_order
           user_id
           games_played
           created_at
