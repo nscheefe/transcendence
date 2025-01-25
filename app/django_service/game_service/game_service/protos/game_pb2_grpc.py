@@ -41,6 +41,11 @@ class GameServiceStub(object):
                 request_serializer=game__pb2.GetGameRequest.SerializeToString,
                 response_deserializer=game__pb2.Game.FromString,
                 _registered_method=True)
+        self.GetOnGoingGameByUser = channel.unary_unary(
+                '/transcendence.GameService/GetOnGoingGameByUser',
+                request_serializer=game__pb2.GetOnGoingGameByUserRequest.SerializeToString,
+                response_deserializer=game__pb2.Game.FromString,
+                _registered_method=True)
         self.GetOngoingGames = channel.unary_unary(
                 '/transcendence.GameService/GetOngoingGames',
                 request_serializer=game__pb2.GetOngoingGamesRequest.SerializeToString,
@@ -49,6 +54,11 @@ class GameServiceStub(object):
         self.CreateGame = channel.unary_unary(
                 '/transcendence.GameService/CreateGame',
                 request_serializer=game__pb2.CreateGameRequest.SerializeToString,
+                response_deserializer=game__pb2.Game.FromString,
+                _registered_method=True)
+        self.CreateFriendGame = channel.unary_unary(
+                '/transcendence.GameService/CreateFriendGame',
+                request_serializer=game__pb2.CreateFriendGameRequest.SerializeToString,
                 response_deserializer=game__pb2.Game.FromString,
                 _registered_method=True)
         self.StartGame = channel.unary_unary(
@@ -66,6 +76,11 @@ class GameServiceStub(object):
                 request_serializer=game__pb2.GameReadyRequest.SerializeToString,
                 response_deserializer=game__pb2.Game.FromString,
                 _registered_method=True)
+        self.UpdateGameState = channel.unary_unary(
+                '/transcendence.GameService/UpdateGameState',
+                request_serializer=game__pb2.UpdateGameStateRequest.SerializeToString,
+                response_deserializer=game__pb2.Game.FromString,
+                _registered_method=True)
 
 
 class GameServiceServicer(object):
@@ -74,6 +89,13 @@ class GameServiceServicer(object):
 
     def GetGame(self, request, context):
         """Get a specific game by its ID
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetOnGoingGameByUser(self, request, context):
+        """Get an on going game by user
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -89,6 +111,12 @@ class GameServiceServicer(object):
     def CreateGame(self, request, context):
         """Create a new game
         """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def CreateFriendGame(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
@@ -113,12 +141,23 @@ class GameServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def UpdateGameState(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_GameServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'GetGame': grpc.unary_unary_rpc_method_handler(
                     servicer.GetGame,
                     request_deserializer=game__pb2.GetGameRequest.FromString,
+                    response_serializer=game__pb2.Game.SerializeToString,
+            ),
+            'GetOnGoingGameByUser': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetOnGoingGameByUser,
+                    request_deserializer=game__pb2.GetOnGoingGameByUserRequest.FromString,
                     response_serializer=game__pb2.Game.SerializeToString,
             ),
             'GetOngoingGames': grpc.unary_unary_rpc_method_handler(
@@ -129,6 +168,11 @@ def add_GameServiceServicer_to_server(servicer, server):
             'CreateGame': grpc.unary_unary_rpc_method_handler(
                     servicer.CreateGame,
                     request_deserializer=game__pb2.CreateGameRequest.FromString,
+                    response_serializer=game__pb2.Game.SerializeToString,
+            ),
+            'CreateFriendGame': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateFriendGame,
+                    request_deserializer=game__pb2.CreateFriendGameRequest.FromString,
                     response_serializer=game__pb2.Game.SerializeToString,
             ),
             'StartGame': grpc.unary_unary_rpc_method_handler(
@@ -144,6 +188,11 @@ def add_GameServiceServicer_to_server(servicer, server):
             'GameReady': grpc.unary_stream_rpc_method_handler(
                     servicer.GameReady,
                     request_deserializer=game__pb2.GameReadyRequest.FromString,
+                    response_serializer=game__pb2.Game.SerializeToString,
+            ),
+            'UpdateGameState': grpc.unary_unary_rpc_method_handler(
+                    servicer.UpdateGameState,
+                    request_deserializer=game__pb2.UpdateGameStateRequest.FromString,
                     response_serializer=game__pb2.Game.SerializeToString,
             ),
     }
@@ -174,6 +223,33 @@ class GameService(object):
             target,
             '/transcendence.GameService/GetGame',
             game__pb2.GetGameRequest.SerializeToString,
+            game__pb2.Game.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetOnGoingGameByUser(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/transcendence.GameService/GetOnGoingGameByUser',
+            game__pb2.GetOnGoingGameByUserRequest.SerializeToString,
             game__pb2.Game.FromString,
             options,
             channel_credentials,
@@ -228,6 +304,33 @@ class GameService(object):
             target,
             '/transcendence.GameService/CreateGame',
             game__pb2.CreateGameRequest.SerializeToString,
+            game__pb2.Game.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def CreateFriendGame(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/transcendence.GameService/CreateFriendGame',
+            game__pb2.CreateFriendGameRequest.SerializeToString,
             game__pb2.Game.FromString,
             options,
             channel_credentials,
@@ -309,6 +412,33 @@ class GameService(object):
             target,
             '/transcendence.GameService/GameReady',
             game__pb2.GameReadyRequest.SerializeToString,
+            game__pb2.Game.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def UpdateGameState(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/transcendence.GameService/UpdateGameState',
+            game__pb2.UpdateGameStateRequest.SerializeToString,
             game__pb2.Game.FromString,
             options,
             channel_credentials,

@@ -24,7 +24,7 @@ class FriendshipServiceHandler(friendship_pb2_grpc.FriendshipServiceServicer):
                 friend=friend,
                 defaults={
                     'established_at': datetime.utcnow(),
-                    'accepted': request.accepted
+                    'accepted': True
                 }
             )
 

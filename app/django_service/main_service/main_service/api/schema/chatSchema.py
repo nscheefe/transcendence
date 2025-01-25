@@ -61,5 +61,5 @@ async def chat_room_message_source(_, info, chat_room_id):
 def chat_room_message_resolver(message, info, chat_room_id):
     return message
 
-resolver = [query, mutation, subscription]
 
+resolver = [query, mutation, subscription]

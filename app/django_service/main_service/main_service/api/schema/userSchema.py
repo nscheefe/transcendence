@@ -93,6 +93,36 @@ def resolve_user_profile(obj, *_):
         else:
             raise e
 
+@user.field("notifications")
+def resolve_notifications_for_user(obj, *_):
+    user_id = obj['id']
+    try:
+        channel = grpc.insecure_channel(GRPC_TARGET)
+        client = NotificationServiceStub(channel)
+        request = GetNotificationsByUserIdRequest(user_id=user_id)
+        response = client.GetNotificationsByUserId(request)
+
+        return [
+            {
+                    "id": notification.id,
+                "userId": notification.user_id,
+                "message": notification.message,
+                "read": notification.read,
+                "sentAt": datetime.fromtimestamp(notification.sent_at.seconds) if notification.HasField(
+                    "sent_at") else None,
+            }
+            for notification in response.notifications
+        ]
+    except grpc.RpcError as e:
+        if e.code() == grpc.StatusCode.NOT_FOUND:
+            logger.error(f"No notifications found for user {user_id}")
+            return []
+        else:
+            raise e
+    except Exception as e:
+        logger.error(f"Unexpected error fetching notifications for user {user_id}: {e}")
+        raise e
+
 @query.field("profile")
 def resolve_profile(_, info, userId):
     logger.info(f"Fetching profile for user ID {userId}")
@@ -150,6 +180,46 @@ def resolve_get_all_profiles(_, info, limit, offset):
     except Exception as ex:
         raise Exception(f"Error occurred while fetching profiles: {str(ex)}")
 
+@query.field("friendships")
+def resolve_friendships(_, info):
+    # Extract `user_id` from the request context (set via middleware)
+    user_id = info.context["request"].user_id
+    if not user_id:
+        raise Exception("Authentication required: user_id is missing")  # Ensure the user is authenticated
+
+    logger.info(f"Fetching friendships for user with ID: {user_id}")
+    try:
+        # Set up gRPC connection with the Friendship service
+        channel = grpc.insecure_channel(GRPC_TARGET)
+        client = FriendshipServiceStub(channel)
+
+        # Make a GetFriendshipsByUserIdRequest via gRPC
+        request = GetFriendshipsByUserIdRequest(user_id=user_id)
+        response = client.GetFriendshipsByUserId(request)
+
+        # Map the gRPC response to the expected GraphQL response format
+        friendships = [
+            {
+                "id": friendship.id,
+                "userId": friendship.user_id,
+                "friendId": friendship.friend_id,
+                "establishedAt": datetime.fromtimestamp(friendship.established_at.seconds) if friendship.HasField(
+                "established_at") else None,
+                "accepted": friendship.accepted,
+            }
+            for friendship in response.friendships
+        ]
+
+        return friendships  # Return the friendships list
+
+    except grpc.RpcError as e:
+        logger.error(f"Error fetching friendships for user {user_id}: {e.details()} (Code: {e.code()})")
+        return []  # Return an empty list in case of error
+    except Exception as e:
+        logger.error(f"Unexpected error fetching friendships for user {user_id}: {str(e)}")
+        return []  # Return an empty list for unexpected errors
+
+
 @mutation.field("createUser")
 def resolve_create_user(_, info, input):
     service_endpoint = GRPC_TARGET
@@ -182,22 +252,26 @@ def resolve_create_user(_, info, input):
         raise Exception(f"Error occurred while creating user: {str(ex)}")
 
 @mutation.field("manageProfile")
-def resolve_manage_profile(_, info, profileData):
+def resolve_manage_profile(_, info, bio=None, nickname=None, avatarUrl=None, additionalInfo=None):
     user_id = info.context["request"].user_id
     if not user_id:
         raise Exception("Authentication required: user_id is missing")
-    logger.info("Manage profile data: " + str(profileData))
+    logger.info(f"Manage profile data: bio={bio}, nickname={nickname}, avatarUrl={avatarUrl}, additionalInfo={additionalInfo}")
     try:
         channel = grpc.insecure_channel(GRPC_TARGET)
         profile_stub = ProfileServiceStub(channel)
 
-        update_request = UpdateProfileRequest(
-            user_id=user_id,
-            avatar_url=profileData.get("avatarUrl"),
-            nickname=profileData.get("nickname"),
-            bio=profileData.get("bio"),
-            additional_info=profileData.get("additionalInfo")
-        )
+        update_request = UpdateProfileRequest(user_id=user_id)
+
+        if bio is not None:
+            update_request.bio = bio
+        if nickname is not None:
+            update_request.nickname = nickname
+        if avatarUrl is not None:
+            update_request.avatar_url = avatarUrl
+        if additionalInfo is not None:
+            update_request.additional_info = additionalInfo
+
         profile_stub.UpdateProfile(update_request)
 
         return {"success": True, "message": "Profile updated successfully."}
@@ -222,15 +296,17 @@ def resolve_manage_friendship(_, info, friendshipData):
             create_request = CreateFriendshipRequest(
                 user_id=user_id,
                 friend_id=friendshipData["create"]["friendId"],
-                established_at=friendshipData["create"]["establishedAt"],
-                accepted=friendshipData["create"]["accepted"],
             )
             response = friendship_stub.CreateFriendship(create_request)
             if not response.id:
                 raise Exception("Failed to create friendship.")
+            profile = resolve_profile(_, info, user_id)
+            nickname= profile["nickname"]
+            logger.info(f"add notification created by {nickname}")
+
             notification_request = CreateNotificationRequest(
                 user_id=friendshipData["create"]["friendId"],
-                message=f"User {user_id} sent you a friend request.",
+                message=f"User {nickname} sent you a friend request.",
                 read=False,
                 sent_at=datetime.utcnow()
             )

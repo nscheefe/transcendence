@@ -34,9 +34,14 @@ SECRET_KEY = 'django-insecure-153te+lh2hos)^atn+snip(dbk+i1u0$y%!%g@)y@1n5c4ede^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '109.193.98.181', '192.168.1.20']
 
 SECURE_COOKIE = os.getenv('SECURE_COOKIE', 'True').lower() in ['true', '1', 't']
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://109.193.98.181:9001',
+    # Add other trusted origins if needed
+]
 
 # Application definition
 

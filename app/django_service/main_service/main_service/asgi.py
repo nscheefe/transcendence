@@ -19,6 +19,7 @@ application = ProtocolTypeRouter({
     "websocket": AuthMiddlewareStack(
         URLRouter([
             path("graphql/", GraphQL(Schema.schema)),
+            path("graphql", GraphQL(Schema.schema)),
         ])
     ),
 })

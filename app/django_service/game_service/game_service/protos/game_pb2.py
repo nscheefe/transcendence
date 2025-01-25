@@ -26,7 +26,7 @@ from google.protobuf import timestamp_pb2 as google_dot_protobuf_dot_timestamp__
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\ngame.proto\x12\rtranscendence\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xef\x01\n\x04Game\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05state\x18\x02 \x01(\t\x12\x17\n\x0fpoints_player_a\x18\x03 \x01(\x05\x12\x17\n\x0fpoints_player_b\x18\x04 \x01(\x05\x12\x13\n\x0bplayer_a_id\x18\x05 \x01(\x05\x12\x13\n\x0bplayer_b_id\x18\x06 \x01(\x05\x12\x10\n\x08\x66inished\x18\x07 \x01(\x08\x12.\n\ncreated_at\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nupdated_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"#\n\x10GameReadyRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\"!\n\x0eGetGameRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\"\x18\n\x16GetOngoingGamesRequest\"=\n\x17GetOngoingGamesResponse\x12\"\n\x05games\x18\x01 \x03(\x0b\x32\x13.transcendence.Game\"&\n\x11\x43reateGameRequest\x12\x11\n\tplayer_id\x18\x01 \x01(\x05\"#\n\x10StartGameRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\";\n\x11StartGameResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x15\n\rwebsocket_url\x18\x02 \x01(\t\"r\n\x13GameFinishedRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\x12\x17\n\x0fpoints_player_a\x18\x02 \x01(\x05\x12\x17\n\x0fpoints_player_b\x18\x03 \x01(\x05\x12\x18\n\x10winner_player_id\x18\x04 \x01(\x05\x32\xda\x03\n\x0bGameService\x12=\n\x07GetGame\x12\x1d.transcendence.GetGameRequest\x1a\x13.transcendence.Game\x12`\n\x0fGetOngoingGames\x12%.transcendence.GetOngoingGamesRequest\x1a&.transcendence.GetOngoingGamesResponse\x12\x43\n\nCreateGame\x12 .transcendence.CreateGameRequest\x1a\x13.transcendence.Game\x12N\n\tStartGame\x12\x1f.transcendence.StartGameRequest\x1a .transcendence.StartGameResponse\x12P\n\x12HandleGameFinished\x12\".transcendence.GameFinishedRequest\x1a\x16.google.protobuf.Empty\x12\x43\n\tGameReady\x12\x1f.transcendence.GameReadyRequest\x1a\x13.transcendence.Game0\x01\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\ngame.proto\x12\rtranscendence\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1bgoogle/protobuf/empty.proto\"\xef\x01\n\x04Game\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05state\x18\x02 \x01(\t\x12\x17\n\x0fpoints_player_a\x18\x03 \x01(\x05\x12\x17\n\x0fpoints_player_b\x18\x04 \x01(\x05\x12\x13\n\x0bplayer_a_id\x18\x05 \x01(\x05\x12\x13\n\x0bplayer_b_id\x18\x06 \x01(\x05\x12\x10\n\x08\x66inished\x18\x07 \x01(\x08\x12.\n\ncreated_at\x18\x08 \x01(\x0b\x32\x1a.google.protobuf.Timestamp\x12.\n\nupdated_at\x18\t \x01(\x0b\x32\x1a.google.protobuf.Timestamp\"#\n\x10GameReadyRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\"!\n\x0eGetGameRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\".\n\x1bGetOnGoingGameByUserRequest\x12\x0f\n\x07user_id\x18\x01 \x01(\x05\"\x18\n\x16GetOngoingGamesRequest\"=\n\x17GetOngoingGamesResponse\x12\"\n\x05games\x18\x01 \x03(\x0b\x32\x13.transcendence.Game\"&\n\x11\x43reateGameRequest\x12\x11\n\tplayer_id\x18\x01 \x01(\x05\"=\n\x17\x43reateFriendGameRequest\x12\x10\n\x08player_b\x18\x01 \x01(\x05\x12\x10\n\x08player_a\x18\x02 \x01(\x05\"3\n\x16UpdateGameStateRequest\x12\n\n\x02id\x18\x01 \x01(\x05\x12\r\n\x05state\x18\x02 \x01(\t\"#\n\x10StartGameRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\";\n\x11StartGameResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x15\n\rwebsocket_url\x18\x02 \x01(\t\"r\n\x13GameFinishedRequest\x12\x0f\n\x07game_id\x18\x01 \x01(\x05\x12\x17\n\x0fpoints_player_a\x18\x02 \x01(\x05\x12\x17\n\x0fpoints_player_b\x18\x03 \x01(\x05\x12\x18\n\x10winner_player_id\x18\x04 \x01(\x05\x32\xd3\x05\n\x0bGameService\x12=\n\x07GetGame\x12\x1d.transcendence.GetGameRequest\x1a\x13.transcendence.Game\x12W\n\x14GetOnGoingGameByUser\x12*.transcendence.GetOnGoingGameByUserRequest\x1a\x13.transcendence.Game\x12`\n\x0fGetOngoingGames\x12%.transcendence.GetOngoingGamesRequest\x1a&.transcendence.GetOngoingGamesResponse\x12\x43\n\nCreateGame\x12 .transcendence.CreateGameRequest\x1a\x13.transcendence.Game\x12O\n\x10\x43reateFriendGame\x12&.transcendence.CreateFriendGameRequest\x1a\x13.transcendence.Game\x12N\n\tStartGame\x12\x1f.transcendence.StartGameRequest\x1a .transcendence.StartGameResponse\x12P\n\x12HandleGameFinished\x12\".transcendence.GameFinishedRequest\x1a\x16.google.protobuf.Empty\x12\x43\n\tGameReady\x12\x1f.transcendence.GameReadyRequest\x1a\x13.transcendence.Game0\x01\x12M\n\x0fUpdateGameState\x12%.transcendence.UpdateGameStateRequest\x1a\x13.transcendence.Gameb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -39,18 +39,24 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_GAMEREADYREQUEST']._serialized_end=368
   _globals['_GETGAMEREQUEST']._serialized_start=370
   _globals['_GETGAMEREQUEST']._serialized_end=403
-  _globals['_GETONGOINGGAMESREQUEST']._serialized_start=405
-  _globals['_GETONGOINGGAMESREQUEST']._serialized_end=429
-  _globals['_GETONGOINGGAMESRESPONSE']._serialized_start=431
-  _globals['_GETONGOINGGAMESRESPONSE']._serialized_end=492
-  _globals['_CREATEGAMEREQUEST']._serialized_start=494
-  _globals['_CREATEGAMEREQUEST']._serialized_end=532
-  _globals['_STARTGAMEREQUEST']._serialized_start=534
-  _globals['_STARTGAMEREQUEST']._serialized_end=569
-  _globals['_STARTGAMERESPONSE']._serialized_start=571
-  _globals['_STARTGAMERESPONSE']._serialized_end=630
-  _globals['_GAMEFINISHEDREQUEST']._serialized_start=632
-  _globals['_GAMEFINISHEDREQUEST']._serialized_end=746
-  _globals['_GAMESERVICE']._serialized_start=749
-  _globals['_GAMESERVICE']._serialized_end=1223
+  _globals['_GETONGOINGGAMEBYUSERREQUEST']._serialized_start=405
+  _globals['_GETONGOINGGAMEBYUSERREQUEST']._serialized_end=451
+  _globals['_GETONGOINGGAMESREQUEST']._serialized_start=453
+  _globals['_GETONGOINGGAMESREQUEST']._serialized_end=477
+  _globals['_GETONGOINGGAMESRESPONSE']._serialized_start=479
+  _globals['_GETONGOINGGAMESRESPONSE']._serialized_end=540
+  _globals['_CREATEGAMEREQUEST']._serialized_start=542
+  _globals['_CREATEGAMEREQUEST']._serialized_end=580
+  _globals['_CREATEFRIENDGAMEREQUEST']._serialized_start=582
+  _globals['_CREATEFRIENDGAMEREQUEST']._serialized_end=643
+  _globals['_UPDATEGAMESTATEREQUEST']._serialized_start=645
+  _globals['_UPDATEGAMESTATEREQUEST']._serialized_end=696
+  _globals['_STARTGAMEREQUEST']._serialized_start=698
+  _globals['_STARTGAMEREQUEST']._serialized_end=733
+  _globals['_STARTGAMERESPONSE']._serialized_start=735
+  _globals['_STARTGAMERESPONSE']._serialized_end=794
+  _globals['_GAMEFINISHEDREQUEST']._serialized_start=796
+  _globals['_GAMEFINISHEDREQUEST']._serialized_end=910
+  _globals['_GAMESERVICE']._serialized_start=913
+  _globals['_GAMESERVICE']._serialized_end=1636
 # @@protoc_insertion_point(module_scope)

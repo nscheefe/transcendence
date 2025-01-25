@@ -7,8 +7,8 @@ import "google/protobuf/empty.proto";
 service ChatRoomController {
     rpc Create(ChatRoomRequest) returns (ChatRoomResponse) {}
     rpc Destroy(ChatRoomDestroyRequest) returns (google.protobuf.Empty) {}
+    rpc GetChatRoomByUserId(ChatRoomGetChatRoomByUserIdRequest) returns (stream ChatRoomResponse) {}
     rpc List(ChatRoomListRequest) returns (ChatRoomListResponse) {}
-    rpc ListChatRooms(google.protobuf.Empty) returns (ChatRoomResponse) {}
     rpc PartialUpdate(ChatRoomPartialUpdateRequest) returns (ChatRoomResponse) {}
     rpc Retrieve(ChatRoomRetrieveRequest) returns (ChatRoomResponse) {}
     rpc Update(ChatRoomRequest) returns (ChatRoomResponse) {}
@@ -27,7 +27,6 @@ service ChatRoomMessageController {
 service ChatRoomUserController {
     rpc Create(ChatRoomUserRequest) returns (ChatRoomUserResponse) {}
     rpc Destroy(ChatRoomUserDestroyRequest) returns (google.protobuf.Empty) {}
-    rpc GetChatRoomByUserId(ChatRoomUserGetChatRoomByUserIdRequest) returns (stream ChatRoomResponse) {}
     rpc List(ChatRoomUserListRequest) returns (ChatRoomUserListResponse) {}
     rpc PartialUpdate(ChatRoomUserPartialUpdateRequest) returns (ChatRoomUserResponse) {}
     rpc Retrieve(ChatRoomUserRetrieveRequest) returns (ChatRoomUserResponse) {}
@@ -36,6 +35,10 @@ service ChatRoomUserController {
 
 message ChatRoomDestroyRequest {
     int32 id = 1;
+}
+
+message ChatRoomGetChatRoomByUserIdRequest {
+    int32 user_id = 1;
 }
 
 message ChatRoomListRequest {
@@ -109,6 +112,7 @@ message ChatRoomResponse {
     string name = 2;
     optional string created_at = 3;
     optional int32 game_id = 4;
+    repeated ChatRoomUserResponse participants = 5;
 }
 
 message ChatRoomRetrieveRequest {
@@ -117,10 +121,6 @@ message ChatRoomRetrieveRequest {
 
 message ChatRoomUserDestroyRequest {
     int32 id = 1;
-}
-
-message ChatRoomUserGetChatRoomByUserIdRequest {
-    int32 user_id = 1;
 }
 
 message ChatRoomUserListRequest {

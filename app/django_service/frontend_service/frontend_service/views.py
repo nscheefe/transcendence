@@ -173,18 +173,8 @@ def tournament(request):
         'user': user_data,
 
     }
-    return render(request, 'frontend/tournaments.html', context)
-
-@jwt_required
-def tournamentDetails(request, tournament_id):
-    user_data = getUserProfileData(request)
-    context = {
-        'tournament': tournament_id,
-        'show_nav': True,
-        'user': user_data,
-
-    }
     return render(request, 'frontend/tournament.html', context)
+
 
 @jwt_required
 def community(request):
