@@ -39,45 +39,45 @@
   </head>
   <body class="body">
     {% if show_nav %}
-     {% include "frontend/chatWidget.html" %}
-      <div class="navigation w-nav">
-        <div class="nav-container">
-          <a href="https://profile.intra.42.fr/" class="brand-2 w-nav-brand">{% include 'frontend/svg-42-hn.html' %}</a>
-          <nav role="navigation" class="w-nav-menu">
-            <span class="nav-item-group">
-              <a href="{% url 'stats' %}" class="nav-link w-nav-link">Stats</a>
-              <a href="{% url 'home' %}" class="nav-link w-nav-link">Home</a>
-              <a href="{% url 'community' %}" class="nav-link w-nav-link">Community</a>
-            </span>
-          </nav>
+    <div class="navigation w-nav">
+      <div class="nav-container">
+        <a href="https://profile.intra.42.fr/" class="brand-2 w-nav-brand">{% include 'frontend/svg-42-hn.html' %}</a>
+        <nav role="navigation" class="w-nav-menu">
           <span class="nav-item-group">
-            <div class="dropdown" style="padding-top: 0%; heigth: 50px">
-              <!-- Bell Icon -->
-              <button class="btn btn-secondary bg-transparent border-0" id="notificationDropdown" aria-expanded="false"><img src="/static/images/bell.png" alt="Bell Icon" height="auto" width="60" /></button>
-              <ul class="dropdown-menu" id="dropdownMenu" style="display: none;">
-                <li class="dropdown-item">No notifications</li>
-              </ul>
-            </div>
+            <a href="{% url 'stats' %}" class="nav-link w-nav-link">Stats</a>
+            <a href="{% url 'home' %}" class="nav-link w-nav-link">Home</a>
+            <a href="{% url 'community' %}" class="nav-link w-nav-link">Community</a>
           </span>
-          <span class="nav-item-group">
-            <a class="profile-link-wrapper" href="{% url 'profile' %}" aria-expanded="false">
-              <div class="profile-link-wrapper">
-                <span class="intra-name-42" data-login="{{ user.profile.nickname }}">{{ user.profile.nickname }}</span>
-                <img class="user-profile-picture visible-sidebars" src="{{ user.profile.avatarUrl }}" alt="User Profile Picture" height="40" width="40" />
-              </div>
-            </a>
-          </span>
-          <div class="w-nav-button">
-            <div class="w-icon-nav-menu"></div>
+        </nav>
+        <span class="nav-item-group">
+          <div class="dropdown" style="padding-top: 0%; heigth: 50px">
+            <!-- Bell Icon -->
+            <button class="btn btn-secondary bg-transparent border-0" id="notificationDropdown" aria-expanded="false"><img src="/static/images/bell.png" alt="Bell Icon" height="auto" width="60" /></button>
+            <ul class="dropdown-menu" id="dropdownMenu" style="display: none;">
+              <li class="dropdown-item">No notifications</li>
+            </ul>
           </div>
+        </span>
+        <span class="nav-item-group">
+          <a class="profile-link-wrapper" href="{% url 'profile' %}" aria-expanded="false">
+            <div class="profile-link-wrapper">
+              <span class="intra-name-42" data-login="{{ user.profile.nickname }}">{{ user.profile.nickname }}</span>
+              <img class="user-profile-picture visible-sidebars" src="{{ user.profile.avatarUrl }}" alt="User Profile Picture" height="40" width="40" />
+            </div>
+          </a>
+        </span>
+        <div class="w-nav-button">
+          <div class="w-icon-nav-menu"></div>
         </div>
       </div>
+    </div>
     {% endif %}
     {% block content %}
 
     {% endblock %}
     {% block extra_js %}
     {% endblock %}
+    {% include "frontend/chatWidget.html" %}
     <div id="toast" class="toast"></div>
   </body>
 </html>

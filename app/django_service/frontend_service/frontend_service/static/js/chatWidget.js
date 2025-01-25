@@ -69,7 +69,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = userCache[sender_id];
             const avatar = user.avatarUrl || DEFAULT_AVATAR;
             const nickname = user.nickname || `User ${sender_id}`;
-
+            const own_nickname = document.querySelector('.intra-name-42').innerText;
+            const isOwnMessage = nickname == own_nickname;
             if (lastMessageDate !== messageDate) {
                 const dateElement = createElement('li', messageDate, 'text-center my-3', {
                     color: '#ffffff'
@@ -77,24 +78,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 chatRoomMessagesContainer.appendChild(dateElement);
                 lastMessageDate = messageDate;
             }
-
             const messageElement = createElement(
                 'li',
                 `
-                    <img src="${avatar}" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60" style="flex-shrink: 0;">
-                    <div class="card flex-grow-1">
-                        <div class="card-header d-flex justify-content-between py-1 px-2">
+                <div class="d-flex ${isOwnMessage ? 'flex-row-reverse align-self-end' : 'flex-row align-self-start'}">
+                <div class="d-flex flex-column align-items-center">
+                    <img src="${avatar}" alt="avatar" class="rounded-circle d-flex ${isOwnMessage ? 'ms-3' : 'me-3'} shadow-1-strong" width="60" style="flex-shrink: 0;">
+                    <p class="text-light small mb-0">
+                        <i class="far fa-clock ms-1"></i> ${formattedTime}
+                    </p>
+                </div>
+                    <div class="card flex-grow-1 ${isOwnMessage ? 'text-end' : 'text-start'}">
+                        <div class="card-header d-flex ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'} py-1">
                             <p class="text-muted mb-0" style="font-size: 0.875rem;">${nickname}</p>
-                            <p class="text-muted small mb-0">
-                                <i class="far fa-clock"></i> ${formattedTime}
-                            </p>
                         </div>
                         <div class="card-body" style="background-color: #202020; color: #ffffff;">
                             <p class="mb-0">${content}</p>
                         </div>
                     </div>
+                </div>
                 `,
-                'chat-message d-flex align-items-start mb-3', {
+                'chat-message d-flex flex-row ${isOwnMessage ? justify-content-end : justify-content-start} mb-3', {
                 maxWidth: '100%'
             }
             );
@@ -163,17 +167,25 @@ document.addEventListener('DOMContentLoaded', () => {
                                 room.name = `Chat of ${user1.nickname} and ${user2.nickname}`;
                             }
                         }
+                        // Generate the list of avatars
+                        const avatars = room.users.map(user => {
+                            const userDetails = userCache[user.user_id];
+                            return `<img src="${userDetails.avatarUrl || DEFAULT_AVATAR}" alt="avatar" width="30" height="30" class="rounded-circle object-fit-cover">`;
+                        }).join('');
+
                         // Create and add the chat room element to the list
                         const newRoomElement = createElement(
                             'li',
                             `
                                 <a href="#!" class="d-flex justify-content-between">
-                                    <div class="d-flex flex-row">
-                                        <img src="${DEFAULT_AVATAR}" alt="avatar" width="60" class="rounded-circle me-3">
-                                        <div>
-                                            <p class="fw-bold">${room.name}</p>
-                                        </div>
+                                <div class="d-flex flex-column">
+                                    <div>
+                                        <p class="fw-bold">${room.name}</p>
                                     </div>
+                                    <div class="d-flex flex-row pt-1">
+                                        ${avatars}
+                                    </div>
+                                </div>
                                 </a>
                             `,
                             'chat-room p-2 border-bottom',
