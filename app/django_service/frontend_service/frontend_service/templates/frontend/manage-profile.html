@@ -60,15 +60,6 @@ function previewFile() {
   }
 }
 
-function showToast(message) {
-  const toast = document.getElementById('toast');
-  toast.textContent = message;
-  toast.className = 'toast show';
-  setTimeout(() => {
-    toast.className = toast.className.replace('show', '');
-  }, 3000);
-}
-
 document.getElementById('profile-form').addEventListener('submit', async function(event) {
   event.preventDefault();
 

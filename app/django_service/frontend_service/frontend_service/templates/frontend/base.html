@@ -23,7 +23,16 @@
     <script type="module" src="{% static 'js/main.js' %}"></script>
     <script type="module" src="{% static 'js/bootstrap.min.js' %}"></script>
     <script type="module" src="{% static 'js/notification.js' %}"></script>
-
+    <script>
+      function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show';
+      setTimeout(() => {
+        toast.className = toast.className.replace('show', '');
+      }, 3000);
+    }
+    </script>
     {% block extra_head %}
 
     {% endblock %}
@@ -68,7 +77,6 @@
 
     {% endblock %}
     {% block extra_js %}
-
     {% endblock %}
     <div id="toast" class="toast"></div>
   </body>
