@@ -83,7 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 `
                 <div class="d-flex ${isOwnMessage ? 'flex-row-reverse align-self-end' : 'flex-row align-self-start'}">
                 <div class="d-flex flex-column align-items-center justify-content-center">
-                    <img src="${avatar}" alt="avatar" class="rounded-circle d-flex ${isOwnMessage ? 'ms-3' : 'me-3'} shadow-1-strong object-fit-cover" width="60" height="60" style="flex-shrink: 0;">
+                    <a href="/home/profile/${sender_id}">
+                        <img src="${avatar}" alt="avatar" class="rounded-circle d-flex ${isOwnMessage ? 'ms-3' : 'me-3'} shadow-1-strong object-fit-cover" width="60" height="60" style="flex-shrink: 0;">
+                    </a>
                     <p class="text-light small text-center mb-0">
                         <i class="far fa-clock mt-1"> ${formattedTime} </i>
                     </p>
