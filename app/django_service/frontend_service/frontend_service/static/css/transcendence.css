@@ -18,6 +18,11 @@
   --toast-animation-end: var(--toast-bottom-position);
 }
 
+#notificationIndicator {
+  width: 10px;
+  height: 10px;
+}
+
 .w-checkbox {
   margin-bottom: 5px;
   padding-left: 20px;

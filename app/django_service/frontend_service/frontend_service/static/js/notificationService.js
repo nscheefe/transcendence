@@ -1,4 +1,4 @@
-import { executeQuery, executeMutation,  } from './utils.js';
+import { executeQuery, executeMutation, executeSubscription,  } from './utils.js';
 
 // Query for getting notifications
 export const getNotifications = async (userId) => {
@@ -18,6 +18,27 @@ export const getNotifications = async (userId) => {
 
   const variables = { userId };
   return executeQuery(query, variables);
+};
+
+
+export const subscribeToNotifications = (onNotificationUpdate, onError) => {
+  const subscriptionQuery = {
+    query: `
+      subscription NotificationsForUser {
+        notificationsForUser {
+          id
+          userId
+          message
+          read
+          sentAt
+        }
+      }
+    `,
+    variables: {},
+    extensions: {},
+    operationName: "NotificationsForUser",
+  };
+  executeSubscription(subscriptionQuery, onNotificationUpdate, onError);
 };
 
 // Mutation for creating a notification
