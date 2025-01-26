@@ -41,6 +41,35 @@ export const subscribeToNotifications = (onNotificationUpdate, onError) => {
   executeSubscription(subscriptionQuery, onNotificationUpdate, onError);
 };
 
+export const subscribeToOnlineStatus = (userId, onStatusUpdate) => {
+    const subscriptionQuery = {
+        query: `
+            subscription OnlineStatus($userId: Int!) {
+                onlineStatus(user_id: $userId) {
+                    userId
+                    status
+                }
+            }
+        `,
+        variables: { userId },
+        extensions: {},
+        operationName: "OnlineStatus",
+    };
+    executeSubscription(subscriptionQuery, (response) => {
+        if (response.data && response.data.onlineStatus) {
+            const status = response.data.onlineStatus.status;
+            onStatusUpdate(userId, status);
+        } else {
+            console.error('Invalid response data:', response);
+            if (response.errors) {
+                response.errors.forEach(error => console.error('Error message:', error.message));
+            }
+        }
+    }, (err) => {
+        console.error('Subscription error:', err);
+    });
+};
+
 // Mutation for creating a notification
 export const createNotification = async (notificationData) => {
   const mutation = `
