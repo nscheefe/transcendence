@@ -103,14 +103,17 @@ type_defs = """
             StatList: [StatsWithProfile!]!
 
     }
+    type onlineStatus {
+        userId: Int!
+        status: Boolean!
+    }
 
     type Subscription {
         ping_test: Ping!
         chatRoomsForUser: ChatRoom!
         chat_room_message(chat_room_id: Int!): ChatRoomMessage!
         notificationsForUser: Notification!
-        onlineUsers: [User]
-        onlineStatus(userId: Int!): Boolean!
+        onlineStatus(user_id: Int!): onlineStatus
     }
 
     type Role {

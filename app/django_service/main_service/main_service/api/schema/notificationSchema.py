@@ -1,6 +1,6 @@
 import asyncio
 from asyncio.log import logger
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 
 import grpc
@@ -66,5 +66,23 @@ async def notifications_for_user_source(_, info):
 @subscription.field("notificationsForUser")
 async def resolve_notifications_for_user(notification, info):
     return notification
+
+
+@subscription.source("onlineStatus")
+async def online_status_source(_, info, user_id):
+    async with grpc.aio.insecure_channel(GRPC_TARGET) as channel:
+        user_stub = user_pb2_grpc.UserServiceStub(channel)
+        grpc_request = user_pb2.GetUserRequest(id=user_id)
+        while True:
+            response = await user_stub.GetUser(grpc_request)
+            last_login = response.last_login.ToDatetime() if response.HasField("last_login") else None
+            is_online = last_login and (datetime.utcnow() - last_login) < timedelta(minutes=1)
+            yield {"userId": user_id, "status": is_online}
+            await asyncio.sleep(11)  # Check every 10 seconds
+
+@subscription.field("onlineStatus")
+async def resolve_online_status(status, info, user_id):
+    return status
+
 
 resolver = [query, mutation, subscription]
