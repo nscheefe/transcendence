@@ -1,6 +1,6 @@
 import { fetchFriendships, fetchFriendsWithProfiles, addFriend, deleteFriendship, blockUser } from './friendservice.js';
 import { fetchUserProfileAndStats, fetchProfiles, fetchProfileByUserId } from './profileservice.js';
-import { showError,  } from './utils.js';
+import { showError, generateUserAvatarHTML, fillUserCache, initializeOnlineStatusSubscriptions, userCache } from './utils.js'; // Import the new function
 import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
 import { createFriendGame } from "./gameService.js"
 import { startChatWithUser } from "./chatservice.js"
@@ -19,51 +19,54 @@ const refetchFriends = async () => {
     cachedFriendships = friendships;
 };
 
+//const avatarHtml = generateUserAvatarHTML(profile.user_id, 50);
+
 /**
  * Generates individual friend's HTML using the friendship and profile data.
  * @param {Object} friendship - Friendship object.
  * @param {Object} profile - Profile object for the friend.
  * @returns {HTMLElement} - Generated friend list item as DOM element.
- */
+*/
 const generateFriendHTML = (friendship, profile) => {
-    const avatarUrl = profile.avatarUrl || DEFAULT_AVATAR;
     const establishedDate = formatDate(friendship.establishedAt);
+    const avatarUrl = profile.avatarUrl || DEFAULT_AVATAR;
 
-return createElement(
-    'li', // tagName
-    `
-    <div class="avatar me-3">
-        <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-            <img src="${avatarUrl}"
-                alt="${profile.nickname || 'Friend Avatar'}"
-                class="rounded-circle"
-                style="width: 50px; height: 50px; object-fit: cover;" />
-        </a>
-    </div>
-    <div>
-        <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-            <h6>${profile.nickname || 'Unknown Friend'}</h6>
-        </a>
-        <p class="small mb-0" style="color:white">${profile.bio || 'No bio available.'}</p>
-        <p class="small" style="color:white">Friends since: ${establishedDate}</p>
-    </div>
-    <div class="ms-auto d-flex gap-2">
+    if (!userCache[profile.userId]) {
+        userCache[profile.userId] = { profile };
+    }
 
-        <button class="btn btn-primary btn-sm start-chat-room" data-friendship-id="${friendship.id}" data-user-id="${profile.userId}">
-            Start Chat
-        </button>
-        <button class="btn btn-success btn-sm start-game" data-friendship-id="${profile.userId}">
-            Play a Game
-        </button>
-        <button class="btn btn-danger btn-sm delete-friend" data-friendship-id="${friendship.id}">
-            Delete
-        </button>
-    </div>
-    `,
-    'list-group-item bg-dark text-light d-flex align-items-center p-3 rounded-3 mb-2', // className
-    {},
-    { id: `friendship-${friendship.id}` }
-);
+    return createElement(
+        'li', // tagName
+        `
+        <div class="avatar me-3">
+            <a href="/home/profile/${profile.userId}" class="text-decoration-none">
+                ${generateUserAvatarHTML(profile.userId, 50)}
+            </a>
+        </div>
+        <div>
+            <a href="/home/profile/${profile.userId}" class="text-decoration-none">
+                <h6>${profile.nickname || 'Unknown Friend'}</h6>
+            </a>
+            <p class="small mb-0" style="color:white">${profile.bio || 'No bio avaixlable.'}</p>
+            <p class="small" style="color:white">Friends since: ${establishedDate}</p>
+        </div>
+        <div class="ms-auto d-flex gap-2">
+
+            <button class="btn btn-primary btn-sm start-chat-room" data-friendship-id="${friendship.id}" data-user-id="${profile.userId}">
+                Start Chat
+            </button>
+            <button class="btn btn-success btn-sm start-game" data-friendship-id="${profile.userId}">
+                Play a Game
+            </button>
+            <button class="btn btn-danger btn-sm delete-friend" data-friendship-id="${friendship.id}">
+                Delete
+            </button>
+        </div>
+        `,
+        'list-group-item bg-dark text-light d-flex align-items-center p-3 rounded-3 mb-2', // className
+        {},
+        { id: `friendship-${friendship.id}` }
+    );
 };
 
 /**
@@ -362,57 +365,55 @@ const renderProfiles = (profiles, profilesContainer) => {
     let flattenedFriendships = Array.isArray(cachedFriendships) ? cachedFriendships.flat() : [];
 
     profiles.forEach((profile) => {
+        userCache[profile.userId] = { profile }; // Cache the profile for later use
         // Check if the profile userId exists in cachedFriendships
-    const isFriendAlready = flattenedFriendships.some(
-            (friendship) => friendship.friendId == profile.userId && friendship.accepted
-    );
+        const isFriendAlready = flattenedFriendships.some(
+                (friendship) => friendship.friendId == profile.userId && friendship.accepted
+        );
 
-    const isBlocked = flattenedFriendships.some(
-        (friendship) => friendship.friendId == profile.userId && friendship.blocked
-    );
+        const isBlocked = flattenedFriendships.some(
+            (friendship) => friendship.friendId == profile.userId && friendship.blocked
+        );
 
-    const friendship = flattenedFriendships.find(
-        (friendship) => friendship.friendId == profile.userId
-    );
+        const friendship = flattenedFriendships.find(
+            (friendship) => friendship.friendId == profile.userId
+        );
 
-    const friendshipId = friendship ? friendship.id : 0;
+        const friendshipId = friendship ? friendship.id : 0;
+        const avatarHtml = generateUserAvatarHTML(profile.userId, 50);
 
         const profileHTML = `
-            <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center p-3 rounded-3 mb-2">
-                <div class="d-flex align-items-center">
-                    <div class="avatar me-3">
-                        <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-                            <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}"
-                                 alt="Profile Avatar"
-                                 class="rounded-circle"
-                                 style="width: 50px; height: 50px; object-fit: cover;">
-                        </a>
-                    </div>
-                    <div>
-                        <a href="/home/profile/${profile.userId}" class="text-decoration-none">
-                            <h6>${profile.nickname || 'Unknown User'}</h6>
-                        </a>
-                        <p class="small mb-0" style="color:white;">${profile.bio || 'No bio available.'}</p>
-                    </div>
+        <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center p-3 rounded-3 mb-2">
+            <div class="d-flex align-items-center">
+                <div class="avatar me-3">
+                    ${avatarHtml}
+                    </a>
                 </div>
                 <div>
-                    <button
-                        class="btn ${isFriendAlready ? 'btn-secondary' : 'btn-success'} btn-sm"
-                        data-friend-id="${profile.userId}"
-                        ${isFriendAlready ? 'disabled' : ''}>
-                        ${isFriendAlready ? 'Friend Added' : 'Add Friend'}
-                    </button>
-                    <button id="block-user"
-                        class="btn ${isBlocked ? 'btn-outline-danger' : 'btn-danger'} btn-sm"
-                        data-user-id="${profile.userId}"
-                        data-blocked="${isBlocked}"
-                        data-friendship-id="${friendshipId}">
-                            ${isBlocked ? 'Unblock' : 'Block'}
-                    </button>
+                    <a href="/home/profile/${profile.userId}" class="text-decoration-none">
+                        <h6>${profile.nickname || 'Unknown User'}</h6>
+                    </a>
+                    <p class="small mb-0" style="color:white;">${profile.bio || 'No bio available.'}</p>
                 </div>
-            </li>
-        `;
-        profilesContainer.innerHTML += profileHTML;
+            </div>
+            <div>
+                <button
+                    class="btn ${isFriendAlready ? 'btn-secondary' : 'btn-success'} btn-sm"
+                    data-friend-id="${profile.userId}"
+                    ${isFriendAlready ? 'disabled' : ''}>
+                    ${isFriendAlready ? 'Friend Added' : 'Add Friend'}
+                </button>
+                <button id="block-user"
+                    class="btn ${isBlocked ? 'btn-outline-danger' : 'btn-danger'} btn-sm"
+                    data-user-id="${profile.userId}"
+                    data-blocked="${isBlocked}"
+                    data-friendship-id="${friendshipId}">
+                        ${isBlocked ? 'Unblock' : 'Block'}
+                </button>
+            </div>
+        </li>
+            `;
+            profilesContainer.innerHTML += profileHTML;
     });
 
     // Attach event listeners to "Add Friend" buttons
@@ -521,7 +522,6 @@ const fetchAndRenderProfiles = async (
         const data = await fetchProfiles(limit, offset);
         if (data && data.getAllProfiles) {
             const profiles = data.getAllProfiles.profiles;
-
             renderProfiles(profiles, profilesContainer);
             prevPageBtn.disabled = offset === 0;
             nextPageBtn.disabled = profiles.length < limit;

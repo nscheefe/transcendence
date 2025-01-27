@@ -1,22 +1,11 @@
-import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage, fetchUserDetails } from './chatservice.js';
+import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage } from './chatservice.js';
 import { blockUser, fetchFriendships } from './friendservice.js';
-import { showError } from './utils.js';
+import { showError, generateUserAvatarHTML, fillUserCache, initializeOnlineStatusSubscriptions, userCache } from './utils.js'; // Import the new function
 import { addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, formatTime } from './domHelpers.js';
 
-const userCache = {}; // Cache to store user details
 
-const fillUserCache = async (users) => {
-    for (const user of users) {
-        if (!userCache[user.user_id]) {
-            try {
-                const userDetails = await fetchUserDetails(user.user_id);
-                userCache[user.user_id] = userDetails.profile;
-            } catch (error) {
-                console.error('Error fetching user details:', error);
-            }
-        }
-    }
-};
+window.userCache = userCache; // Expose user cache for debugging
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatRoomList = document.getElementById('chatRoomList');
@@ -67,8 +56,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const user = userCache[sender_id];
-            const avatar = user.avatarUrl || DEFAULT_AVATAR;
-            const nickname = user.nickname || `User ${sender_id}`;
+            const profile = user.profile;
+            if (!user) {
+                console.error('User details not found for user_id:', sender_id);
+                return;
+            }
+            const avatar = profile.avatarUrl || DEFAULT_AVATAR;
+            const nickname = profile.nickname || `User ${sender_id}`;
             const own_nickname = document.querySelector('.intra-name-42').innerText;
             const isOwnMessage = nickname == own_nickname;
             if (lastMessageDate !== messageDate) {
@@ -151,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Subscribe to real-time updates for chat rooms
             const subscribe = subscribeToUserChatRooms(
                 async (room) => {
-                    console.log('Subscription data:', room);
                     room = room.data.chatRoomsForUser;
 
                     // Fill user cache
@@ -166,14 +159,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (userIds && userIds.length === 2) {
                                 const user1 = userCache[userIds[0]];
                                 const user2 = userCache[userIds[1]];
-                                room.name = `Chat of ${user1.nickname} and ${user2.nickname}`;
+                                room.name = `Chat of ${user1.profile.nickname} and ${user2.profile.nickname}`;
                             }
                         }
                         // Generate the list of avatars
-                        const avatars = room.users.map(user => {
-                            const userDetails = userCache[user.user_id];
-                            return `<img src="${userDetails.avatarUrl || DEFAULT_AVATAR}" alt="avatar" width="30" height="30" class="rounded-circle object-fit-cover">`;
-                        }).join('');
+                        const avatars = room.users.map(user => generateUserAvatarHTML(user.user_id)).join('');
 
                         // Create and add the chat room element to the list
                         const newRoomElement = createElement(
@@ -240,4 +230,5 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleButton?.addEventListener('click', toggleOffcanvas);
     closeButton?.addEventListener('click', toggleOffcanvas);
     loadChatRoomData();
+    initializeOnlineStatusSubscriptions(); // Initialize online status subscriptions
 });

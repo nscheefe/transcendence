@@ -50,9 +50,12 @@
           </span>
         </nav>
         <span class="nav-item-group">
-          <div class="dropdown" style="padding-top: 0%; heigth: 50px">
+          <div class="dropdown" style="padding-top: 0%; height: 50px">
             <!-- Bell Icon -->
-            <button class="btn btn-secondary bg-transparent border-0" id="notificationDropdown" aria-expanded="false"><img src="/static/images/bell.png" alt="Bell Icon" height="auto" width="60" /></button>
+            <button class="btn btn-secondary bg-transparent border-0 position-relative" id="notificationDropdown" aria-expanded="false">
+              <img src="/static/images/bell.png" alt="Bell Icon" height="auto" width="60" />
+              <span id="notificationIndicator" class="position-absolute top-10 start-80 translate-middle p-2 bg-danger rounded-circle d-none"></span>
+            </button>
             <ul class="dropdown-menu" id="dropdownMenu" style="display: none;">
               <li class="dropdown-item">No notifications</li>
             </ul>

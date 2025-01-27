@@ -9,6 +9,8 @@ from main_service.api.schema.userSchema import resolver as user_resolver
 from main_service.api.schema.chatSchema import resolver as chat_resolver
 from main_service.api.schema.statSchema import resolvers as stat_resolver
 from main_service.api.schema.gameSchema import resolver as game_resolver
+from main_service.api.schema.notificationSchema import resolver as notification_resolver
+
 # Define the DateTime scalar type
 datetime_scalar = ScalarType("DateTime")
 
@@ -101,11 +103,17 @@ type_defs = """
             StatList: [StatsWithProfile!]!
 
     }
+    type onlineStatus {
+        userId: Int!
+        status: Boolean!
+    }
 
     type Subscription {
         ping_test: Ping!
         chatRoomsForUser: ChatRoom!
         chat_room_message(chat_room_id: Int!): ChatRoomMessage!
+        notificationsForUser: Notification!
+        onlineStatus(user_id: Int!): onlineStatus
     }
 
     type Role {
@@ -400,4 +408,4 @@ def parse_datetime_literal(ast):
     return datetime.fromisoformat(ast.value)
 
 # Create the executable schema
-schema = make_executable_schema(type_defs, user_resolver, chat_resolver, stat_resolver, game_resolver)
+schema = make_executable_schema(type_defs, user_resolver, chat_resolver, stat_resolver, game_resolver, notification_resolver)

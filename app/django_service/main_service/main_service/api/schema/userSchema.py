@@ -377,7 +377,7 @@ def resolve_manage_notification(_, info, notificationData):
                 user_id=user_id,
                 message=notificationData["create"]["message"],
                 read=notificationData["create"]["read"],
-                sent_at=notificationData["create"]["sentAt"],
+                sent_at=datetime.fromisoformat(notificationData["create"]["sentAt"]) if notificationData["create"].get("sentAt") else None,
             )
             notification_stub.CreateNotification(create_request)
 

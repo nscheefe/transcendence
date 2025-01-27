@@ -18,6 +18,26 @@
   --toast-animation-end: var(--toast-bottom-position);
 }
 
+.avatar-container {
+    position: relative;
+    display: inline-block;
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: red; /* Default to offline */
+}
+
+#notificationIndicator {
+  width: 5px;
+  height: 5px;
+}
+
 .w-checkbox {
   margin-bottom: 5px;
   padding-left: 20px;
