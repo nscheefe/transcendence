@@ -18,6 +18,14 @@
   --toast-animation-end: var(--toast-bottom-position);
 }
 
+.blur-background {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  /* For Safari */
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Optional: Add a semi-transparent background color */
+}
+
 .avatar-container {
     position: relative;
     display: inline-block;
