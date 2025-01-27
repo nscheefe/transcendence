@@ -1,48 +1,11 @@
-import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage, fetchUserDetails } from './chatservice.js';
+import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage } from './chatservice.js';
 import { blockUser, fetchFriendships } from './friendservice.js';
-import { showError } from './utils.js';
+import { showError, generateUserAvatarHTML, fillUserCache, initializeOnlineStatusSubscriptions, userCache } from './utils.js'; // Import the new function
 import { addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, formatTime } from './domHelpers.js';
-import { subscribeToOnlineStatus } from './notificationService.js';
 
-const userCache = {}; // Cache to store user details
-const subscribedUsers = new Set(); // Track subscribed users
 
 window.userCache = userCache; // Expose user cache for debugging
 
-const fillUserCache = async (users) => {
-    for (const user of users) {
-        if (!userCache[user.user_id]) {
-            try {
-                const userDetails = await fetchUserDetails(user.user_id);
-                userCache[user.user_id] = userDetails.profile;
-            } catch (error) {
-                console.error('Error fetching user details for user_id:', user.user_id, error);
-            }
-        }
-    }
-    // Call initializeOnlineStatusSubscriptions after updating the cache
-    initializeOnlineStatusSubscriptions();
-};
-
-const initializeOnlineStatusSubscriptions = () => {
-    try {
-        Object.keys(userCache).forEach(userId => {
-            if (!subscribedUsers.has(userId)) {
-                subscribedUsers.add(userId);
-                subscribeToOnlineStatus(parseInt(userId, 10), updateOnlineStatus);
-            }
-        });
-    } catch (error) {
-        console.error('Error initializing online status subscriptions:', error);
-    }
-};
-
-const updateOnlineStatus = (userId, status) => {
-    const statusIndicators = document.querySelectorAll(`#status-indicator-${userId}`);
-    statusIndicators.forEach(indicator => {
-        indicator.style.backgroundColor = status ? 'green' : 'red';
-    });
-};
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatRoomList = document.getElementById('chatRoomList');
@@ -93,12 +56,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const user = userCache[sender_id];
+            const profile = user.profile;
             if (!user) {
                 console.error('User details not found for user_id:', sender_id);
                 return;
             }
-            const avatar = user.avatarUrl || DEFAULT_AVATAR;
-            const nickname = user.nickname || `User ${sender_id}`;
+            const avatar = profile.avatarUrl || DEFAULT_AVATAR;
+            const nickname = profile.nickname || `User ${sender_id}`;
             const own_nickname = document.querySelector('.intra-name-42').innerText;
             const isOwnMessage = nickname == own_nickname;
             if (lastMessageDate !== messageDate) {
@@ -191,24 +155,15 @@ document.addEventListener('DOMContentLoaded', () => {
                         existingRoomIds.add(room.id); // Track added chat room
 
                         if (room.name.includes('User-to-User')) {
-                            console.log('User-to-User chat room:', room);
                             const userIds = room.name.match(/\d+/g);
                             if (userIds && userIds.length === 2) {
                                 const user1 = userCache[userIds[0]];
                                 const user2 = userCache[userIds[1]];
-                                room.name = `Chat of ${user1.nickname} and ${user2.nickname}`;
+                                room.name = `Chat of ${user1.profile.nickname} and ${user2.profile.nickname}`;
                             }
                         }
                         // Generate the list of avatars
-                        const avatars = room.users.map(user => {
-                            const userDetails = userCache[user.user_id];
-                            return `
-                                <div class="avatar-container" id="avatar-container-${user.user_id}">
-                                    <img src="${userDetails.avatarUrl || DEFAULT_AVATAR}" alt="avatar" width="30" height="30" class="rounded-circle object-fit-cover">
-                                    <span class="status-indicator status-indicator-${user.user_id}" id="status-indicator-${user.user_id}"></span>
-                                </div>
-                            `;
-                        }).join('');
+                        const avatars = room.users.map(user => generateUserAvatarHTML(user.user_id)).join('');
 
                         // Create and add the chat room element to the list
                         const newRoomElement = createElement(

@@ -97,13 +97,13 @@ export const fetchFriendsWithProfiles = async (friendships) => {
 
     const GET_FRIENDSHIPS_AND_PROFILES_QUERY = `
         query GetFriendshipsAndProfiles {
-   friendships {
-                    id
-                    friendId
-                    accepted
-                    establishedAt
-                    userId
-                }
+            friendships {
+                id
+                friendId
+                accepted
+                establishedAt
+                userId
+            }
 
             ${profileQueries}
         }
