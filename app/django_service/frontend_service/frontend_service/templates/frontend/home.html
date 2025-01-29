@@ -13,11 +13,29 @@
         <!-- Top 3 players will be rendered here by leaderboard.js -->
       </ol>
     </div>
+    <div class="game-modes-wrapper mt-4 position-relative z-3">
+      <h3 class="heading fw-bold text-light">Game Modes</h3>
+      <div class="game-modes-container">
+        <!-- Game modes will be displayed here -->
+        <div class="game-mode-card">
+          <h4 class="heading-3">Quick Search</h4>
+          <p class="text-secondary">Search for a Quick Game. First Person with 10 Points wins!</p>
+          <a href="{% url 'game' %}" id="search-game-btn" class="nav-link w-nav-link z-1">Search Game</a>
+        </div>
+        <div class="game-mode-card">
+          <h4 class="heading-tournament">Tournament</h4>
+          <p>Experience fast-paced action with unique challenges.</p>
+        </div>
+        <div class="game-mode-card">
+          <h4 class="heading-3">Local 1v1</h4>
+          <p>Compete with others and climb the leaderboard.</p>
+        </div>
+      </div>
+    </div>
     <div class="grid">
       <div class="grid-overlay"></div>
     </div>
-    <div class="backround-m42"></div>
-    <a href="{% url 'game' %}" id="search-game-btn" class="nav-link w-nav-link">Search Game</a>
+    <div class="backround-m42 z-n1"></div>
     <div data-dynamic-windows>
       {% block dynamic_windows %}{% endblock %}
     </div>
@@ -28,4 +46,3 @@
     {% load static %}
     <script type="module" src="{% static 'js/leaderboard.js' %}"></script>
 {% endblock %}
-

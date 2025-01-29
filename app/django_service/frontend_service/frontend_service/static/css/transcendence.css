@@ -46,6 +46,71 @@
   height: 5px;
 }
 
+.game-modes-wrapper {
+  margin-top: 20px;
+}
+
+.game-modes-container {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.game-mode-card {
+  backdrop-filter: blur(5px);
+  border: 1px dashed var(--grid-line);
+  border-radius: 5px;
+  padding: 20px;
+  margin: 10px;
+  width: 30%;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  z-index: 0; /* Ensure the card content is above the pseudo-element */
+}
+
+.game-mode-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 5px;
+  border: 2px solid transparent; /* Transparent border to maintain the shape */
+  background: linear-gradient(45deg, rgba(227, 34, 133, 0.2), rgba(242, 181, 27, 0.2), rgba(255, 5, 247, 0.2), rgba(255, 165, 0, 0.2));
+  background-size: 400% 400%;
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  pointer-events: none; /* Ensure the pseudo-element does not interfere with interactions */
+}
+
+.game-mode-card:hover::before {
+  opacity: 1;
+  animation: glowing-border 3s linear infinite;
+}
+
+@keyframes glowing-border {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.game-mode-card h4 {
+  margin-bottom: 10px;
+}
+
+.game-mode-card p {
+  margin-bottom: 0;
+}
+
 .w-checkbox {
   margin-bottom: 5px;
   padding-left: 20px;
@@ -118,7 +183,7 @@
   font-size: 1.2em;
   font-weight: bold;
   /* color:#666; */
-  padding-right: 2rem
+  padding-right: 1rem
 }
 
 .intra-name-42::hover {
@@ -133,6 +198,9 @@
   border-radius: 50%;
   margin: auto;
   object-fit: cover;
+  width: 40px;
+  height: 40px;
+  aspect-ratio: 1/1;
 }
 
 .toast {
@@ -194,7 +262,7 @@
   line-height: 40px;
   align-items: stretch;
   padding: 10px;
-  width: 200px;
+  width: auto;
 }
 
 
@@ -1568,6 +1636,7 @@ blockquote {
   z-index: 10;
   width: 30%;
   position: relative;
+  margin: auto;
 }
 
 .leaderboard {
@@ -1639,6 +1708,20 @@ blockquote {
     0 0 35px var(--neon-pink);
   font-weight: bold;
   -webkit-text-stroke: 1px var(--neon-pink); /* Outline */
+}
+
+.heading-tournament {
+  text-align: center;
+  margin-top: 10px;
+  color: transparent;
+  text-shadow:
+
+    0 0 25px var(--metallic-yellow),
+    0 0 30px var(--grid-line),
+    0 0 35px var(--success);
+  font-weight: bold;
+  -webkit-text-stroke: 1px var(--metallic-yellow);
+  /* Outline */
 }
 
 .form-block {

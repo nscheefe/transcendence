@@ -94,7 +94,7 @@ const renderTop3Leaderboard = (statList) => {
     listItem.classList.add("leaderboard-item");
     listItem.innerHTML = `
       <a href="/home/profile/${entry.profile.userId}" class="bg-transparent text-decoration-none">
-        <div class="card bg-transparent border-radius-5 text-light shadow-sm rounded-3 p-3 leaderboard-entry blur-background">
+        <div class="card bg-transparent text-light shadow-sm rounded-1 p-3 leaderboard-entry blur-background border-dark" style="--bs-border-opacity: .5;">
           <div class="d-flex justify-content-between align-items-center">
             <!-- Index, Avatar, and Nickname Section -->
             <div class="d-flex align-items-center">
@@ -115,18 +115,18 @@ const renderTop3Leaderboard = (statList) => {
               <div class="d-flex flex-column">
                 <div class="text-center flex-grow-1 d-flex justify-content-evenly align-items-center">
                   <!-- Total Games -->
-                  <div class="stat">
-                    <h6 class="fw-bold">Total Games</h6>
+                  <div class="stat px-3">
+                    <h6 class="fw-bold">Games</h6>
                     <span class="fs-5">${entry.stats.totalGames}</span>
                   </div>
                   <!-- Total Wins -->
                   <div class="stat text-success border-start border-secondary px-3">
-                    <h6 class="fw-bold">Total Wins</h6>
+                    <h6 class="fw-bold">Wins</h6>
                     <span class="fs-5 ">${entry.stats.totalWins}</span>
                   </div>
                   <!-- Total Losses -->
                   <div class="stat border-start border-secondary px-3">
-                    <h6 class="fw-bold text-danger">Total Losses</h6>
+                    <h6 class="fw-bold text-danger">Losses</h6>
                     <span class="fs-5 text-danger">${entry.stats.totalLosses}</span>
                   </div>
               </div>
