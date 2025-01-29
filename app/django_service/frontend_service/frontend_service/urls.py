@@ -19,6 +19,7 @@ urlpatterns = [
     path('home/profile/<int:user_id>/', views.publicProfile, name='publicProfile'),
     path('home/chat/', views.chat, name='chat'),  # chat view
     path('home/tournaments/', views.tournament, name='tournament'),  # chat view
+    path('home2/', views.home2, name='home2'),  # Main home view
 
                   # Game
     path('home/game/', views.game, name='game'),  # Start game view

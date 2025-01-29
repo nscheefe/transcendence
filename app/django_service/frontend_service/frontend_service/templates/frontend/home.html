@@ -19,12 +19,13 @@
         <!-- Game modes will be displayed here -->
         <div class="game-mode-card">
           <h4 class="heading-3">Quick Search</h4>
-          <p class="text-secondary">Search for a Quick Game. First Person with 10 Points wins!</p>
+          <p>Search for a Quick Game. First Person with 10 Points wins!</p>
           <a href="{% url 'game' %}" id="search-game-btn" class="nav-link w-nav-link z-1">Search Game</a>
         </div>
         <div class="game-mode-card">
           <h4 class="heading-tournament">Tournament</h4>
           <p>Experience fast-paced action with unique challenges.</p>
+          <a href="#" id="tournament-btn" class="nav-link w-nav-link z-1" onclick="openTournamentWindow()">Open Tournament</a>
         </div>
         <div class="game-mode-card">
           <h4 class="heading-3">Local 1v1</h4>
@@ -45,4 +46,9 @@
 {% block extra_js %}
     {% load static %}
     <script type="module" src="{% static 'js/leaderboard.js' %}"></script>
+    <script>
+      function openTournamentWindow() {
+        // Logic to open the tournament window in the dynamic windows section
+      }
+    </script>
 {% endblock %}
