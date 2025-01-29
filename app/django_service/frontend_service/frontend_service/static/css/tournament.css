@@ -1,0 +1,325 @@
+   .card-body {
+   	.scrollable {
+   		max-height: 80vh;
+   		/* Set a fixed height for the container */
+   		overflow-y: auto;
+   		/* Enable vertical scrolling */
+   		padding: 10px;
+   		/* Optional: Add padding for better visual appearance */
+   		margin: 10px 0;
+   		/* Optional: Add margin for spacing */
+   		scrollbar-width: thin;
+   		/* Optional: Make scrollbar thinner (for modern browsers) */
+   		scrollbar-color: #888 #333;
+   		/* Optional: Adjust scrollbar color */
+   	}
+
+   	/* Optional: Customize the scrollbar for webkit-based browsers */
+   	.scrollable::-webkit-scrollbar {
+   		width: 10px;
+   		/* Scrollbar width */
+   	}
+
+   	.scrollable::-webkit-scrollbar-thumb {
+   		background-color: #888;
+   		/* Scrollbar color */
+   		border-radius: 5px;
+   		/* Rounded scrollbar edges */
+   	}
+
+   	.scrollable::-webkit-scrollbar-thumb:hover {
+   		background-color: #555;
+   		/* Scrollbar color on hover */
+   	}
+
+   	/* Leaderboard Entry Layout */
+   	.leaderboard-entry {
+   		display: flex;
+   		align-items: center;
+   		margin-bottom: 15px;
+   		/* Adds separation between entries */
+   	}
+
+   	/* Avatar Styling */
+   	.avatar img {
+   		border: 2px solid #ffffff;
+   		/* Optional: Border around avatar */
+   		border-radius: 50%;
+   		/* Make the avatar circular */
+   		width: 60px;
+   		height: 60px;
+   		/* Consistent sizing */
+   	}
+
+   	/* Nickname Styling */
+   	.leaderboard-entry h4 {
+   		font-size: 1.2rem;
+   		/* Larger font size for nickname */
+   		color: #ffffff;
+   		margin: 0;
+   		/* Remove default margin */
+   	}
+
+   	.leaderboard-entry p {
+   		font-size: 0.9rem;
+   		/* Smaller font size for bio */
+   		color: #cccccc;
+   		/* Softer color for bio text */
+   		margin: 0;
+   		/* Clean alignment */
+   	}
+
+   	/* Stats Section Styling */
+   	.leaderboard-entry .stat {
+   		text-align: center;
+   		/* Center align the stats within each column */
+   	}
+
+   	.leaderboard-entry .stat h6 {
+   		font-size: 0.875rem;
+   		/* Slightly smaller font size for stat labels */
+   		margin-bottom: 4px;
+   		/* Add space below the label */
+   	}
+
+   	.leaderboard-entry .stat span {
+   		font-size: 1.25rem;
+   		/* Larger font size for stat numbers */
+   		font-weight: bold;
+   	}
+
+   	/* Borders Between Stats */
+   	.border-start {
+   		border-left: 1px solid #6c757d;
+   		/* Subtle border for separation */
+   	}
+
+   	.stat.px-3 {
+   		padding-left: 1rem;
+   		/* Add horizontal spacing between stats */
+   		padding-right: 1rem;
+   	}
+
+   	/* Alignment and Spacing */
+   	.d-flex {
+   		width: 100%;
+   	}
+
+   	.text-center.flex-grow-1 {
+   		flex-basis: auto;
+   		/* Share available space between stats */
+   	}
+
+   	/* Leaderboard Entry Styling */
+   	.leaderboard-entry {
+   		display: flex;
+   		align-items: center;
+   		margin-bottom: 15px;
+   		/* Adds spacing between leaderboard items */
+   	}
+
+   	/* Index Styling */
+   	.index-number h1 {
+   		font-size: 2.5rem;
+   		/* Large font size for index number */
+   		margin: 0;
+   		/* Remove default margin */
+   		font-weight: bold;
+   		/* Makes the index bold */
+   		color: #ffffff;
+   		/* White text for visibility */
+   		text-align: center;
+   		/* Center-align the number */
+   	}
+
+   	/* Avatar Styling */
+   	.avatar img {
+   		border: 2px solid #ffffff;
+   		/* Add a border around the avatar */
+   		border-radius: 50%;
+   		/* Turns the avatar into a circle */
+   		width: 60px;
+   		height: 60px;
+   		/* Consistent avatar size */
+   	}
+
+   	/* Nickname and Bio Styling */
+   	.leaderboard-entry h4 {
+   		font-size: 1.2rem;
+   		/* Slightly larger font size for nickname */
+   		color: #ffffff;
+   		margin: 0;
+   		/* Remove default margin */
+   	}
+
+   	.leaderboard-entry p {
+   		font-size: 0.9rem;
+   		/* Small font size for bio or additional info */
+   		color: #cccccc;
+   		/* Softer gray for bio text */
+   		margin: 0;
+   	}
+
+   	/* Stats Section Styling */
+   	.row {
+   		display: flex;
+   		/* Keeps the stats in a single row */
+   		width: 100%;
+   		/* Full width for flexibility */
+   	}
+
+   	.leaderboard-entry .stat {
+   		text-align: center;
+   	}
+
+   	.leaderboard-entry .stat h6 {
+   		font-size: 0.875rem;
+   		/* Smaller font size for labels */
+   		margin-bottom: 4px;
+   		/* Adds spacing below the label */
+   	}
+
+   	.leaderboard-entry .stat span {
+   		font-size: 1.25rem;
+   		/* Larger font size for stat values */
+   		font-weight: bold;
+   	}
+
+   	/* Borders Between Statistics Section */
+   	.stat.border-start {
+   		border-left: 1px solid #6c757d;
+   		/* Light gray Bootstrap border */
+   	}
+
+   	.stat.px-3 {
+   		padding: 0 1rem;
+   	}
+
+   	/* Alignment and Flexbox Structure */
+   	.d-flex.align-items-center {
+   		min-width: 300px;
+   	}
+
+   	.text-center.flex-grow-1 {
+   		flex-basis: auto;
+   		/* Ensures the stats take up remaining space */
+   	}
+
+   	/* Avatar Container Styling */
+   	.avatar-container {
+   		width: 80px;
+   		/* Fixed width */
+   		height: 80px;
+   		/* Fixed height */
+   		border-radius: 50%;
+   		/* Ensure circular shape */
+   		overflow: hidden;
+   		/* Clip overflow */
+   		display: flex;
+   		justify-content: center;
+   		align-items: center;
+   	}
+
+   	/* Avatar Image Styling */
+   	.avatar-container img {
+   		width: 100%;
+   		/* Ensure image occupies container width */
+   		height: 100%;
+   		/* Ensure image occupies container height */
+   		object-fit: cover;
+   		/* This ensures the image fits without stretching */
+   		object-position: center;
+   		/* Center the image inside the container */
+   		border-radius: 50%;
+   		/* Ensure the image matches the circular container */
+   	}
+
+   	/* Index Styling */
+   	.index-number h1 {
+   		font-size: 2.5rem;
+   		margin: 0;
+   		font-weight: bold;
+   		color: #ffffff;
+   		text-align: center;
+   	}
+
+   	/* General styling for the list item */
+   	li {
+   		width: 98%;
+   		list-style-type: none;
+   		/* Remove default bullet points */
+   		margin-bottom: 1rem;
+   		/* Add spacing between list items */
+   		transition: transform 0.3s ease, box-shadow 0.3s ease;
+   		/* Smooth animation */
+   	}
+
+   	/* Hover effect for the list item */
+   	li:hover {
+   		transform: scale(1.02);
+   		/* Slightly enlarge the item on hover */
+   		box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
+   		/* Apply shadow for emphasis */
+   		cursor: pointer;
+   		/* Change cursor to indicate interactivity */
+   	}
+
+   	/* Styling specifically for the card inside the <li> */
+   	li .card {
+   		background-color: #212529;
+   		/* Optional: Customize card background color */
+   		border: 1px solid transparent;
+   		/* Default border color */
+   		transition: border 0.3s ease;
+   		/* Smooth transition for the border */
+   	}
+
+   	/* Border highlight on hover */
+   	li:hover .card {
+   		border: 1px solid #007bff;
+   		/* Optional: Highlight the card border on hover */
+   	}
+   }
+
+   /* General styling for the tournament bracket */
+   .bracket .round {
+   	display: flex;
+   	justify-content: center;
+   	margin-bottom: 40px;
+   }
+
+   .round .player {
+   	position: relative;
+   	width: 100px;
+   	margin: 0 20px;
+   	text-align: center;
+   }
+
+   /* Lines connecting matches */
+   .round .player::before,
+   .round .player::after {
+   	content: '';
+   	position: absolute;
+   	height: 20px;
+   	width: 2px;
+   	background-color: #fff;
+   }
+
+   .round .player::before {
+   	top: -20px;
+   	left: 50%;
+   	transform: translateX(-50%);
+   }
+
+   .round .player::after {
+   	top: -20px;
+   	left: 50%;
+   	transform: translateX(-50%);
+   	height: 20px;
+   	/* Adjust for longer lines between connected nodes */
+   	border-left: 2px solid #fff;
+   }
+
+   .content {
+   	margin: 15rem;
+   }

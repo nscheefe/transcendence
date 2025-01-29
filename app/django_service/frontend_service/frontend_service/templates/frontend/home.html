@@ -1,5 +1,6 @@
 {% extends "frontend/base.html" %}
 {% load static %}
+<link href="{% static 'css/tournament.css' %}" rel="stylesheet" type="text/css" />
 
 {% block title %}Home{% endblock %}
 
@@ -9,23 +10,112 @@
   <section class="section">
     <div class="leaderboard-wrapper">
       <h3 class="heading">Top Players</h3>
-      <ol role="list" class="leaderboard">
-        <li class="leaderboard-item"><img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" class="leaderboard-item-picture">
-          <div class="leaderboard-item-text">This is some text inside of a div block.</div>
-        </li>
-        <li class="leaderboard-item"><img src="https://d3e54v103j8qbb.cloudfront.net/plugins/Basic/assets/placeholder.60f9b1840c.svg" loading="lazy" alt="" class="leaderboard-item-picture">
-          <div class="leaderboard-item-text">This is some text inside of a div block.</div>
-        </li>
+      <ol role="list" class="leaderboard" id="leaderboard-top-3">
+        <!-- Top 3 players will be rendered here by leaderboard.js -->
       </ol>
+    </div>
+    <div class="game-modes-wrapper mt-4 position-relative z-3">
+      <h3 class="heading fw-bold text-light">Game Modes</h3>
+      <div class="game-modes-container">
+        <!-- Game modes will be displayed here -->
+        <div class="game-mode-card">
+          <h4 class="heading-3">Quick Search</h4>
+          <p>Search for a Quick Game. First Person with 10 Points wins!</p>
+          <a href="{% url 'game' %}" id="search-game-btn" class="nav-link w-nav-link z-1">Search Game</a>
+        </div>
+        <div class="game-mode-card">
+          <h4 class="heading-tournament">Tournament</h4>
+          <p>Experience fast-paced action with unique challenges.</p>
+          <a href="#" id="tournament-btn" class="nav-link w-nav-link btn-tournament z-1" onclick="openTournamentWindow()">Open Tournament</a>
+        </div>
+        <div class="game-mode-card">
+          <h4 class="heading-3">Local 1v1</h4>
+          <p>Compete with others and climb the leaderboard.</p>
+        </div>
+      </div>
     </div>
     <div class="grid">
       <div class="grid-overlay"></div>
     </div>
-    <div class="backround-m42"></div>
-    <a href="{% url 'game' %}" id="search-game-btn" class="nav-link w-nav-link">Search Game</a>
+    <div class="backround-m42 z-n1"></div>
     <div data-dynamic-windows>
       {% block dynamic_windows %}{% endblock %}
     </div>
   </section>
 {% endblock %}
 
+{% block extra_js %}
+    {% load static %}
+    <script type="module" src="{% static 'js/leaderboard.js' %}"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        function openTournamentWindow() {
+          const dynamicWindows = document.querySelector('[data-dynamic-windows]');
+          dynamicWindows.innerHTML = `
+            <!-- Right Side: Tournaments Card -->
+          <div id="pong-container">
+            <button id="close-btn">Close</button>
+              <div class="d-flex card bg-transparent text-light h-100 w-100" style="position: relative; z-index: 20;">
+                <div class="card-header">
+                  <!-- Navigation Pills -->
+                  <ul class="nav nav-tabs" id="tournamentTabs" role="tablist">
+                    <li class="nav-item">
+                      <button class="nav-link bg-transparent" id="tournaments-tab" data-bs-toggle="tab" data-bs-target="#tournaments-tab-pane" type="button" role="tab" aria-controls="tournaments-tab-pane" aria-selected="false">
+                        Tournaments
+                      </button>
+                    </li>
+                    <li class="nav-item">
+                      <button class="nav-link bg-transparent" id="new-tournament-tab" data-bs-toggle="tab" data-bs-target="#new-tournament-tab-pane" type="button" role="tab" aria-controls="new-tournament-tab-pane" aria-selected="false">
+                        New Tournament
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+                <div class="tab-content card-body" id="tournamentTabContent">
+                  <!-- Tournaments Tab Pane -->
+                  <div class="tab-pane fade" id="tournaments-tab-pane" role="tabpanel" aria-labelledby="tournaments-tab" tabindex="0">
+                    <br>
+                    <h1>Tournaments</h1>
+                    <ul id="tournament" class="scrollable" style="width:100%">
+                      <span> Loading Tournaments ....</span>
+                    </ul>
+                  </div>
+                  <!-- New Tournament Tab Pane -->
+                  <div class="tab-pane fade" id="new-tournament-tab-pane" role="tabpanel" aria-labelledby="new-tournament-tab" tabindex="0">
+                    <h5 class="card-title">Create a New Tournament</h5>
+                    <form>
+                      <div class="mb-3">
+                        <label for="tournamentNameInput" class="form-label">Tournament Name</label>
+                        <input type="text" class="form-control bg-secondary text-light" id="tournamentNameInput" placeholder="Enter tournament name">
+                      </div>
+                      <div class="mb-3">
+                        <label for="tournamentDateInput" class="form-label">Tournament Date</label>
+                        <input type="date" class="form-control bg-secondary text-light" id="tournamentDateInput">
+                      </div>
+                      <button type="submit" class="btn btn-primary" id="create-tournament-btn">Create Tournament</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          `;
+          const closeBtn = document.getElementById('close-btn');
+        closeBtn.addEventListener('click', function() {
+          const dynamicWindows = document.querySelector('[data-dynamic-windows]');
+          dynamicWindows.innerHTML = '';
+        });
+          import('{% static 'js/tournament.js' %}').then(module => {
+            console.log('Tournament module loaded');
+            module.initTournamentsPage();
+          }).catch(error => {
+            console.error('An error occurred while loading the module:', error);
+          });
+
+        }
+
+        // Attach the function to the global scope
+        window.openTournamentWindow = openTournamentWindow;
+      });
+    </script>
+{% endblock %}

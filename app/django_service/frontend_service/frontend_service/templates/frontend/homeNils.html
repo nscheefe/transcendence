@@ -294,11 +294,6 @@ li:hover .card {
             <!-- Navigation Pills -->
             <ul class="nav nav-pills card-header-pills" id="tournamentTabs" role="tablist">
                 <li class="nav-item">
-                    <button class="nav-link active text-light" id="search-tab" data-bs-toggle="tab" data-bs-target="#search-tab-pane" type="button" role="tab" aria-controls="search-tab-pane" aria-selected="true">
-                        Search Game
-                    </button>
-                </li>
-                <li class="nav-item">
                     <button class="nav-link text-light" id="tournaments-tab" data-bs-toggle="tab" data-bs-target="#tournaments-tab-pane" type="button" role="tab" aria-controls="tournaments-tab-pane" aria-selected="false">
                         Tournaments
                     </button>
@@ -311,12 +306,6 @@ li:hover .card {
             </ul>
         </div>
         <div class="tab-content card-body" id="tournamentTabContent">
-            <!-- Search Game Tab Pane -->
-            <div class="tab-pane fade show active" id="search-tab-pane" role="tabpanel" aria-labelledby="search-tab" tabindex="0">
-                    <div class="mb-3 d-flex justify-content-center align-items-center">
-                         <a href="{% url 'game' %}" id="search-game-btn" class="nav-link w-nav-link">Search Game</a>
-                    </div>
-            </div>
             <!-- Tournaments Tab Pane -->
             <div class="tab-pane fade" id="tournaments-tab-pane" role="tabpanel" aria-labelledby="tournaments-tab" tabindex="0">
                     <br>
