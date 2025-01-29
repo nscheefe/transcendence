@@ -29,7 +29,6 @@
 .btn-primary {
   background-color: var(--neon-pink)!important;
   background-image: none!important;
-  border: 1px solid var(--neon-pink)!important;
   position: relative;
   z-index: 0;
   overflow: hidden;
