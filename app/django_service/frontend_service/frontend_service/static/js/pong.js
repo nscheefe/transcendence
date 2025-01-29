@@ -1,3 +1,5 @@
+import { startLocalGame, updateLocalGameState, getLocalGameState } from './localGame.js';
+
 document.getElementById('close-btn').addEventListener('click', function () {
     if (gameStarted) {
         const confirmClose = confirm("The game is ongoing. Are you sure you want to close?");
@@ -355,10 +357,15 @@ function initVaporwaveScene(scene, camera, renderer, sizes) {
 
 function handleKeyState(event) {
     keyState[event.key] = event.type === 'keydown';
-    // Send key state to server
+
+    // Update local game state
+    updateLocalGameState(event.key, keyState[event.key]);
+
+    // Send key state to server if WebSocket is open
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: 'keyState', key: event.key, state: keyState[event.key] }));
     }
+
     // Handle local paddle movement for preview
     updatePaddlePosition();
 }
@@ -473,9 +480,40 @@ function updateScene() {
 
 console.log("pong.js loaded");
 
-function main() {
-    console.log("initPongGame called");
-    createWebSocket();
+function main(local = false) {
+    if (local) {
+        console.log("local game");
+        updateScene();
+        startLocalGame();
+        setInterval(() => {
+            const state = getLocalGameState();
+            if (state.paddle1 !== undefined) {
+                paddle1.position.x = state.paddle1.x;
+            }
+            if (state.paddle2 !== undefined) {
+                paddle2.position.x = state.paddle2.x;
+            }
+            if (state.ball !== undefined) {
+                ball.position.set(state.ball.x, 0.5, state.ball.z);
+            }
+            if (state.points !== undefined) {
+                updateTextMesh(player1TextMesh, `${state.points.player1}`, camera);
+                updateTextMesh(player2TextMesh, `${state.points.player2}`, camera);
+            }
+            if (state.direction !== undefined) {
+                direction = state.direction;
+            }
+            if (state.type === 'gameOver') {
+                gameStarted = false;
+                console.log('Game Over');
+                gameOver(state.winner);
+            }
+        }, 1000 / 60); // 60 times per second
+    }
+    else {
+        console.log("initPongGame called");
+        createWebSocket();
+    }
 }
 // Expose the init function to be called externally
 window.initPongGame = main;
