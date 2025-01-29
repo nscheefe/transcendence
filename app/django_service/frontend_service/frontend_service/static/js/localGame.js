@@ -28,6 +28,7 @@ function resetBall() {
 function checkWinner(winningScore = 10) {
     if (gameState.points.player1 >= winningScore || gameState.points.player2 >= winningScore) {
         gameStarted = false;
+        gameState.type = 'gameOver';
         clearInterval(gameLoopInterval);
     }
 }

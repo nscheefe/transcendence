@@ -452,13 +452,13 @@ function updateScene(local = false) {
         sizes.width /= 2;
     // Scene setup
     scene = createScene();
-    camera1 = createCamera(2, sizes, local);
+    camera1 = createCamera(1, sizes, local);
     renderer1 = createRenderer('pong-canvas-1', sizes);
     createLights(scene);
     initVaporwaveScene(scene, camera1, renderer1, sizes, local);
 
     if (local) {
-        camera2 = createCamera(1, sizes, local);
+        camera2 = createCamera(2, sizes, local);
         renderer2 = createRenderer('pong-canvas-2', sizes);
         effectComposer2 = new THREE.EffectComposer(renderer2);
         effectComposer2.setSize(sizes.width, sizes.height);
