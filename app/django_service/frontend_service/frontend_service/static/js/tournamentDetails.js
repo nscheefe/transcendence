@@ -134,7 +134,6 @@ async function matches(users) {
 }
 
 async function playerReady() {
-    // @Todo update player state to READY
     console.log("Marking player as ready...");
 
     try {
@@ -155,8 +154,6 @@ async function playerReady() {
 }
 
 async function playerStartGame() {
-    //@todo create game or check if already there and then open the game screen
-    // @todo if the game finished, the winner gets the count of games_player +1
     console.log("currentOpponent", currentMatch);
 
     try {
