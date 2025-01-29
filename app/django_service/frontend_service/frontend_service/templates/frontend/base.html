@@ -50,24 +50,26 @@
           </span>
         </nav>
         <span class="nav-item-group">
-          <div class="dropdown" style="padding-top: 0%; height: 50px">
+          <div class="dropdown h-100" style="padding-top: 0%;">
             <!-- Bell Icon -->
-            <button class="btn btn-secondary bg-transparent border-0 position-relative" id="notificationDropdown" aria-expanded="false">
-              <img src="/static/images/bell.png" alt="Bell Icon" height="auto" width="60" />
-              <span id="notificationIndicator" class="position-absolute top-10 start-80 translate-middle p-2 bg-danger rounded-circle d-none"></span>
+            <button class="btn btn-secondary bg-transparent border-0 me-2" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="d-flex align-items-center position-relative " >
+                <img src="/static/images/bell.png" alt="Bell Icon" style="width:80px;" />
+                <span id="notificationIndicator" class="position-absolute top-10 start-80 translate-middle p-2 bg-danger rounded-circle d-none"></span>
+              </div>
             </button>
-            <ul class="dropdown-menu" id="dropdownMenu" style="display: none;">
+            <ul class="dropdown-menu" id="dropdownMenu" >
               <li class="dropdown-item">No notifications</li>
             </ul>
           </div>
-        </span>
-        <span class="nav-item-group">
-          <a class="profile-link-wrapper" href="{% url 'profile' %}" aria-expanded="false">
-            <div class="profile-link-wrapper">
-              <span class="intra-name-42" data-login="{{ user.profile.nickname }}">{{ user.profile.nickname }}</span>
-              <img class="user-profile-picture visible-sidebars" src="{{ user.profile.avatarUrl }}" alt="User Profile Picture" height="40" width="40" />
-            </div>
-          </a>
+          <span class="nav-item-group">
+            <a class="profile-link-wrapper" href="{% url 'profile' %}" aria-expanded="false">
+              <div class="profile-link-wrapper">
+                <span class="intra-name-42" data-login="{{ user.profile.nickname }}">{{ user.profile.nickname }}</span>
+                <img class="user-profile-picture visible-sidebars" src="{{ user.profile.avatarUrl }}" alt="User Profile Picture">
+              </div>
+            </a>
+          </span>
         </span>
         <div class="w-nav-button">
           <div class="w-icon-nav-menu"></div>

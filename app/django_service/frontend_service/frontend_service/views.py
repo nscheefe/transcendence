@@ -64,6 +64,9 @@ def home(request):
     context = get_home_context(request)
     return render(request, 'frontend/home.html', context)
 
+def home2(request):
+    return render(request, 'frontend/homeNils.html')
+
 @jwt_required
 def game(request):
     context = get_home_context(request)

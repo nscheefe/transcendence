@@ -9,18 +9,22 @@ message TournamentRoom {
     int32 id = 1;
     string name = 2;                          // Name of the tournament room
     bool is_active = 3;                       // Whether the tournament room is active
-    google.protobuf.Timestamp created_at = 4; // Timestamp of creation
-    google.protobuf.Timestamp updated_at = 5; // Timestamp of last update
+    bool started =4;
+    int32 tournament_size = 5;
+    google.protobuf.Timestamp start_time = 6;
+    google.protobuf.Timestamp created_at = 7; // Timestamp of creation
+    google.protobuf.Timestamp updated_at = 8; // Timestamp of last update
 }
 
 message TournamentUser {
     int32 id = 1;
     int32 tournament_room_id = 2;             // FK to TournamentRoom
-    int32 user_id = 3;                        // FK to User
-    int32 play_order = 4;                     // Order in which the user plays
-    int32 games_played = 5;                   // Number of games played by the user
-    google.protobuf.Timestamp created_at = 6; // Timestamp of creation
-    google.protobuf.Timestamp updated_at = 7; // Timestamp of last update
+    string State = 3;
+    int32 user_id = 4;                        // FK to User
+    int32 play_order = 5;                     // Order in which the user plays
+    int32 games_played = 6;                   // Number of games played by the user
+    google.protobuf.Timestamp created_at = 7; // Timestamp of creation
+    google.protobuf.Timestamp updated_at = 8; // Timestamp of last update
 }
 
 message TournamentGameMapping {
