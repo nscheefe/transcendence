@@ -25,8 +25,8 @@ function resetBall() {
     };
 }
 
-function checkWinner() {
-    if (gameState.points.player1 >= 5 || gameState.points.player2 >= 5) {
+function checkWinner(winningScore = 10) {
+    if (gameState.points.player1 >= winningScore || gameState.points.player2 >= winningScore) {
         gameStarted = false;
         clearInterval(gameLoopInterval);
     }
@@ -46,6 +46,8 @@ function updatePaddlePositions() {
         gameState.paddle2.x += 0.1;
     }
 }
+
+let winningScore = 10;
 
 function gameLoop() {
     if (!gameStarted) return;
@@ -78,16 +80,18 @@ function gameLoop() {
     if (gameState.ball.z <= -10) {
         gameState.points.player2 += 1;
         resetBall();
-        checkWinner();
+        checkWinner(winningScore);
     } else if (gameState.ball.z >= 10) {
         gameState.points.player1 += 1;
         resetBall();
-        checkWinner();
+        checkWinner(winningScore);
     }
 }
 
-function startLocalGame() {
+
+function startLocalGame(winning_Score) {
     gameStarted = true;
+    winningScore = winning_Score;
     gameLoopInterval = setInterval(gameLoop, 1000 / 90); // 60 times per second
 }
 

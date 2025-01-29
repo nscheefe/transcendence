@@ -167,7 +167,7 @@ function updateTextMeshOrientation(textMesh, camera) {
 }
 
 // Constants for vaporwave textures
-const TEXTURE_PATH = "https://res.cloudinary.com/dg5nsedzw/image/upload/v1641657168/blog/vaporwave-threejs-textures/grid.png";
+const TEXTURE_PATH = "/static/images/Grid.png";
 const DISPLACEMENT_PATH = "https://res.cloudinary.com/dg5nsedzw/image/upload/v1641657200/blog/vaporwave-threejs-textures/displacement.png";
 const METALNESS_PATH = "https://res.cloudinary.com/dg5nsedzw/image/upload/v1641657200/blog/vaporwave-threejs-textures/metalness.png";
 
@@ -505,35 +505,75 @@ function updateScene(local = false) {
 
 console.log("pong.js loaded");
 
+function generateHTML() {
+    return new Promise((resolve) => {
+        const pongContainer = document.getElementById('pong-container');
+
+        // Create score input container
+        const scoreInputContainer = document.createElement('div');
+        scoreInputContainer.id = 'score-input-container';
+
+        const scoreLabel = document.createElement('label');
+        scoreLabel.htmlFor = 'winning-score';
+        scoreLabel.textContent = 'Set Winning Score:';
+
+        const scoreInput = document.createElement('input');
+        scoreInput.type = 'number';
+        scoreInput.id = 'winning-score';
+        scoreInput.value = '10';
+        scoreInput.min = '1';
+
+        const startGameButton = document.createElement('button');
+        startGameButton.id = 'start-game-btn';
+        startGameButton.classList.add('btn-primary');
+        startGameButton.textContent = 'Start Game';
+
+        scoreInputContainer.appendChild(scoreLabel);
+        scoreInputContainer.appendChild(scoreInput);
+        scoreInputContainer.appendChild(startGameButton);
+
+        pongContainer.appendChild(scoreInputContainer);
+
+        // Add event listener to start game button
+        startGameButton.addEventListener('click', function () {
+            //remove the score input container
+            scoreInputContainer.remove();
+            const winningScore = parseInt(scoreInput.value, 10);
+            resolve(winningScore);
+        });
+    });
+}
 function main(local = false) {
     if (local) {
         console.log("local game");
         updateScene(true);
-        startLocalGame();
-        setInterval(() => {
-            const state = getLocalGameState();
-            if (state.paddle1 !== undefined) {
-                paddle1.position.x = state.paddle1.x;
-            }
-            if (state.paddle2 !== undefined) {
-                paddle2.position.x = state.paddle2.x;
-            }
-            if (state.ball !== undefined) {
-                ball.position.set(state.ball.x, 0.5, state.ball.z);
-            }
-            if (state.points !== undefined) {
-                updateTextMesh(player1TextMesh, `${state.points.player1}`, camera1);
-                updateTextMesh(player2TextMesh, `${state.points.player2}`, camera2);
-            }
-            if (state.direction !== undefined) {
-                direction = state.direction;
-            }
-            if (state.type === 'gameOver') {
-                gameStarted = false;
-                console.log('Game Over');
-                gameOver(state.winner);
-            }
-        }, 1000 / 120); // 60 times per second
+        generateHTML().then((winningScore) => {
+            startLocalGame(winningScore);
+            setInterval(() => {
+                const state = getLocalGameState();
+                if (state.paddle1 !== undefined) {
+                    paddle1.position.x = state.paddle1.x;
+                }
+                if (state.paddle2 !== undefined) {
+                    paddle2.position.x = state.paddle2.x;
+                }
+                if (state.ball !== undefined) {
+                    ball.position.set(state.ball.x, 0.5, state.ball.z);
+                }
+                if (state.points !== undefined) {
+                    updateTextMesh(player1TextMesh, `${state.points.player1}`, camera1);
+                    updateTextMesh(player2TextMesh, `${state.points.player2}`, camera2);
+                }
+                if (state.direction !== undefined) {
+                    direction = state.direction;
+                }
+                if (state.type === 'gameOver') {
+                    gameStarted = false;
+                    console.log('Game Over');
+                    gameOver(state.winner);
+                }
+            }, 1000 / 60); // 60 times per second
+        });
     }
     else {
         console.log("initPongGame called");
