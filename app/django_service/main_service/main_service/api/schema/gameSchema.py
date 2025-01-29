@@ -1,35 +1,36 @@
-from graphql import GraphQLResolveInfo
 from datetime import datetime
+
 import grpc
-from main_service.protos.game_pb2_grpc import GameServiceStub
-from main_service.protos.tournament_pb2_grpc import TournamentServiceStub
+from graphql import GraphQLResolveInfo
+from main_service.api.schema.objectTypes import query, mutation, subscription
+from main_service.protos.gameEvent_pb2 import GetGameEventRequest, CreateGameEventRequest
+from main_service.protos.gameEvent_pb2_grpc import GameEventServiceStub
 from main_service.protos.game_pb2 import (
     GetGameRequest,
     GetOngoingGamesRequest,
     CreateGameRequest,
-CreateFriendGameRequest,
-UpdateGameStateRequest,
+    CreateFriendGameRequest,
+    UpdateGameStateRequest,
     StartGameRequest,
 )
+from main_service.protos.game_pb2_grpc import GameServiceStub
+from main_service.protos.notification_pb2 import CreateNotificationRequest
+from main_service.protos.notification_pb2_grpc import NotificationServiceStub
 from main_service.protos.tournament_pb2 import (
     GetTournamentRoomRequest,
-    ListTournamentRoomsResponse,
     CreateTournamentRoomRequest,
-ListTournamentRoomsRequest,
-    GetTournamentUserRequest,
+    ListTournamentRoomsRequest,
     ListTournamentUsersRequest,
     CreateTournamentUserRequest,
     ListTournamentGameMappingsRequest,
     CreateTournamentGameMappingRequest,
 )
-from main_service.protos.notification_pb2_grpc import NotificationServiceStub
-from main_service.protos.notification_pb2 import GetNotificationsByUserIdRequest, CreateNotificationRequest, DeleteNotificationRequest, UpdateNotificationRequest
+from main_service.protos.tournament_pb2_grpc import TournamentServiceStub
+
 from .userSchema import resolve_profile
-from main_service.protos.gameEvent_pb2_grpc import GameEventServiceStub
-from main_service.protos.gameEvent_pb2 import GetGameEventRequest, CreateGameEventRequest
-from main_service.api.schema.objectTypes import query, mutation, subscription  # Shared objects
 
 GRPC_TARGET = "game_service:50051"  # The gRPC service endpoint
+
 
 # ---------------------------------------
 # Type Definitions (SDL)
@@ -98,8 +99,9 @@ def resolve_tournament(_, info: GraphQLResolveInfo, tournament_id: int):
                 {
                     "id": user.id,
                     "user_id": user.user_id,
-                    "play_order": getattr(user, "play_order", None),  # Handle missing fields gracefully
-                    "games_played": getattr(user, "games_played", None),
+                    "state": user.state,
+                    "play_order": user.play_order,  # Handle missing fields gracefully
+                    "games_played": user.games_played,
                     "created_at": datetime.fromtimestamp(user.created_at.seconds).isoformat(),
                     "updated_at": datetime.fromtimestamp(user.updated_at.seconds).isoformat()
                 }
@@ -107,12 +109,19 @@ def resolve_tournament(_, info: GraphQLResolveInfo, tournament_id: int):
             ]
 
             # Return tournament details with users
+
+
             return {
                 "id": response.id,
                 "name": response.name,
+                "is_active": response.is_active,
+                "started": response.started,
+                "tournament_size": response.tournament_size,
+                "start_time": datetime.fromtimestamp(response.start_time.seconds).isoformat() if response.HasField(
+                    "start_time") else None,
                 "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
                 "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
-                "users": users  # Add the users list to the response
+                "users": users
             }
     except Exception as e:
         print(f"Error fetching tournament or users: {str(e)}")
@@ -139,10 +148,17 @@ def resolve_tournaments(_, info: GraphQLResolveInfo):
                 raise Exception(f"Unexpected response structure: {response}")
 
             # Process the "tournament_rooms" data and format it for GraphQL response
+
             return [
                 {
                     "id": tournament.id,
                     "name": tournament.name,
+                    "is_active": tournament.is_active,
+                    "started": tournament.started,
+                    "tournament_size": tournament.tournament_size,
+                    "start_time": datetime.fromtimestamp(
+                        tournament.start_time.seconds).isoformat() if tournament.HasField(
+                        "start_time") else None,
                     "created_at": datetime.fromtimestamp(tournament.created_at.seconds).isoformat(),
                     "updated_at": datetime.fromtimestamp(tournament.updated_at.seconds).isoformat(),
                 }
@@ -181,6 +197,7 @@ def resolve_tournament_games(_, info: GraphQLResolveInfo, tournament_id: int):
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
 
+
 @query.field("ongoing_games")
 def resolve_ongoing_games(_, info: GraphQLResolveInfo):
     """Fetch all ongoing games."""
@@ -207,6 +224,7 @@ def resolve_ongoing_games(_, info: GraphQLResolveInfo):
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
 
+
 @query.field("tournament_users")
 def resolve_tournament_users(_, info: GraphQLResolveInfo, tournament_id: int):
     """Fetch all users of a tournament."""
@@ -227,6 +245,7 @@ def resolve_tournament_users(_, info: GraphQLResolveInfo, tournament_id: int):
                 {
                     "id": user.id,
                     "user_id": user.user_id,  # Assuming `user_id` maps to FK User
+                    "state": user.state,
                     "tournament_id": user.tournament_room_id,  # Maps directly to tournament FK
                     "created_at": datetime.fromtimestamp(user.created_at.seconds).isoformat(),
                     "updated_at": None,  # Add updated_at if your response doesn't have it
@@ -256,6 +275,7 @@ def resolve_game_event(_, info: GraphQLResolveInfo, game_event_id: int):
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")  # Removed extra lines
 
+
 @mutation.field("create_tournament")
 def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str):
     """Create a new tournament."""
@@ -266,17 +286,22 @@ def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str):
             response = client.CreateTournamentRoom(request)
 
             return {
-                # Removed "description" from returned output
                 "name": response.name,
+                "is_active": response.is_active,
+                "started": response.started,
+                "tournament_size": response.tournament_size,
+                "start_time": datetime.fromtimestamp(response.start_time.seconds).isoformat() if response.HasField(
+                    "start_time") else None,
                 "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
                 "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
             }
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
 
+
 @mutation.field("create_tournament_user")
 def resolve_create_tournament_user(_, info: GraphQLResolveInfo, tournament_id: int, user_id: int):
-    """Create a new user in a tournament.""" #@Todo this is wrong impolemented
+    """Create a new user in a tournament."""
     try:
         with grpc.insecure_channel(GRPC_TARGET) as channel:
             client = TournamentServiceStub(channel)
@@ -297,6 +322,31 @@ def resolve_create_tournament_user(_, info: GraphQLResolveInfo, tournament_id: i
                     "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
                     "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
                 }
+            }
+    except grpc.RpcError as e:
+        raise Exception(f"gRPC error: {e.details()}")
+
+@mutation.field("update_tournament_user")
+def resolve_update_tournament_user(_, info: GraphQLResolveInfo, tournament_id: int, user_id: int, state: str):
+    """Update a user in a tournament."""
+    try:
+        with grpc.insecure_channel(GRPC_TARGET) as channel:
+            client = TournamentServiceStub(channel)
+            request = CreateTournamentUserRequest(
+                tournament_room_id=tournament_id,
+                user_id=user_id,
+                state=state,  # Update state explicitly for the user
+            )
+            response = client.UpdateTournamentUser(request)
+            return {
+                "id": response.id,
+                "tournament_room_id": response.tournament_room_id,
+                "user_id": response.user_id,
+                "state": response.state,
+                "play_order": response.play_order,
+                "games_played": response.games_played,
+                "created_at": datetime.fromtimestamp(response.created_at.seconds).isoformat(),
+                "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
             }
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
@@ -325,7 +375,6 @@ def resolve_create_game(_, info: GraphQLResolveInfo):
             }
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
-
 
 
 @mutation.field("create_game_event")
@@ -361,6 +410,7 @@ def resolve_start_game(_, info: GraphQLResolveInfo, game_id: int):
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
 
+
 @mutation.field("create_tournament_game")
 def resolve_create_tournament_game(_, info: GraphQLResolveInfo, game_id: int, tournament_id: int, user_id: int):
     """Creates a tournament game."""
@@ -385,6 +435,7 @@ def resolve_create_tournament_game(_, info: GraphQLResolveInfo, game_id: int, to
             }
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
+
 
 @mutation.field("create_friend_game")
 def resolve_create_friend_game(_, info: GraphQLResolveInfo, player_a: int, player_b: int):

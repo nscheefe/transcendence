@@ -32,6 +32,9 @@ class TournamentRoom(models.Model):
     id = models.AutoField(primary_key=True)  # Auto-incremented ID
     name = models.CharField(max_length=255)  # Name of the tournament room
     is_active = models.BooleanField(default=True)  # Whether the room is active
+    started = models.BooleanField(default=True)
+    tournament_size = models.IntegerField()
+    start_time = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)  # Timestamp of room creation
     updated_at = models.DateTimeField(auto_now=True)  # Timestamp of last update
 
@@ -47,6 +50,7 @@ class TournamentUser(models.Model):
     )
     user_id = models.IntegerField()  # Foreign Key to User (User ID)
     play_order = models.IntegerField()  # Index of the user in the order of play
+    state = models.CharField(max_length=255)  #
     games_played = models.IntegerField(default=0)  # Number of games played by the user
     created_at = models.DateTimeField(auto_now_add=True)  # Timestamp of record creation
     updated_at = models.DateTimeField(auto_now=True)  # Timestamp of last update
