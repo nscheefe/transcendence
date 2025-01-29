@@ -95,7 +95,7 @@ const handleCreateTournament = async () => {
 };
 
 // Initialize the page
-const initTournamentsPage = async () => {
+export const initTournamentsPage = async () => {
     await loadTournaments(); // Load the tournaments list
 
     // Add event listener for Create Tournament button

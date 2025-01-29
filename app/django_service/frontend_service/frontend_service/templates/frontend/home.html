@@ -1,5 +1,6 @@
 {% extends "frontend/base.html" %}
 {% load static %}
+<link href="{% static 'css/tournament.css' %}" rel="stylesheet" type="text/css" />
 
 {% block title %}Home{% endblock %}
 
@@ -47,8 +48,74 @@
     {% load static %}
     <script type="module" src="{% static 'js/leaderboard.js' %}"></script>
     <script>
-      function openTournamentWindow() {
-        // Logic to open the tournament window in the dynamic windows section
-      }
+      document.addEventListener('DOMContentLoaded', function() {
+        function openTournamentWindow() {
+          const dynamicWindows = document.querySelector('[data-dynamic-windows]');
+          dynamicWindows.innerHTML = `
+            <!-- Right Side: Tournaments Card -->
+          <div id="pong-container">
+            <button id="close-btn">Close</button>
+              <div class="d-flex card bg-transparent text-light h-100 w-100" style="position: relative; z-index: 20;">
+                <div class="card-header">
+                  <!-- Navigation Pills -->
+                  <ul class="nav nav-tabs" id="tournamentTabs" role="tablist">
+                    <li class="nav-item">
+                      <button class="nav-link text-opacity-0" id="tournaments-tab" data-bs-toggle="tab" data-bs-target="#tournaments-tab-pane" type="button" role="tab" aria-controls="tournaments-tab-pane" aria-selected="false">
+                        Tournaments
+                      </button>
+                    </li>
+                    <li class="nav-item">
+                      <button class="nav-link" id="new-tournament-tab" data-bs-toggle="tab" data-bs-target="#new-tournament-tab-pane" type="button" role="tab" aria-controls="new-tournament-tab-pane" aria-selected="false">
+                        New Tournament
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+                <div class="tab-content card-body" id="tournamentTabContent">
+                  <!-- Tournaments Tab Pane -->
+                  <div class="tab-pane fade" id="tournaments-tab-pane" role="tabpanel" aria-labelledby="tournaments-tab" tabindex="0">
+                    <br>
+                    <h1>Tournaments</h1>
+                    <ul id="tournament" class="scrollable" style="width:100%">
+                      <span> Loading Tournaments ....</span>
+                    </ul>
+                  </div>
+                  <!-- New Tournament Tab Pane -->
+                  <div class="tab-pane fade" id="new-tournament-tab-pane" role="tabpanel" aria-labelledby="new-tournament-tab" tabindex="0">
+                    <h5 class="card-title">Create a New Tournament</h5>
+                    <form>
+                      <div class="mb-3">
+                        <label for="tournamentNameInput" class="form-label">Tournament Name</label>
+                        <input type="text" class="form-control bg-secondary text-light" id="tournamentNameInput" placeholder="Enter tournament name">
+                      </div>
+                      <div class="mb-3">
+                        <label for="tournamentDateInput" class="form-label">Tournament Date</label>
+                        <input type="date" class="form-control bg-secondary text-light" id="tournamentDateInput">
+                      </div>
+                      <button type="submit" class="btn btn-primary" id="create-tournament-btn">Create Tournament</button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          `;
+          const closeBtn = document.getElementById('close-btn');
+        closeBtn.addEventListener('click', function() {
+          const dynamicWindows = document.querySelector('[data-dynamic-windows]');
+          dynamicWindows.innerHTML = '';
+        });
+          import('{% static 'js/tournament.js' %}').then(module => {
+            console.log('Tournament module loaded');
+            module.initTournamentsPage();
+          }).catch(error => {
+            console.error('An error occurred while loading the module:', error);
+          });
+
+        }
+
+        // Attach the function to the global scope
+        window.openTournamentWindow = openTournamentWindow;
+      });
     </script>
 {% endblock %}

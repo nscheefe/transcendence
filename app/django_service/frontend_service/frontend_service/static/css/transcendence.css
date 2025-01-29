@@ -1097,12 +1097,18 @@ blockquote {
 .nav-link {
   -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: var(--neon-pink);
+  text-decoration-color: var(--neon-pink)!important;
+  color:#0000;
   text-transform: uppercase;
   padding-top: 22px;
   padding-bottom: 22px;
   font-family: Audiowide, sans-serif;
   font-size: 20px;
   text-align: center;
+}
+
+.nav-link.active {
+  color: var(--neon-pink)!important;
 }
 
 
