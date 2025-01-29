@@ -18,6 +18,39 @@
   --toast-animation-end: var(--toast-bottom-position);
 }
 
+/* Add this CSS to your stylesheet or within a <style> tag in your HTML file */
+#score-input-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    z-index: 1000; /* Ensure it is above other elements */
+}
+
+#score-input-container label,
+#score-input-container input,
+#score-input-container button {
+    display: block;
+    margin: 10px auto;
+}
+
+#score-input-container input {
+    width: 100px;
+    padding: 5px;
+    font-size: 16px;
+    background: none;
+}
+
+#score-input-container button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
 .notification-button {
   width: 40px;
   height: 40px;
@@ -1943,6 +1976,7 @@ blockquote {
 #pong-container {
   position: fixed;
   display: flex;
+  flex-direction: row-reverse;
   justify-content: center;
   top: 50%;
   left: 50%;

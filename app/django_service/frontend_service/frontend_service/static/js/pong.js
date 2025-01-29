@@ -1,3 +1,5 @@
+import { startLocalGame, updateLocalGameState, getLocalGameState } from './localGame.js';
+
 document.getElementById('close-btn').addEventListener('click', function () {
     if (gameStarted) {
         const confirmClose = confirm("The game is ongoing. Are you sure you want to close?");
@@ -13,22 +15,10 @@ document.getElementById('close-btn').addEventListener('click', function () {
     window.location.href = '/home';
 });
 
-// Ask for confirmation when the user tries to navigate away using the back button or closing the tab
-//window.addEventListener('beforeunload', function (event) {
-//    if (!gameStarted) {
-//        const confirmClose = confirm("The game is ongoing. Are you sure you want to leave?");
-//        if (!confirmClose) {
-//            event.preventDefault();
-//            event.returnValue = ''; // For compatibility with older browsers
-//            return '';
-//        }
-//    }
-//});
-
 // Global variables
 let font;
 let player1TextMesh, player2TextMesh;
-let effectComposer, vaporPlane, vaporPlane2, vaporPlane3;
+let effectComposer1, effectComposer2, vaporPlane, vaporPlane2, vaporPlane3;
 let keyState = {};
 let isAnimating = false;
 let direction = 1;
@@ -36,7 +26,7 @@ let socket = null;
 let isConnecting = false;
 let gameStarted = false;
 let player;
-let scene, camera, renderer, ball, paddle1, paddle2;
+let scene, camera1, camera2, renderer1, renderer2, ball, paddle1, paddle2;
 
 function createTextMesh(text, size, color, position) {
     const geometry = new THREE.TextGeometry(text, {
@@ -119,8 +109,8 @@ function createWebSocket() {
                 ball.position.set(state.ball.x, 0.5, state.ball.z);
             }
             if (state.points !== undefined) {
-                updateTextMesh(player1TextMesh, `${state.points.player1}`, camera);
-                updateTextMesh(player2TextMesh, `${state.points.player2}`, camera);
+                updateTextMesh(player1TextMesh, `${state.points.player1}`, camera1);
+                updateTextMesh(player2TextMesh, `${state.points.player2}`, camera2);
             }
             if (state.direction !== undefined) {
                 direction = state.direction;
@@ -177,7 +167,7 @@ function updateTextMeshOrientation(textMesh, camera) {
 }
 
 // Constants for vaporwave textures
-const TEXTURE_PATH = "https://res.cloudinary.com/dg5nsedzw/image/upload/v1641657168/blog/vaporwave-threejs-textures/grid.png";
+const TEXTURE_PATH = "/static/images/Grid.png";
 const DISPLACEMENT_PATH = "https://res.cloudinary.com/dg5nsedzw/image/upload/v1641657200/blog/vaporwave-threejs-textures/displacement.png";
 const METALNESS_PATH = "https://res.cloudinary.com/dg5nsedzw/image/upload/v1641657200/blog/vaporwave-threejs-textures/metalness.png";
 
@@ -187,20 +177,21 @@ function createScene() {
     return scene;
 }
 
-function createCamera() {
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+function createCamera(player, sizes,local = false) {
+    const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 1000);
+    const y = local ? 10 : 5;
     if (player === 1) {
-        camera.position.set(0, 10, -15);
+        camera.position.set(0, y, -15);
     } else {
-        camera.position.set(0, 10, 15);
+        camera.position.set(0, y, 15);
     }
     camera.lookAt(0, 0, 0);
     return camera;
 }
 
-function createRenderer() {
+function createRenderer(id, sizes) {
     // Remove any existing canvas elements
-    const existingCanvas = document.getElementById('pong-canvas');
+    const existingCanvas = document.getElementById(id);
     if (existingCanvas) {
         existingCanvas.remove();
     }
@@ -210,17 +201,13 @@ function createRenderer() {
         alpha: true,
         canvas: document.createElement('canvas')
     });
-    renderer.domElement.id = 'pong-canvas';
+    renderer.domElement.id = id;
 
     // Append the new canvas to the pong-container
     const pongContainer = document.getElementById('pong-container');
     pongContainer.appendChild(renderer.domElement);
 
     // Set the renderer size to match the parent container
-    const sizes = {
-        width: pongContainer.clientWidth,
-        height: pongContainer.clientHeight,
-    };
     renderer.setSize(sizes.width, sizes.height);
 
     renderer.setClearColor(0x000000, 0.5); // Second parameter is the alpha value
@@ -232,13 +219,13 @@ function createLights(scene) {
     const ambientLight = new THREE.AmbientLight("#ffffff", 200);
     scene.add(ambientLight);
 
-    const spotlight = new THREE.SpotLight("#d53c3d", 20, 500, Math.PI * 0.1, 5);
+    const spotlight = new THREE.SpotLight("#ffffff", 20, 500, Math.PI * 0.1, 5);
     spotlight.position.set(10, 15, 2.2);
     spotlight.target.position.set(-5, 5, 5);
     scene.add(spotlight);
     scene.add(spotlight.target);
 
-    const spotlight2 = new THREE.SpotLight("#d53c3d", 20, 500, Math.PI * 0.1, 5);
+    const spotlight2 = new THREE.SpotLight("#ffffff", 20, 500, Math.PI * 0.1, 5);
     spotlight2.position.set(-10, 15, 2.2);
     spotlight2.target.position.set(5, 5, 5);
     scene.add(spotlight2);
@@ -259,7 +246,12 @@ function createTable() {
 
 function createBall() {
     const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-    const ballMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    const ballMaterial = new THREE.MeshPhongMaterial({
+        color: 0x000000,
+        emissive: 0xe32285,
+        shininess: 100,
+        specular: 0xffffff
+    });
     const ball = new THREE.Mesh(ballGeometry, ballMaterial);
     ball.position.set(0, 0.5, 0);
     return ball;
@@ -297,7 +289,7 @@ function createTextOnTable(font, scene, text, offsetY, table) {
     return mesh;
 }
 
-function initVaporwaveScene(scene, camera, renderer, sizes) {
+function initVaporwaveScene(scene, camera, renderer, sizes, local = false) {
     const fog = new THREE.Fog("#000000", 1, 60);
     scene.fog = fog;
 
@@ -337,28 +329,33 @@ function initVaporwaveScene(scene, camera, renderer, sizes) {
     scene.add(vaporPlane2);
     scene.add(vaporPlane3);
 
-    // Post Processing
-    effectComposer = new THREE.EffectComposer(renderer);
-    effectComposer.setSize(sizes.width, sizes.height);
-    effectComposer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    // Post Processing for the first renderer
+    effectComposer1 = new THREE.EffectComposer(renderer1);
+    effectComposer1.setSize(sizes.width, sizes.height);
+    effectComposer1.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    const renderPass = new THREE.RenderPass(scene, camera);
-    effectComposer.addPass(renderPass);
+    const renderPass1 = new THREE.RenderPass(scene, camera1);
+    effectComposer1.addPass(renderPass1);
 
-    const rgbShiftPass = new THREE.ShaderPass(THREE.RGBShiftShader);
-    rgbShiftPass.uniforms["amount"].value = 0.0015;
-    effectComposer.addPass(rgbShiftPass);
+    const rgbShiftPass1 = new THREE.ShaderPass(THREE.RGBShiftShader);
+    rgbShiftPass1.uniforms["amount"].value = 0.0015;
+    effectComposer1.addPass(rgbShiftPass1);
 
-    const gammaCorrectionPass = new THREE.ShaderPass(THREE.GammaCorrectionShader);
-    effectComposer.addPass(gammaCorrectionPass);
+    const gammaCorrectionPass1 = new THREE.ShaderPass(THREE.GammaCorrectionShader);
+    effectComposer1.addPass(gammaCorrectionPass1);
 }
 
 function handleKeyState(event) {
     keyState[event.key] = event.type === 'keydown';
-    // Send key state to server
+
+    // Update local game state
+    updateLocalGameState(event.key, keyState[event.key]);
+
+    // Send key state to server if WebSocket is open
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: 'keyState', key: event.key, state: keyState[event.key] }));
     }
+
     // Handle local paddle movement for preview
     updatePaddlePosition();
 }
@@ -409,8 +406,14 @@ function animate() {
         vaporPlane2.position.z = ((timer * 3) % 40) - 40;
         vaporPlane3.position.z = ((timer * 3) % 40) + 40;
 
-        effectComposer.render();
-        renderer.render(scene, camera);
+        effectComposer1.render();
+        if (effectComposer2) {
+            effectComposer2.render();
+        }
+        renderer1.render(scene, camera1);
+        if (renderer2) {
+            renderer2.render(scene, camera2);
+        }
         requestAnimationFrame(render);
     }
     render();
@@ -418,14 +421,23 @@ function animate() {
 
 function updateCamera() {
     if (player === 1) {
-        camera.position.set(0, 10, -15);
+        camera1.position.set(0, 10, -15);
+        if (camera2) {
+            camera2.position.set(0, 10, 15);
+        }
     } else {
-        camera.position.set(0, 10, 15);
+        camera1.position.set(0, 10, 15);
+        if (camera2) {
+            camera2.position.set(0, 10, -15);
+        }
     }
-    camera.lookAt(0, 0, 0);
+    camera1.lookAt(0, 0, 0);
+    if (camera2) {
+        camera2.lookAt(0, 0, 0);
+    }
 }
 
-function updateScene() {
+function updateScene(local = false) {
     // Remove waiting-message
     const loadingScreen = document.getElementById('waiting-message');
     if (loadingScreen) {
@@ -436,12 +448,32 @@ function updateScene() {
         width: pongContainer.clientWidth,
         height: pongContainer.clientHeight,
     };
+    if (local)
+        sizes.width /= 2;
     // Scene setup
     scene = createScene();
-    camera = createCamera();
-    renderer = createRenderer();
+    camera1 = createCamera(1, sizes, local);
+    renderer1 = createRenderer('pong-canvas-1', sizes);
     createLights(scene);
-    initVaporwaveScene(scene, camera, renderer, sizes);
+    initVaporwaveScene(scene, camera1, renderer1, sizes, local);
+
+    if (local) {
+        camera2 = createCamera(2, sizes, local);
+        renderer2 = createRenderer('pong-canvas-2', sizes);
+        effectComposer2 = new THREE.EffectComposer(renderer2);
+        effectComposer2.setSize(sizes.width, sizes.height);
+        effectComposer2.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const renderPass2 = new THREE.RenderPass(scene, camera2);
+        effectComposer2.addPass(renderPass2);
+
+        const rgbShiftPass2 = new THREE.ShaderPass(THREE.RGBShiftShader);
+        rgbShiftPass2.uniforms["amount"].value = 0.0015;
+        effectComposer2.addPass(rgbShiftPass2);
+
+        const gammaCorrectionPass2 = new THREE.ShaderPass(THREE.GammaCorrectionShader);
+        effectComposer2.addPass(gammaCorrectionPass2);
+    }
 
     // Create game objects
     const table = createTable();
@@ -473,9 +505,81 @@ function updateScene() {
 
 console.log("pong.js loaded");
 
-function main() {
-    console.log("initPongGame called");
-    createWebSocket();
+function generateHTML() {
+    return new Promise((resolve) => {
+        const pongContainer = document.getElementById('pong-container');
+
+        // Create score input container
+        const scoreInputContainer = document.createElement('div');
+        scoreInputContainer.id = 'score-input-container';
+
+        const scoreLabel = document.createElement('label');
+        scoreLabel.htmlFor = 'winning-score';
+        scoreLabel.textContent = 'Set Winning Score:';
+
+        const scoreInput = document.createElement('input');
+        scoreInput.type = 'number';
+        scoreInput.id = 'winning-score';
+        scoreInput.value = '10';
+        scoreInput.min = '1';
+
+        const startGameButton = document.createElement('button');
+        startGameButton.id = 'start-game-btn';
+        startGameButton.classList.add('btn-primary');
+        startGameButton.textContent = 'Start Game';
+
+        scoreInputContainer.appendChild(scoreLabel);
+        scoreInputContainer.appendChild(scoreInput);
+        scoreInputContainer.appendChild(startGameButton);
+
+        pongContainer.appendChild(scoreInputContainer);
+
+        // Add event listener to start game button
+        startGameButton.addEventListener('click', function () {
+            //remove the score input container
+            scoreInputContainer.remove();
+            const winningScore = parseInt(scoreInput.value, 10);
+            resolve(winningScore);
+        });
+    });
+}
+function main(local = false) {
+    if (local) {
+        console.log("local game");
+        updateScene(true);
+        generateHTML().then((winningScore) => {
+            startLocalGame(winningScore);
+            setInterval(() => {
+                const state = getLocalGameState();
+                if (state.paddle1 !== undefined) {
+                    paddle1.position.x = state.paddle1.x;
+                }
+                if (state.paddle2 !== undefined) {
+                    paddle2.position.x = state.paddle2.x;
+                }
+                if (state.ball !== undefined) {
+                    ball.position.set(state.ball.x, 0.5, state.ball.z);
+                }
+                if (state.points !== undefined) {
+                    updateTextMesh(player1TextMesh, `${state.points.player1}`, camera1);
+                    updateTextMesh(player2TextMesh, `${state.points.player2}`, camera2);
+                }
+                if (state.direction !== undefined) {
+                    direction = state.direction;
+                }
+                if (state.type === 'gameOver') {
+                    gameStarted = false;
+                    console.log('Game Over');
+                    gameOver(state.winner);
+                }
+            }, 1000 / 60); // 60 times per second
+        });
+    }
+    else {
+        console.log("initPongGame called");
+        updateScene(false);
+        createWebSocket();
+    }
 }
 // Expose the init function to be called externally
 window.initPongGame = main;

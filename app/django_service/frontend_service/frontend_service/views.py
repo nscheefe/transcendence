@@ -70,12 +70,19 @@ def home2(request):
 @jwt_required
 def game(request):
     context = get_home_context(request)
-    game = create_game.createGame(request)
-    logger.info(game)
+    game = None
+    # Check for the 'local' query parameter
+    is_local_game = request.GET.get('local', 'false').lower() == 'true'
+    if is_local_game != True:
+        game = create_game.createGame(request)
+        logger.info(game)
+
     # Extend the context with additional data for the game view
     context.update({
         'game': game,  # Example function for getting game data
+        'is_local_game': is_local_game,  # Add the local game flag to the context
     })
+
     return render(request, 'frontend/pong.html', context)
 
 @csrf_exempt
