@@ -9,6 +9,8 @@ from main_service.api.schema.userSchema import resolver as user_resolver
 from main_service.api.schema.chatSchema import resolver as chat_resolver
 from main_service.api.schema.statSchema import resolvers as stat_resolver
 from main_service.api.schema.gameSchema import resolver as game_resolver
+from main_service.api.schema.notificationSchema import resolver as notification_resolver
+
 # Define the DateTime scalar type
 datetime_scalar = ScalarType("DateTime")
 
@@ -51,6 +53,7 @@ type_defs = """
         friendId: Int!
         establishedAt: DateTime
         accepted: Boolean!
+        blocked: Boolean!
     }
 
     type Notification {
@@ -100,11 +103,17 @@ type_defs = """
             StatList: [StatsWithProfile!]!
 
     }
+    type onlineStatus {
+        userId: Int!
+        status: Boolean!
+    }
 
     type Subscription {
         ping_test: Ping!
         chatRoomsForUser: ChatRoom!
         chat_room_message(chat_room_id: Int!): ChatRoomMessage!
+        notificationsForUser: Notification!
+        onlineStatus(user_id: Int!): onlineStatus
     }
 
     type Role {
@@ -158,9 +167,16 @@ type_defs = """
        friendId: Int!
    }
 
+    input FriendshipBlockInput {
+        id: Int
+        friendId: Int!
+        blocked: Boolean!
+    }
+
    input FriendshipUpdateInput {
-       friendId: Int!
+       id: Int!
        accepted: Boolean!
+       blocked: Boolean
    }
 
    input FriendshipDeleteInput {
@@ -169,6 +185,7 @@ type_defs = """
 
    input FriendshipInput {
        create: FriendshipCreateInput
+       block: FriendshipBlockInput
        update: FriendshipUpdateInput
        delete: FriendshipDeleteInput
    }
@@ -258,6 +275,8 @@ type_defs = """
         create_friend_game(player_a: Int!, player_b: Int!): Game!
         update_game_state(game_id: Int!, state: String!): Game!
         create_chat_room(name: String!, game_id: Int): ChatRoom
+        add_user_to_chat_room(chat_room_id: Int!, user_id: Int!): ChatRoomUser
+        startChatWithUser(user_id: Int!, game_id: Int): ChatRoom
         create_chat_room_message(chat_room_id: Int!, content: String!): ChatRoomMessage
     }
 
@@ -401,4 +420,4 @@ def parse_datetime_literal(ast):
     return datetime.fromisoformat(ast.value)
 
 # Create the executable schema
-schema = make_executable_schema(type_defs, user_resolver, chat_resolver, stat_resolver, game_resolver)
+schema = make_executable_schema(type_defs, user_resolver, chat_resolver, stat_resolver, game_resolver, notification_resolver)

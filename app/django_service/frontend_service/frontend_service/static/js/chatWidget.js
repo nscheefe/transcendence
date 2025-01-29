@@ -1,21 +1,11 @@
-import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage, fetchUserDetails } from './chatservice.js';
-import { showError } from './utils.js';
+import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage } from './chatservice.js';
+import { blockUser, fetchFriendships } from './friendservice.js';
+import { showError, generateUserAvatarHTML, fillUserCache, initializeOnlineStatusSubscriptions, userCache } from './utils.js'; // Import the new function
 import { addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, formatTime } from './domHelpers.js';
 
-const userCache = {}; // Cache to store user details
 
-const fillUserCache = async (users) => {
-    for (const user of users) {
-        if (!userCache[user.user_id]) {
-            try {
-                const userDetails = await fetchUserDetails(user.user_id);
-                userCache[user.user_id] = userDetails.profile;
-            } catch (error) {
-                console.error('Error fetching user details:', error);
-            }
-        }
-    }
-};
+window.userCache = userCache; // Expose user cache for debugging
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const chatRoomList = document.getElementById('chatRoomList');
@@ -33,11 +23,22 @@ document.addEventListener('DOMContentLoaded', () => {
      * Populates chat room messages in the UI.
      * @param {number} chatRoomId - ID of the chat room.
      */
-    const populateChatRoomMessages = (chatRoomId) => {
+    const populateChatRoomMessages = async (chatRoomId) => {
         chatRoomMessagesContainer.innerHTML = '';
+        let friendships = await fetchFriendships(); // Await the result of fetchFriendships
+        console.log('Fetched Friendships:', friendships);
+
+        friendships = Array.isArray(friendships) ? friendships.flat() : Object.values(friendships).flat(); // Ensure friendships is an array
+        console.log('Processed Friendships:', friendships);
+
+        let blockedUsers = friendships.filter(friendship => friendship.blocked).map(friendship => friendship.friendId);
+        console.log('Blocked users:', blockedUsers);
 
         const onMessageUpdate = async (message) => {
             const { timestamp, sender_id, content } = message.data.chat_room_message;
+            if (blockedUsers.includes(sender_id)) {
+                return;
+            }
             const messageDate = formatDate(timestamp);
             const formattedTime = formatTime(timestamp);
 
@@ -55,9 +56,15 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const user = userCache[sender_id];
-            const avatar = user.avatarUrl || DEFAULT_AVATAR;
-            const nickname = user.nickname || `User ${sender_id}`;
-
+            const profile = user.profile;
+            if (!user) {
+                console.error('User details not found for user_id:', sender_id);
+                return;
+            }
+            const avatar = profile.avatarUrl || DEFAULT_AVATAR;
+            const nickname = profile.nickname || `User ${sender_id}`;
+            const own_nickname = document.querySelector('.intra-name-42').innerText;
+            const isOwnMessage = nickname == own_nickname;
             if (lastMessageDate !== messageDate) {
                 const dateElement = createElement('li', messageDate, 'text-center my-3', {
                     color: '#ffffff'
@@ -65,24 +72,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 chatRoomMessagesContainer.appendChild(dateElement);
                 lastMessageDate = messageDate;
             }
-
             const messageElement = createElement(
                 'li',
                 `
-                    <img src="${avatar}" alt="avatar" class="rounded-circle d-flex align-self-start me-3 shadow-1-strong" width="60" style="flex-shrink: 0;">
-                    <div class="card flex-grow-1">
-                        <div class="card-header d-flex justify-content-between py-1 px-2">
+                <div class="d-flex ${isOwnMessage ? 'flex-row-reverse align-self-end' : 'flex-row align-self-start'}">
+                <div class="d-flex flex-column align-items-center justify-content-center">
+                    <a href="/home/profile/${sender_id}">
+                        <img src="${avatar}" alt="avatar" class="rounded-circle d-flex ${isOwnMessage ? 'ms-3' : 'me-3'} shadow-1-strong object-fit-cover" width="60" height="60" style="flex-shrink: 0;">
+                    </a>
+                    <p class="text-light small text-center mb-0">
+                        <i class="far fa-clock mt-1"> ${formattedTime} </i>
+                    </p>
+                </div>
+                    <div class="card flex-grow-1 ${isOwnMessage ? 'text-end' : 'text-start'}">
+                        <div class="card-header d-flex ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'} py-1">
                             <p class="text-muted mb-0" style="font-size: 0.875rem;">${nickname}</p>
-                            <p class="text-muted small mb-0">
-                                <i class="far fa-clock"></i> ${formattedTime}
-                            </p>
                         </div>
                         <div class="card-body" style="background-color: #202020; color: #ffffff;">
                             <p class="mb-0">${content}</p>
                         </div>
                     </div>
+                </div>
                 `,
-                'chat-message d-flex align-items-start mb-3', {
+                `chat-message d-flex flex-row ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'} mb-3`, {
                 maxWidth: '100%'
             }
             );
@@ -133,7 +145,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Subscribe to real-time updates for chat rooms
             const subscribe = subscribeToUserChatRooms(
                 async (room) => {
-                    console.log('Subscription data:', room);
                     room = room.data.chatRoomsForUser;
 
                     // Fill user cache
@@ -143,17 +154,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!existingRoomIds.has(room.id)) {
                         existingRoomIds.add(room.id); // Track added chat room
 
+                        if (room.name.includes('User-to-User')) {
+                            const userIds = room.name.match(/\d+/g);
+                            if (userIds && userIds.length === 2) {
+                                const user1 = userCache[userIds[0]];
+                                const user2 = userCache[userIds[1]];
+                                room.name = `Chat of ${user1.profile.nickname} and ${user2.profile.nickname}`;
+                            }
+                        }
+                        // Generate the list of avatars
+                        const avatars = room.users.map(user => generateUserAvatarHTML(user.user_id)).join('');
+
                         // Create and add the chat room element to the list
                         const newRoomElement = createElement(
                             'li',
                             `
                                 <a href="#!" class="d-flex justify-content-between">
-                                    <div class="d-flex flex-row">
-                                        <img src="${DEFAULT_AVATAR}" alt="avatar" width="60" class="rounded-circle me-3">
-                                        <div>
-                                            <p class="fw-bold">${room.name}</p>
-                                        </div>
+                                <div class="d-flex flex-column">
+                                    <div>
+                                        <p class="fw-bold">${room.name}</p>
                                     </div>
+                                    <div class="d-flex flex-row pt-1">
+                                        ${avatars}
+                                    </div>
+                                </div>
                                 </a>
                             `,
                             'chat-room p-2 border-bottom',
@@ -206,4 +230,5 @@ document.addEventListener('DOMContentLoaded', () => {
     toggleButton?.addEventListener('click', toggleOffcanvas);
     closeButton?.addEventListener('click', toggleOffcanvas);
     loadChatRoomData();
+    initializeOnlineStatusSubscriptions(); // Initialize online status subscriptions
 });

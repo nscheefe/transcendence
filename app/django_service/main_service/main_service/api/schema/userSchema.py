@@ -206,6 +206,7 @@ def resolve_friendships(_, info):
                 "establishedAt": datetime.fromtimestamp(friendship.established_at.seconds) if friendship.HasField(
                 "established_at") else None,
                 "accepted": friendship.accepted,
+                "blocked": friendship.blocked,
             }
             for friendship in response.friendships
         ]
@@ -296,6 +297,7 @@ def resolve_manage_friendship(_, info, friendshipData):
             create_request = CreateFriendshipRequest(
                 user_id=user_id,
                 friend_id=friendshipData["create"]["friendId"],
+                blocked=False,
             )
             response = friendship_stub.CreateFriendship(create_request)
             if not response.id:
@@ -312,12 +314,37 @@ def resolve_manage_friendship(_, info, friendshipData):
             )
             notification_stub.CreateNotification(notification_request)
 
+        if friendshipData.get("block"):
+            try:
+                block_request = CreateFriendshipRequest(
+                    user_id=user_id,
+                    friend_id=friendshipData["block"]["friendId"],
+                    blocked=friendshipData["block"]["blocked"],
+                )
+                response = friendship_stub.CreateFriendship(block_request)
+                if not response.id:
+                    raise Exception("Failed to block friendship.")
+            except grpc.RpcError as e:
+                if e.code() == grpc.StatusCode.ALREADY_EXISTS:
+                    update_request = UpdateFriendshipRequest(
+                        id=friendshipData["block"]["id"],
+                        accepted=False,
+                        blocked=friendshipData["block"]["blocked"],
+                    )
+                    reponse = friendship_stub.UpdateFriendship(update_request)
+                else:
+                    raise e
+
+
         if friendshipData.get("update"):
             update_request = UpdateFriendshipRequest(
-                user_id=user_id,
-                friend_id=friendshipData["update"]["friendId"],
-                accepted=friendshipData["update"]["accepted"],
+                id=friendshipData["update"]["id"],
+                blocked=friendshipData["update"]["blocked"],
+                accepted=friendshipData["update"]["accepted"]
             )
+            if friendshipData["update"]["blocked"] is not None:
+                update_request.blocked = friendshipData["update"]["blocked"]
+
             friendship_stub.UpdateFriendship(update_request)
 
         if friendshipData.get("delete"):
@@ -350,7 +377,7 @@ def resolve_manage_notification(_, info, notificationData):
                 user_id=user_id,
                 message=notificationData["create"]["message"],
                 read=notificationData["create"]["read"],
-                sent_at=notificationData["create"]["sentAt"],
+                sent_at=datetime.fromisoformat(notificationData["create"]["sentAt"]) if notificationData["create"].get("sentAt") else None,
             )
             notification_stub.CreateNotification(create_request)
 

@@ -1,5 +1,26 @@
 import { executeSubscription, executeMutation, executeQuery, } from "./utils.js"
 
+export const startChatWithUser = async (userId, gameId = null) => {
+    const mutation = `
+    mutation StartChatWithUser($userId: Int!, $gameId: Int) {
+        startChatWithUser(user_id: $userId, game_id: $gameId) {
+            id
+            name
+            created_at
+            game_id
+            users {
+                id
+                user_id
+                chat_room_id
+                joined_at
+            }
+        }
+    }
+    `;
+    const variables = { userId: parseInt(userId, 10), gameId: gameId };
+    return executeMutation(mutation, variables);
+};
+
 /**
  * Subscribes to real-time updates for the user's chat rooms.
  * @param {function} onChatRoomUpdate - Callback function, triggered on receiving a new update.
