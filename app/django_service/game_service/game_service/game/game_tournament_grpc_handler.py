@@ -101,7 +101,7 @@ class TournamentServiceHandler:
                 id=user.id,
                 tournament_room_id=user.tournament_room_id,
                 user_id=user.user_id,
-                state=user.state,
+                State=user.state,
                 play_order=user.play_order,
                 games_played=user.games_played,
                 created_at=datetime_to_proto(user.created_at),
@@ -120,7 +120,7 @@ class TournamentServiceHandler:
                     tournament_room_id=user.tournament_room_id,
                     user_id=user.user_id,
                     play_order=user.play_order,
-                    state=user.state,
+                    State=user.state,
                     games_played=user.games_played,
                     created_at=datetime_to_proto(user.created_at),
                     updated_at=datetime_to_proto(user.updated_at),
@@ -160,7 +160,7 @@ class TournamentServiceHandler:
             return tournament_pb2.TournamentUser(
                 id=user.id,
                 tournament_room_id=user.tournament_room_id,
-                state=user.state,
+                State=user.state,
                 user_id=user.user_id,
                 play_order=user.play_order,
                 games_played=user.games_played,
@@ -175,15 +175,21 @@ class TournamentServiceHandler:
     def UpdateTournamentUser(self, request, context):
         try:
             user = TournamentUser.objects.get(id=request.tournament_user_id)
-            user.play_order = request.play_order
-            user.games_played = request.games_played
-            user.state = request.state
+            if request.play_order is not None and request.play_order != 0:
+                user.play_order = request.play_order
+
+            if request.games_played is not None and request.games_played != 0:
+                user.games_played = request.games_played
+
+            if request.state is not None:
+                user.state = request.state
+
             user.save()
             response = tournament_pb2.TournamentUser(
                 id=user.id,
                 tournament_room_id=user.tournament_room_id,
                 user_id=user.user_id,
-                state=user.state,
+                State=user.state,
                 play_order=user.play_order,
                 games_played=user.games_played,
                 created_at=datetime_to_proto(user.created_at),

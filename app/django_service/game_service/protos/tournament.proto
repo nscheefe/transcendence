@@ -81,6 +81,7 @@ message UpdateTournamentUserRequest {
     int32 tournament_user_id = 1;
     int32 play_order = 2;
     int32 games_played = 3;
+    string state = 4;
 }
 
 message DeleteTournamentUserRequest {

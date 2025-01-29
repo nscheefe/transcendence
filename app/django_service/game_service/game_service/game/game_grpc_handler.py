@@ -13,7 +13,7 @@ from game_service.protos.stat_pb2 import (
 from game_service.protos.stat_pb2_grpc import StatServiceStub
 
 from google.protobuf.empty_pb2 import Empty
-from .models import Game
+from .models import Game, TournamentGameMapping, TournamentUser, TournamentRoom
 
 
 class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
@@ -246,6 +246,8 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         try:
             # Fetch the game from the database
             game = Game.objects.get(id=request.game_id)
+            is_tournament_game = TournamentGameMapping.objects.filter(game_id=game.id).exists()
+
 
             # Update game stats
             game.points_player_a = request.points_player_a
@@ -263,8 +265,29 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             else:
                 game.save()
                 return Empty()
+            if is_tournament_game:
+                try:
+                    tournament_mapping = TournamentGameMapping.objects.get(game_id=game.id)
+                    tournament_room = tournament_mapping.tournament_room
+                    winner_tournament_user = TournamentUser.objects.filter(
+                        tournament_room=tournament_room,
+                        user_id=winner_id
+                    ).first()
 
-            # Save updates to the database
+                    if winner_tournament_user:
+                        logging.info(f"Winner User {winner_id} is part of TournamentRoom {tournament_room.id}")
+                        winner_tournament_user.games_played += 1
+                        winner_tournament_user.state= "WAITING"
+                        winner_tournament_user.save()
+
+                    else:
+                        logging.warning(
+                            f"Winner {winner_id} is not a participant in TournamentRoom {tournament_room.id}")
+                except TournamentGameMapping.DoesNotExist:
+                    logging.error(f"Tournament mapping not found for Game {game.id}")
+                except Exception as e:
+                    logging.error(f"Error while determining tournament winner: {str(e)}")
+
             game.save()
             create_stat_request = CreateStatRequest(
                 game_id=request.game_id,

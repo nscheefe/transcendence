@@ -60,21 +60,19 @@ export const addUserToTournament = async (tournamentId, userId) => {
  * @returns {Promise<Object>} - Response indicating success and user details.
  */
 export const updateTournamentUser = async (
-  tournamentId,
+  tournamentUserId,
   userId,
   { state, playOrder, gamesPlayed } = {}
 ) => {
   const mutation = `
     mutation UpdateTournamentUser(
-      $tournamentId: Int!
-      $userId: Int!
+      $tournamentUserId: Int!
       $state: String
       $playOrder: Int
       $gamesPlayed: Int
     ) {
       update_tournament_user(
-        tournament_id: $tournamentId,
-        user_id: $userId,
+        tournament_user_id: $tournamentUserId,
         state: $state,
         play_order: $playOrder,
         games_played: $gamesPlayed
@@ -93,7 +91,7 @@ export const updateTournamentUser = async (
     }
   `;
 
-  const variables = { tournamentId, userId, state, playOrder, gamesPlayed };
+  const variables = { tournamentUserId, userId, state, playOrder, gamesPlayed };
 
   return executeMutation(mutation, variables);
 };
@@ -149,17 +147,17 @@ export const getTournamentUsers = async (tournamentId) => {
  * @param {number} userId - The ID of the user associated with the game.
  * @returns {Promise<Object>} - The created tournament game details.
  */
-export const createTournamentGame = async (gameId, tournamentId, userId) => {
+export const createTournamentGame = async (tournamentId, userId, opponentId) => {
   const mutation = `
     mutation CreateTournamentGame(
-      $gameId: Int!
       $tournamentId: Int!
       $userId: Int!
+      $opponentId: Int!
     ) {
       create_tournament_game(
-        game_id: $gameId,
         tournament_id: $tournamentId,
         user_id: $userId
+        opponent_id: $opponentId
       ) {
         id
         game_id
@@ -171,7 +169,7 @@ export const createTournamentGame = async (gameId, tournamentId, userId) => {
     }
   `;
 
-  const variables = { gameId, tournamentId, userId };
+  const variables = { tournamentId, userId, opponentId };
 
   return executeMutation(mutation, variables);
 };
@@ -188,9 +186,13 @@ export const getTournamentById = async (tournamentId) => {
         name
         created_at
         updated_at
+        started
+        start_time
+        tournament_size
         users {
             id
           play_order
+          state
           user_id
           games_played
           created_at
@@ -199,6 +201,7 @@ export const getTournamentById = async (tournamentId) => {
       }
     }
   `;
+  const variables = { tournamentId };
 
 return executeQuery(query, variables);
 };

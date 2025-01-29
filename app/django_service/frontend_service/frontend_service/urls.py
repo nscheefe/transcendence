@@ -20,6 +20,7 @@ urlpatterns = [
     path('home/chat/', views.chat, name='chat'),  # chat view
     path('home/tournaments/', views.tournament, name='tournament'),  # chat view
     path('home2/', views.home2, name='home2'),  #REMOVE
+    path('home/tournaments/<int:tournament_id>/', views.tournamentDetails, name='tournamentDetails'),
 
                   # Game
     path('home/game/', views.game, name='game'),  # Start game view
