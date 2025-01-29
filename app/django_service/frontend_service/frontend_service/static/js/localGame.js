@@ -26,14 +26,17 @@ function resetBall() {
 }
 
 function checkWinner() {
-    // Implement winner check logic here
+    if (gameState.points.player1 >= 5 || gameState.points.player2 >= 5) {
+        gameStarted = false;
+        clearInterval(gameLoopInterval);
+    }
 }
 
 function updatePaddlePositions() {
-    if (gameState.keyState['ArrowLeft'] && gameState.paddle1.x > -4.5) {
+    if (gameState.keyState['ArrowLeft'] && gameState.paddle1.x < 4.5) {
         gameState.paddle1.x += 0.1;
     }
-    if (gameState.keyState['ArrowRight'] && gameState.paddle1.x < 4.5) {
+    if (gameState.keyState['ArrowRight'] && gameState.paddle1.x > -4.5) {
         gameState.paddle1.x -= 0.1;
     }
     if (gameState.keyState['a'] && gameState.paddle2.x > -4.5) {

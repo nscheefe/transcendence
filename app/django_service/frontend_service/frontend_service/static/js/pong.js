@@ -177,8 +177,8 @@ function createScene() {
     return scene;
 }
 
-function createCamera(player, local = false) {
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+function createCamera(player, sizes,local = false) {
+    const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 1000);
     const y = local ? 10 : 5;
     if (player === 1) {
         camera.position.set(0, y, -15);
@@ -219,13 +219,13 @@ function createLights(scene) {
     const ambientLight = new THREE.AmbientLight("#ffffff", 200);
     scene.add(ambientLight);
 
-    const spotlight = new THREE.SpotLight("#d53c3d", 20, 500, Math.PI * 0.1, 5);
+    const spotlight = new THREE.SpotLight("#ffffff", 20, 500, Math.PI * 0.1, 5);
     spotlight.position.set(10, 15, 2.2);
     spotlight.target.position.set(-5, 5, 5);
     scene.add(spotlight);
     scene.add(spotlight.target);
 
-    const spotlight2 = new THREE.SpotLight("#d53c3d", 20, 500, Math.PI * 0.1, 5);
+    const spotlight2 = new THREE.SpotLight("#ffffff", 20, 500, Math.PI * 0.1, 5);
     spotlight2.position.set(-10, 15, 2.2);
     spotlight2.target.position.set(5, 5, 5);
     scene.add(spotlight2);
@@ -246,7 +246,12 @@ function createTable() {
 
 function createBall() {
     const ballGeometry = new THREE.SphereGeometry(0.5, 32, 32);
-    const ballMaterial = new THREE.MeshPhongMaterial({ color: 0xff0000 });
+    const ballMaterial = new THREE.MeshPhongMaterial({
+        color: 0x000000,
+        emissive: 0xe32285,
+        shininess: 100,
+        specular: 0xffffff
+    });
     const ball = new THREE.Mesh(ballGeometry, ballMaterial);
     ball.position.set(0, 0.5, 0);
     return ball;
@@ -447,13 +452,13 @@ function updateScene(local = false) {
         sizes.width /= 2;
     // Scene setup
     scene = createScene();
-    camera1 = createCamera(2);
+    camera1 = createCamera(2, sizes, local);
     renderer1 = createRenderer('pong-canvas-1', sizes);
     createLights(scene);
     initVaporwaveScene(scene, camera1, renderer1, sizes, local);
 
     if (local) {
-        camera2 = createCamera(1);
+        camera2 = createCamera(1, sizes, local);
         renderer2 = createRenderer('pong-canvas-2', sizes);
         effectComposer2 = new THREE.EffectComposer(renderer2);
         effectComposer2.setSize(sizes.width, sizes.height);
