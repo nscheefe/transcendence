@@ -70,7 +70,7 @@ def home2(request):
 @jwt_required
 def game(request):
     context = get_home_context(request)
-    game = None
+    game = request.GET.get('game', None)
     # Check for the 'local' query parameter
     is_local_game = request.GET.get('local', 'false').lower() == 'true'
     if is_local_game != True:
