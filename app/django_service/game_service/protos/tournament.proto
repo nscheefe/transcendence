@@ -46,7 +46,9 @@ message ListTournamentRoomsResponse {
 }
 
 message CreateTournamentRoomRequest {
-    string name = 1; // Name of the tournament room to create
+    string name = 1;            // Name of the tournament room to create
+    int32 tournament_size = 2;  // Number of participants allowed in the tournament
+    google.protobuf.Timestamp start_time = 3; // Start time of the tournament
 }
 
 message UpdateTournamentRoomRequest {

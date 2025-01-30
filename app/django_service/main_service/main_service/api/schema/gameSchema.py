@@ -27,6 +27,12 @@ from main_service.protos.tournament_pb2 import (
     CreateTournamentGameMappingRequest,
 )
 from main_service.protos.tournament_pb2_grpc import TournamentServiceStub
+from google.protobuf.timestamp_pb2 import Timestamp
+from datetime import datetime, timedelta
+import grpc
+from graphql import GraphQLResolveInfo
+
+
 
 from .userSchema import resolve_profile
 
@@ -277,16 +283,33 @@ def resolve_game_event(_, info: GraphQLResolveInfo, game_event_id: int):
         raise Exception(f"gRPC error: {e.details()}")  # Removed extra lines
 
 
+
+
+
 @mutation.field("create_tournament")
-def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str):
-    """Create a new tournament."""
+def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str, tournament_size: int):
+    """Create a new tournament with size and default start time."""
     try:
+        # Calculate the default start time as a datetime object
+        default_start_time = datetime.utcnow() + timedelta(hours=1)
+
+        # Convert default_start_time to a Protobuf Timestamp
+        start_time_proto = Timestamp()
+        start_time_proto.FromDatetime(default_start_time)
+
+        # Send the gRPC request to create the tournament room
         with grpc.insecure_channel(GRPC_TARGET) as channel:
             client = TournamentServiceStub(channel)
-            request = CreateTournamentRoomRequest(name=name)
+            request = CreateTournamentRoomRequest(
+                name=name,
+                tournament_size=tournament_size,
+                start_time=start_time_proto  # Pass the Protobuf Timestamp
+            )
             response = client.CreateTournamentRoom(request)
 
+            # Convert response to GraphQL-compatible format
             return {
+                "id": response.id,
                 "name": response.name,
                 "is_active": response.is_active,
                 "started": response.started,
@@ -297,6 +320,7 @@ def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str):
                 "updated_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat(),
             }
     except grpc.RpcError as e:
+        # Return error details
         raise Exception(f"gRPC error: {e.details()}")
 
 

@@ -6,6 +6,7 @@ from datetime import datetime
 # Import auto-generated gRPC and proto files
 from game_service.protos import tournament_pb2
 from game_service.protos import tournament_pb2_grpc
+from django.utils.timezone import make_aware
 
 # Import Django models
 from .models import TournamentRoom, TournamentUser, TournamentGameMapping
@@ -55,11 +56,36 @@ class TournamentServiceHandler:
         return response
 
     def CreateTournamentRoom(self, request, context):
-        room = TournamentRoom.objects.create(name=request.name, is_active=True)
+        from google.protobuf.timestamp_pb2 import Timestamp
+        from datetime import datetime
+        from django.utils.timezone import make_aware
+
+        # Convert Protobuf Timestamp to Python datetime and make it timezone-aware
+        start_time = make_aware(datetime.fromtimestamp(request.start_time.seconds))
+
+        # Create the tournament room with additional fields: tournament_size and start_time
+        room = TournamentRoom.objects.create(
+            name=request.name,
+            is_active=True,
+            tournament_size=request.tournament_size,  # Added tournament size
+            start_time=start_time  # Ensure timezone-aware datetime is stored
+        )
+
+        # Helper function to convert datetime to Protobuf Timestamp
+        def datetime_to_proto(dt):
+            if dt is None:
+                return None
+            timestamp = Timestamp()
+            timestamp.FromDatetime(dt)
+            return timestamp
+
+        # Prepare the response, including the newly added fields
         response = tournament_pb2.TournamentRoom(
             id=room.id,
             name=room.name,
             is_active=room.is_active,
+            tournament_size=room.tournament_size,  # Include tournament size
+            start_time=datetime_to_proto(room.start_time),  # Ensure Protobuf Timestamp is used
             created_at=datetime_to_proto(room.created_at),
             updated_at=datetime_to_proto(room.updated_at),
         )

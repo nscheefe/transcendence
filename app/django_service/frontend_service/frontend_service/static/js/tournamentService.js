@@ -5,19 +5,23 @@ import { executeQuery, executeMutation,  } from './utils.js';
  * @param {string} name - The name of the tournament.
  * @returns {Promise<Object>} - The created tournament details.
  */
-export const createTournament = async (name) => {
+export const createTournament = async (name, size) => {
   const mutation = `
-    mutation CreateTournament($name: String!) {
-      create_tournament(name: $name) {
+    mutation CreateTournament($name: String!, $size: Int!) {
+      create_tournament(name: $name, tournament_size: $size) {
         id
         name
+        is_active
+        started
+        tournament_size
+        start_time
         created_at
         updated_at
       }
     }
   `;
 
-  const variables = { name };
+  const variables = { name, size };
 
   return executeMutation(mutation, variables);
 };

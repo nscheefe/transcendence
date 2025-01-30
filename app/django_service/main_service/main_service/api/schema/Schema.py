@@ -262,7 +262,7 @@ type_defs = """
         create_game: Game
         create_game_event(game_id: Int!, event_type: String!, event_data: String!): GameEvent
         start_game(game_id: Int!): StartGameResponse
-        create_tournament(name: String!): Tournament
+        create_tournament(name: String!, tournament_size: Int!): Tournament
         create_tournament_user(tournament_id: Int!, user_id: Int!): TournamentUserResponse
         update_tournament_user(
            tournament_user_id: Int!,
