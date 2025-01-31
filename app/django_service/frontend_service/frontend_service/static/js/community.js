@@ -307,10 +307,8 @@ document.addEventListener('DOMContentLoaded', async () => {
                 try {
                     // Call the createFriendGame GraphQL mutation
                     const game = await createFriendGame(userId, friendUserId);
-                    alert(`Game created successfully! Game ID: ${game.id}`);
-
-                    // Optionally redirect to the game screen
-                    window.location.href = `/home/game`;
+                    //alert(`Game created successfully! Game ID: ${game.id}`);
+                    showToast(`Game created successfully! Check Chat To Play Game!`);
                 } catch (error) {
                     console.error("Error creating the game:", error);
                     alert("Failed to create the game. Please try again later.");

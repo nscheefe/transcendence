@@ -24,9 +24,11 @@ const (
 	GameService_GetOnGoingGameByUser_FullMethodName = "/transcendence.GameService/GetOnGoingGameByUser"
 	GameService_GetOngoingGames_FullMethodName      = "/transcendence.GameService/GetOngoingGames"
 	GameService_CreateGame_FullMethodName           = "/transcendence.GameService/CreateGame"
+	GameService_CreateFriendGame_FullMethodName     = "/transcendence.GameService/CreateFriendGame"
 	GameService_StartGame_FullMethodName            = "/transcendence.GameService/StartGame"
 	GameService_HandleGameFinished_FullMethodName   = "/transcendence.GameService/HandleGameFinished"
 	GameService_GameReady_FullMethodName            = "/transcendence.GameService/GameReady"
+	GameService_UpdateGameState_FullMethodName      = "/transcendence.GameService/UpdateGameState"
 )
 
 // GameServiceClient is the client API for GameService service.
@@ -43,9 +45,11 @@ type GameServiceClient interface {
 	GetOngoingGames(ctx context.Context, in *GetOngoingGamesRequest, opts ...grpc.CallOption) (*GetOngoingGamesResponse, error)
 	// Create a new game
 	CreateGame(ctx context.Context, in *CreateGameRequest, opts ...grpc.CallOption) (*Game, error)
+	CreateFriendGame(ctx context.Context, in *CreateFriendGameRequest, opts ...grpc.CallOption) (*Game, error)
 	StartGame(ctx context.Context, in *StartGameRequest, opts ...grpc.CallOption) (*StartGameResponse, error)
 	HandleGameFinished(ctx context.Context, in *GameFinishedRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	GameReady(ctx context.Context, in *GameReadyRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Game], error)
+	UpdateGameState(ctx context.Context, in *UpdateGameStateRequest, opts ...grpc.CallOption) (*Game, error)
 }
 
 type gameServiceClient struct {
@@ -96,6 +100,16 @@ func (c *gameServiceClient) CreateGame(ctx context.Context, in *CreateGameReques
 	return out, nil
 }
 
+func (c *gameServiceClient) CreateFriendGame(ctx context.Context, in *CreateFriendGameRequest, opts ...grpc.CallOption) (*Game, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Game)
+	err := c.cc.Invoke(ctx, GameService_CreateFriendGame_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *gameServiceClient) StartGame(ctx context.Context, in *StartGameRequest, opts ...grpc.CallOption) (*StartGameResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(StartGameResponse)
@@ -135,6 +149,16 @@ func (c *gameServiceClient) GameReady(ctx context.Context, in *GameReadyRequest,
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type GameService_GameReadyClient = grpc.ServerStreamingClient[Game]
 
+func (c *gameServiceClient) UpdateGameState(ctx context.Context, in *UpdateGameStateRequest, opts ...grpc.CallOption) (*Game, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(Game)
+	err := c.cc.Invoke(ctx, GameService_UpdateGameState_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GameServiceServer is the server API for GameService service.
 // All implementations must embed UnimplementedGameServiceServer
 // for forward compatibility.
@@ -149,9 +173,11 @@ type GameServiceServer interface {
 	GetOngoingGames(context.Context, *GetOngoingGamesRequest) (*GetOngoingGamesResponse, error)
 	// Create a new game
 	CreateGame(context.Context, *CreateGameRequest) (*Game, error)
+	CreateFriendGame(context.Context, *CreateFriendGameRequest) (*Game, error)
 	StartGame(context.Context, *StartGameRequest) (*StartGameResponse, error)
 	HandleGameFinished(context.Context, *GameFinishedRequest) (*emptypb.Empty, error)
 	GameReady(*GameReadyRequest, grpc.ServerStreamingServer[Game]) error
+	UpdateGameState(context.Context, *UpdateGameStateRequest) (*Game, error)
 	mustEmbedUnimplementedGameServiceServer()
 }
 
@@ -174,6 +200,9 @@ func (UnimplementedGameServiceServer) GetOngoingGames(context.Context, *GetOngoi
 func (UnimplementedGameServiceServer) CreateGame(context.Context, *CreateGameRequest) (*Game, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateGame not implemented")
 }
+func (UnimplementedGameServiceServer) CreateFriendGame(context.Context, *CreateFriendGameRequest) (*Game, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateFriendGame not implemented")
+}
 func (UnimplementedGameServiceServer) StartGame(context.Context, *StartGameRequest) (*StartGameResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartGame not implemented")
 }
@@ -182,6 +211,9 @@ func (UnimplementedGameServiceServer) HandleGameFinished(context.Context, *GameF
 }
 func (UnimplementedGameServiceServer) GameReady(*GameReadyRequest, grpc.ServerStreamingServer[Game]) error {
 	return status.Errorf(codes.Unimplemented, "method GameReady not implemented")
+}
+func (UnimplementedGameServiceServer) UpdateGameState(context.Context, *UpdateGameStateRequest) (*Game, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateGameState not implemented")
 }
 func (UnimplementedGameServiceServer) mustEmbedUnimplementedGameServiceServer() {}
 func (UnimplementedGameServiceServer) testEmbeddedByValue()                     {}
@@ -276,6 +308,24 @@ func _GameService_CreateGame_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GameService_CreateFriendGame_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateFriendGameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GameServiceServer).CreateFriendGame(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GameService_CreateFriendGame_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GameServiceServer).CreateFriendGame(ctx, req.(*CreateFriendGameRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _GameService_StartGame_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartGameRequest)
 	if err := dec(in); err != nil {
@@ -323,6 +373,24 @@ func _GameService_GameReady_Handler(srv interface{}, stream grpc.ServerStream) e
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type GameService_GameReadyServer = grpc.ServerStreamingServer[Game]
 
+func _GameService_UpdateGameState_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateGameStateRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GameServiceServer).UpdateGameState(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: GameService_UpdateGameState_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GameServiceServer).UpdateGameState(ctx, req.(*UpdateGameStateRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GameService_ServiceDesc is the grpc.ServiceDesc for GameService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -347,12 +415,20 @@ var GameService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _GameService_CreateGame_Handler,
 		},
 		{
+			MethodName: "CreateFriendGame",
+			Handler:    _GameService_CreateFriendGame_Handler,
+		},
+		{
 			MethodName: "StartGame",
 			Handler:    _GameService_StartGame_Handler,
 		},
 		{
 			MethodName: "HandleGameFinished",
 			Handler:    _GameService_HandleGameFinished_Handler,
+		},
+		{
+			MethodName: "UpdateGameState",
+			Handler:    _GameService_UpdateGameState_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
