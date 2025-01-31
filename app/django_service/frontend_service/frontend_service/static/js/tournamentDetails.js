@@ -109,9 +109,9 @@ async function matches(users) {
                         </div>
                         <p class="nickname" style="margin-top: 8px; font-weight: bold; text-align: center;">${player1Profile.profile.nickname}</p>
                             <span>${player1.state}</span>
-                    
+
                       </div>
-                    
+
                       <!-- Player 2 -->
                       <div style="display: flex; flex-direction: column; align-items: center;">
                         <div class="player" style="border-top: 2px solid blue; border-bottom: 2px solid blue; border-right: 2px solid blue; box-shadow: 5px 0 10px blue;">
@@ -170,7 +170,7 @@ async function playerStartGame() {
         if (tournamentGame) {
             const response = await updateTournamentUser(currentUser.id, userId, { state: "PLAYING" });
             console.log("Tournament game created successfully:", tournamentGame);
-            window.location.href = "/home/game";
+            window.location.href = "/home/game/?game=" . tournamentGame.game_id ;
         } else {
             console.error("Failed to create tournament game!");
         }

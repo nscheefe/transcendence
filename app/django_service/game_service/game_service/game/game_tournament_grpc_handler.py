@@ -27,6 +27,7 @@ class TournamentServiceHandler:
                 name=room.name,
                 is_active=room.is_active,
                 tournament_size = room.tournament_size,
+                chat_room_id=room.chat_room_id,
                 started = room.started,
                 start_time = room.start_time,
                 created_at=datetime_to_proto(room.created_at),

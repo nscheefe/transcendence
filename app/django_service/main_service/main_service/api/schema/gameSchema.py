@@ -166,6 +166,7 @@ def resolve_tournaments(_, info: GraphQLResolveInfo):
                     "name": tournament.name,
                     "is_active": tournament.is_active,
                     "started": tournament.started,
+                    "chat_room_id":tournament.chat_room_id,
                     "tournament_size": tournament.tournament_size,
                     "start_time": datetime.fromtimestamp(
                         tournament.start_time.seconds).isoformat() if tournament.HasField(
@@ -353,7 +354,7 @@ def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str, tournament
             "id": tournament_response.id,
             "name": tournament_response.name,
             "is_active": tournament_response.is_active,
-            "chat_room_id": tournament_response.,
+            "chat_room_id": tournament_response.chat_room_id,
             "started": tournament_response.started,
             "tournament_size": tournament_response.tournament_size,
             "start_time": datetime.fromtimestamp(tournament_response.start_time.seconds).isoformat()
@@ -383,9 +384,9 @@ def resolve_create_tournament_user(_, info: GraphQLResolveInfo, tournament_id: i
         chatChanel = grpc.aio.insecure_channel("chat_service:50051")
         with grpc.insecure_channel(GRPC_TARGET) as channel:
             client = TournamentServiceStub(channel)
-            chatRoomuserClient = chat_pb2_grpc.ChatRoomUserControllerStub(channel)
+            chatRoomuserClient = chat_pb2_grpc.ChatRoomUserControllerStub(chatChanel)
             tournamenRoom = resolve_tournament(_, info, tournament_id)
-            chatUserRequest = chat_pb2.ChatRoomUserRequest(chat_room=response.id, user_id=current_user_id)
+            chatUserRequest = chat_pb2.ChatRoomUserRequest(chat_room=tournamenRoom["chat_room_id"], user_id=user_id)
             chatUserResponse = chatRoomuserClient.Create(chatUserRequest)
             request = CreateTournamentUserRequest(
                 tournament_room_id=tournament_id,
