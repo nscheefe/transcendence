@@ -70,48 +70,7 @@
     <div id="user-games-stats" class="text-center">
 
     </div>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const statsByUser = []; // Retrieve this data from your API or server-side rendering
-        const opponents = []; // Retrieve this data from your API or server-side rendering
-        const user = { id: '' }; // Replace with the currently logged-in user's id
-        const profile = { avatarUrl: 'https://via.placeholder.com/50', nickname: 'You' }; // Replace with user's data
-        const statsContainer = document.getElementById('user-games-stats');
-        statsContainer.innerHTML = `
-            ${statsByUser.map((stat, index) => {
-                const date = stat.stat.createdAt;
-                const result = stat.didWin ? 'win' : 'loss';
-                const opponentData = opponents.find(o => o.opponentId === (stat.stat.winnerId === user.id ? stat.stat.loserId : stat.stat.winnerId));
-                const opponent = opponentData?.opponent?.profile || {};
-                return `
-                    <div class="game-stat bg-dark ${result === 'win' ? 'victory' : 'defeat'}">
-                        <div class="d-flex justify-content-between mb-2">
-                            <span>${new Date(date).toLocaleDateString()}</span>
-                            <span class="badge ${result === 'win' ? 'bg-success' : 'bg-danger'}">
-                                ${result === 'win' ? 'Victory' : 'Defeat'}
-                            </span>
-                        </div>
-                        <div class="d-flex justify-content-around">
-                            <div class="player">
-                                <img src="${profile.avatarUrl || 'https://via.placeholder.com/50'}" alt="${profile.nickname}">
-                                <span>You</span>
-                            </div>
-                            <div class="vs text-bold">
-                                <span>VS</span>
-                           </div>
-                           <div class="opponent">
-                           <a href="/home/profile/${opponent.userId}">
-                               <img src="${opponent.avatarUrl || 'https://via.placeholder.com/50'}" alt="${opponent.nickname || 'Opponent'}">
-                               <span>${opponent.nickname || 'Opponent'}</span>
-                           </a>
-                           </div>
-                       </div>
-                   </div>
-               `;
-           }).join('')}
-       `;
-   });
-</script>
+
 </div>
                     </div>
                 </div>
@@ -156,6 +115,9 @@
 
 {% block extra_js %}
 <script>
-
+    const profileUserId= {{ userProfileId }};
 </script>
+        {% load static %}
+        <script type="module" src="{% static 'js/publicProfile.js' %}"></script>
+
 {% endblock extra_js %}
