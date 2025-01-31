@@ -1,5 +1,7 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils.timezone import now
+import threading
 
 import grpc
 import google
@@ -11,9 +13,38 @@ from game_service.protos.stat_pb2 import (
     CalculateStatsRequest,
 )
 from game_service.protos.stat_pb2_grpc import StatServiceStub
-
+import google.protobuf.timestamp_pb2
 from google.protobuf.empty_pb2 import Empty
 from .models import Game
+
+
+def monitor_disconnected_game(game_id):
+    """
+    Monitors a game with DISCONNECTED state. If the game remains in this state
+    for more than 1 minute, it will mark the game as finished.
+    """
+    try:
+        # Wait for 1 minute before checking the game's state
+        threading.Event().wait(60)  # Wait for 60 seconds
+
+        # Fetch the game
+        game = Game.objects.get(id=game_id)
+
+        # Check if the game is still in the "DISCONNECTED" state
+        if game.state == "DISCONNECTED":
+            # Check if the game has been disconnected for over 1 minute
+            if now() - game.updated_at > timedelta(minutes=1):
+                # Mark the game as finished
+                game.state = "FINISHED"
+                game.finished = True
+                game.updated_at = now()
+                game.save()
+                print(f"Game {game.id} has been marked as finished due to prolonged disconnection.")
+
+    except Game.DoesNotExist:
+        print(f"Game {game_id} does not exist.")
+    except Exception as e:
+        print(f"Error in monitoring game {game_id}: {str(e)}")
 
 
 class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
@@ -425,6 +456,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             context.set_code(grpc.StatusCode.INTERNAL)
             return game_pb2.Game()
 
+
     def UpdateGameState(self, request, context):
         """
             Updates the state of a game.
@@ -441,7 +473,9 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 game.finished = True
             game.updated_at = datetime.now()  # Update the timestamp
             game.save()
-
+            if updated_state == "DISCONNECTED":
+                monitor_thread = threading.Thread(target=monitor_disconnected_game, args=(game.id,))
+                monitor_thread.start()
             # Prepare the gRPC response
             response = game_pb2.Game(
                 id=game.id,
