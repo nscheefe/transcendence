@@ -62,13 +62,14 @@ class TournamentServiceHandler:
 
         # Convert Protobuf Timestamp to Python datetime and make it timezone-aware
         start_time = make_aware(datetime.fromtimestamp(request.start_time.seconds))
-
+        print("chromrequest id", request.chat_room_id)
         # Create the tournament room with additional fields: tournament_size and start_time
         room = TournamentRoom.objects.create(
             name=request.name,
             is_active=True,
-            tournament_size=request.tournament_size,  # Added tournament size
-            start_time=start_time  # Ensure timezone-aware datetime is stored
+            tournament_size=request.tournament_size,
+            chat_room_id = request.chat_room_id,
+            start_time=start_time
         )
 
         # Helper function to convert datetime to Protobuf Timestamp
@@ -84,6 +85,7 @@ class TournamentServiceHandler:
             id=room.id,
             name=room.name,
             is_active=room.is_active,
+            chat_room_id= room.chat_room_id,
             tournament_size=room.tournament_size,  # Include tournament size
             start_time=datetime_to_proto(room.start_time),  # Ensure Protobuf Timestamp is used
             created_at=datetime_to_proto(room.created_at),
