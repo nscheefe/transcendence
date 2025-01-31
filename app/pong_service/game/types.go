@@ -31,6 +31,12 @@ const (
 	GameStatePaused
 )
 
+const (
+	InProgressState string = "IN_PROGRESS"
+	DisconnectedState string = "DISCONNECTED"
+	WaitingState string = "WAITING"
+)
+
 type state struct {
 	Ball      position                `json:"ball"`
 	BallSpeed speed                   `json:"ballSpeed"`

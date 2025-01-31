@@ -86,3 +86,11 @@ func (c *GameClient) GetGameByID(gameID int32) (*pb.Game, error) {
 	return c.client.GetGame(context.Background(), req)
 }
 
+func (c *GameClient) UpdateGameState(gameID int32, state string) (*pb.Game, error) {
+	req := &pb.UpdateGameStateRequest{
+		Id: gameID,
+		State:  state,
+	}
+
+	return c.client.UpdateGameState(context.Background(), req)
+}
