@@ -114,11 +114,11 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 Game.objects.filter(
                     finished=False,
                     player_a_id=request.player_id
-                ).first() or
+                ).exclude(state='FRIEND').first() or
                 Game.objects.filter(
                     finished=False,
                     player_b_id=request.player_id
-                ).first()
+                ).exclude(state='FRIEND').first()
             )
 
             if existing_game:
