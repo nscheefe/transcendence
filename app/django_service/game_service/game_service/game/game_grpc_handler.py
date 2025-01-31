@@ -46,8 +46,12 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         try:
             # Fetch the game from the database
             game = (
-                Game.objects.filter(player_a_id=request.user_id, finished=False).first() or
-                Game.objects.filter(player_b_id=request.user_id, finished=False).first()
+                    Game.objects.filter(player_a_id=request.user_id, finished=False)
+                    .exclude(state='FRIEND')
+                    .first() or
+                    Game.objects.filter(player_b_id=request.user_id, finished=False)
+                    .exclude(state='FRIEND')
+                    .first()
             )
 
             if not game:
@@ -387,7 +391,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 player_b_id=request.player_b,
                 points_player_a=0,
                 points_player_b=0,
-                state="READY",
+                state="FRIEND",
                 finished=False,
                 created_at=datetime.now(),
                 updated_at=datetime.now()
