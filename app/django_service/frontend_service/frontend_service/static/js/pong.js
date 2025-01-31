@@ -64,7 +64,7 @@ function gameOver(winner) {
 }
 
 // WebSocket setup
-function createWebSocket() {
+function createWebSocket(gameId = null) {
     if (socket && socket.readyState !== WebSocket.CLOSED) {
         console.log('WebSocket connection already exists');
         return;
@@ -77,7 +77,15 @@ function createWebSocket() {
 
     console.log('Attempting to connect to WebSocket server...');
     isConnecting = true;
-    socket = new WebSocket(`wss://${document.location.hostname}/game`);
+    let wsUrl = `wss://${document.location.hostname}`;
+    if (document.location.port) {
+        wsUrl += `:${document.location.port}`;
+    }
+    wsUrl += `/game`;
+    if (gameId) {
+        wsUrl += `?gameId=${gameId}`;
+    }
+    socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
         console.log('Connected to the server');
@@ -127,7 +135,7 @@ function createWebSocket() {
         console.log('Disconnected from the server', event);
         isConnecting = false;
         // Attempt to reconnect after 1 second
-        setTimeout(() => createWebSocket(), 1000);
+        setTimeout(() => createWebSocket(gameId), 1000);
     };
 
     socket.onerror = (error) => {
@@ -544,7 +552,7 @@ function generateHTML() {
         });
     });
 }
-function main(local = false) {
+function main(local = false, gameId = null) {
     if (local === true) {
         console.log("local game");
         updateScene(true);
@@ -578,7 +586,7 @@ function main(local = false) {
     }
     else {
         console.log("initPongGame called");
-        createWebSocket();
+        createWebSocket(gameId);
     }
 }
 // Expose the init function to be called externally

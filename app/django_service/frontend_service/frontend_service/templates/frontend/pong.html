@@ -52,8 +52,9 @@
     loadScripts(scripts, () => {
       console.log("All scripts loaded");
       const isLocalGame = {{ is_local_game|yesno:"true,false" }};
+      const gameID = {{ game_id|default:"null" }};
       if (typeof window.initPongGame === 'function') {
-        window.initPongGame(isLocalGame);
+        window.initPongGame(isLocalGame, gameID);
       } else {
         console.error("initPongGame is not defined");
       }
