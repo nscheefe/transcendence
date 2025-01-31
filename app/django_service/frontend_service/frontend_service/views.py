@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from venv import logger
+import logging
 from django.shortcuts import render, redirect
 from django.conf import settings
 
@@ -17,6 +17,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
 import os
 import jwt
+
+logger = logging.getLogger(__name__)
 
 def root_redirect(request):
     """
@@ -74,9 +76,14 @@ def game(request):
     gameId = request.GET.get('game', None)
     # Check for the 'local' query parameter
     is_local_game = request.GET.get('local', 'false').lower() == 'true'
-    if is_local_game != True and gameId != None:
+
+    logger.info(f"is_local_game: {is_local_game}, gameId: {gameId}")
+
+    if not is_local_game and gameId is None:
         game = create_game.createGame(request)
         logger.info(game)
+    else:
+        game = {'id': gameId,}
 
     # Extend the context with additional data for the game view
     context.update({
