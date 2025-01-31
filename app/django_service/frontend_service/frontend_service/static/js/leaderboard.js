@@ -146,7 +146,11 @@ const renderTop3Leaderboard = (statList) => {
  */
 const fetchLeaderboard = async () => {
   try {
-    const statList = await getStatList();
+    const response = await getStatList();
+    const statList = response.StatList;
+    if (!Array.isArray(statList)) {
+      throw new Error("StatList is not an array");
+    }
     console.log("Processed StatList:", statList); // Log the final stat list
     renderLeaderboard(statList);
   } catch (error) {
@@ -164,7 +168,11 @@ const fetchLeaderboard = async () => {
  */
 const fetchTop3Leaderboard = async () => {
   try {
-    const statList = await getStatList();
+    const response = await getStatList();
+    const statList = response.StatList;
+    if (!Array.isArray(statList)) {
+      throw new Error("StatList is not an array");
+    }
     console.log("Processed StatList:", statList); // Log the final stat list
     renderTop3Leaderboard(statList);
     initializeOnlineStatusSubscriptions();

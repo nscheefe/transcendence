@@ -1,6 +1,6 @@
 import {addFriend, blockUser, deleteFriendship, fetchFriendships, fetchFriendsWithProfiles} from './friendservice.js';
 import {fetchProfileByUserId, fetchProfiles, fetchUserProfileAndStats} from './profileservice.js';
-import {generateUserAvatarHTML, showError, userCache} from './utils.js'; // Import the new function
+import {generateUserAvatarHTML, showError, userCache, initializeOnlineStatusSubscriptions} from './utils.js'; // Import the new function
 import {createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate} from './domHelpers.js';
 import {createFriendGame} from "./gameService.js"
 import {startChatWithUser} from "./chatservice.js"
@@ -193,7 +193,7 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                     );
                     margin: auto;
                   }
-                
+
                   .pie-chart .center-text {
                     position: absolute;
                     top: 50%;
@@ -201,13 +201,13 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                     transform: translate(-50%, -50%);
                     text-align: center;
                   }
-                
+
                   .pie-chart .center-text h6 {
                     margin: 0;
                     font-size: 1rem;
                     color: white;
                   }
-                
+
                   .pie-chart .center-text span {
                     font-size: 0.9rem;
                     color: lightgray;
@@ -245,7 +245,7 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                             <span>Total Games</span>
                       </div>
                     </div>
-                
+
                  </div>
                 </div>
                 <!-- Detailed User Stats -->
