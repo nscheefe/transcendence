@@ -1,6 +1,7 @@
-import {getTournamentById, createTournamentGame, updateTournamentUser} from "./tournamentService.js";
+import {getTournamentById, createTournamentGame, updateTournamentUser, getTournamentGames} from "./tournamentService.js";
 import {fetchProfileByUserId} from "./profileservice.js";
-
+import {getGameById} from "./gameService.js";
+import { userCache, generateUserAvatarHTML, fillUserCache } from './utils.js';
 let currentMatch = null;
 let currentUser = null;
 let tournamentFull = null;
@@ -33,6 +34,7 @@ async function buildTournamentView() {
         if (users.length == tournament.tournament.tournament_size) {
             tournamentFull = 1;
             matches(users);
+            displayUniqueGamesForTournament(tournament.tournament.id);
         } else {
             tournamentFull = 0;
         }
@@ -224,6 +226,119 @@ async function renderStateButton() {
     buttonContainer.appendChild(actionButton);
 }
 
+async function getTournamentGamesByTournamentId(tournamentId) {
+    console.log(`Fetching games for tournament ID: ${tournamentId}`);
+
+    try {
+        if (!tournamentId) {
+            throw new Error("Tournament ID is required to fetch games.");
+        }
+
+        // Fetch all games for the tournament
+        const games = await getTournamentGames(tournamentId);
+
+        if (!games || games.length === 0) {
+            console.log(`No games found for tournament ID: ${tournamentId}`);
+            return [];
+        }
+
+        console.log(`Games retrieved for tournament ID ${tournamentId}:`, games);
+
+        // Extract only unique game IDs
+        const uniqueGameIds = [...new Set(games.tournament_games.map(game => game.game_id))];
+
+        console.log(`Unique game IDs for tournament ID ${tournamentId}:`, uniqueGameIds);
+
+        return uniqueGameIds;
+    } catch (error) {
+        console.error(`Failed to fetch games for tournament ID ${tournamentId}:`, error);
+        throw error;
+    }
+}
+
+const displayUniqueGamesForTournament = async (tournamentId) => {
+    console.log(`Displaying unique games for tournament ID: ${tournamentId}`);
+
+    try {
+        const uniqueGameIds = await getTournamentGamesByTournamentId(tournamentId);
+
+        if (uniqueGameIds.length === 0) {
+            console.log("No unique games to display.");
+            return;
+        }
+
+        // Fetch all games and filter finished ones
+        const games = await Promise.all(
+            uniqueGameIds.map(async (gameId) => {
+                return await getGameById(gameId);
+            })
+        );
+
+        const finishedGames = games.filter((game) => game.finished); // Filter only finished games
+        console.log("Finished Games:", finishedGames);
+
+        // Gather all the player IDs for filling the user cache
+        const players = finishedGames.flatMap((game) => [
+            { user_id: game.player_a_id },
+            { user_id: game.player_b_id }
+        ]);
+
+        // Fill the userCache for both players
+        await fillUserCache(players);
+
+        // Render finished games
+        const previousMatches = `
+            <div class="matches-list mt-3 scrollable">
+                ${finishedGames.map((game) => {
+                    const date = new Date(game.created_at).toLocaleDateString();
+                    const pointsA = game.points_player_a ?? 0;
+                    const pointsB = game.points_player_b ?? 0;
+
+                    return `
+                        <div class="game-stat bg-dark">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>${date}</span>
+                                <span class="badge bg-primary">
+                                    Finished
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-around">
+                                <div class="player">
+                                    <a href="/home/profile/${game.player_a_id}">
+                                    ${generateUserAvatarHTML(game.player_a_id)} <!-- Render Player A avatar -->
+                                    <span>${userCache[game.player_a_id]?.profile.nickname || 'Player A'}</span>
+                                    <div>Points: ${pointsA}</div>
+                                    </a>
+                                </div>
+                                <div class="vs text-bold">
+                                    <span>VS</span>
+                                </div>
+                                <div class="opponent">
+                                    <a href="/home/profile/${game.player_b_id}">
+                                        ${generateUserAvatarHTML(game.player_b_id)} <!-- Render Player B avatar -->
+                                        <span>${userCache[game.player_b_id]?.profile.nickname || 'Player B'}</span>
+                                        <div>Points: ${pointsB}</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+
+        console.log("Previous Matches HTML:", previousMatches);
+
+        // Render the previous matches wherever needed
+        // For example:
+        document.getElementById('previousMatchesContainer').innerHTML = previousMatches;
+
+    } catch (error) {
+        console.error("Error displaying unique games:", error);
+    }
+};
+
+// Example call
 async function run() {
     await buildTournamentView();
     if (tournamentFull == 1)
