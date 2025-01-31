@@ -346,6 +346,7 @@ type_defs = """
         users: [TournamentUser] # Extend tournament type
         is_active: Boolean
         started: Boolean
+        chat_room_id: Int
         tournament_size: Int
         start_time: String
         created_at: String
