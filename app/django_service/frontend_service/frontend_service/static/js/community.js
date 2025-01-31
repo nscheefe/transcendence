@@ -179,9 +179,44 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                 <h5>Additional Information</h5>
                 <p>${profile.additionalInfo || 'No additional information available.'}</p>
                 <h5>Stats:</h5>
+<style>
+  /* Styles for the pie chart container */
+  .pie-chart {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: conic-gradient(
+       ${stats.totalLosses > stats.totalWins ? '#dc3545' : '#0d6efd'} 0% calc(var(--wins) * 1%), /* Winning portion (Bootstrap \`primary\`) */
+       ${stats.totalLosses < stats.totalWins ? '#dc3545' : '#0d6efd'} calc(var(--wins) * 1%) 100% /* Losing portion (Bootstrap \`danger\`) */
+    );
+    margin: auto;
+  }
+
+  /* Centered content inside the pie chart */
+  .pie-chart .center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .pie-chart .center-text h6 {
+    margin: 0;
+    font-size: 1rem;
+    color: white;
+  }
+
+  .pie-chart .center-text span {
+    font-size: 0.9rem;
+    color: lightgray;
+  }
+</style>
+<div class="d-flex justify-content-between mb-4">
 
                 <!-- Stats Summary -->
-                <div class="card bg-dark text-light shadow-sm rounded-3 p-3">
+                <div class="card bg-dark text-light shadow-sm rounded-3 p-3" style="width:66%">
                     <div class="row text-center">
                         <div class="col">
                             <div class="p-2">
@@ -203,7 +238,17 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                         </div>
                     </div>
                 </div>
+ <div class="card bg-dark text-light shadow-sm rounded-3 p-3 " style="width:33%">
+ <!-- Pie Chart Container -->
+<div class="pie-chart" style="--wins: ${(stats.totalWins /stats.totalLosses)*100 };">
+  <div class="center-text">
+    <h6>${stats.totalGames}</h6>
+    <span>Total Games</span>
+  </div>
+</div>
 
+</div>
+</div>
                 <!-- Detailed User Stats -->
                 <div class="stats-list mt-3">
                     ${statsByUser.map((stat, index) => {
