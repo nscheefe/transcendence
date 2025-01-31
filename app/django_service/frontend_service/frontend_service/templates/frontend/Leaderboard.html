@@ -4,26 +4,7 @@
 
 {% block content %}
     <style>
-    .scrollable {
-    max-height: 80vh; /* Set a fixed height for the container */
-    overflow-y: auto; /* Enable vertical scrolling */
-    padding: 10px; /* Optional: Add padding for better visual appearance */
-    margin: 10px 0; /* Optional: Add margin for spacing */
-    scrollbar-width: thin; /* Optional: Make scrollbar thinner (for modern browsers) */
-    scrollbar-color: #888 #333; /* Optional: Adjust scrollbar color */
-}
 
-/* Optional: Customize the scrollbar for webkit-based browsers */
-.scrollable::-webkit-scrollbar {
-    width: 10px; /* Scrollbar width */
-}
-.scrollable::-webkit-scrollbar-thumb {
-    background-color: #888; /* Scrollbar color */
-    border-radius: 5px; /* Rounded scrollbar edges */
-}
-.scrollable::-webkit-scrollbar-thumb:hover {
-    background-color: #555; /* Scrollbar color on hover */
-}
 /* Leaderboard Entry Layout */
 .leaderboard-entry {
     display: flex;
@@ -213,13 +194,16 @@ li .card {
 li:hover .card {
     border: 1px solid #007bff; /* Optional: Highlight the card border on hover */
 }
+.leaderboard {
+    max-height: 70vh; /* Set a fixed height for the container */
+}
     </style>
     {% include "frontend/chatWidget.html" %}
     <section class="section leaderboard">
     <br>
         <div class="container rounded" style="background-color:#181818; width: 80%;">
             <h1>Leaderboard</h1>
-            <ul id="Leaderboard" class="scrollable" style="width:100%">
+            <ul id="Leaderboard" class="scrollable leaderboard" style="width:100%">
                 <span> Loading Leaderboard ....</span>
             </ul>
         </div>

@@ -205,7 +205,7 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                 </div>
 
                 <!-- Detailed User Stats -->
-                <div class="stats-list mt-3">
+                <div class="stats-list mt-3 scrollable">
                     ${statsByUser.map((stat, index) => {
                         const date = stat.stat.createdAt;
                         const result = stat.didWin ? 'win' : 'loss';
