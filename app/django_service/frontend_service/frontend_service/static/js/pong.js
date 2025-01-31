@@ -349,12 +349,13 @@ function handleKeyState(event) {
     keyState[event.key] = event.type === 'keydown';
 
     // Update local game state
-    updateLocalGameState(event.key, keyState[event.key]);
 
     // Send key state to server if WebSocket is open
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: 'keyState', key: event.key, state: keyState[event.key] }));
     }
+    else
+        updateLocalGameState(event.key, keyState[event.key]);
 
     // Handle local paddle movement for preview
     updatePaddlePosition();
@@ -544,7 +545,7 @@ function generateHTML() {
     });
 }
 function main(local = false) {
-    if (local) {
+    if (local === true) {
         console.log("local game");
         updateScene(true);
         generateHTML().then((winningScore) => {
@@ -577,7 +578,6 @@ function main(local = false) {
     }
     else {
         console.log("initPongGame called");
-        updateScene(false);
         createWebSocket();
     }
 }
