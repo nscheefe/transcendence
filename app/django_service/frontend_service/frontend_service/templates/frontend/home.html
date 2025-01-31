@@ -6,7 +6,13 @@
 
 {% block content %}
         {% comment %}{% include "frontend/chatWidget.html" %}{% endcomment %}
-
+<style>
+  .scrollable {
+    max-height: 50vh; /* Set the height of the scrollable area */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Prevent horizontal scrolling if necessary */
+  }
+</style>
   <section class="section">
     <div class="leaderboard-wrapper">
       <h3 class="heading">Top Players</h3>
@@ -48,6 +54,7 @@
     {% load static %}
     <script type="module" src="{% static 'js/leaderboard.js' %}"></script>
     <script>
+        const userId = {{ user.id }};
       document.addEventListener('DOMContentLoaded', function() {
         function openTournamentWindow() {
           const dynamicWindows = document.querySelector('[data-dynamic-windows]');
@@ -83,39 +90,39 @@
                   <!-- New Tournament Tab Pane -->
                   <div class="tab-pane fade" id="new-tournament-tab-pane" role="tabpanel" aria-labelledby="new-tournament-tab" tabindex="0">
                   <div id="createTournamentContainer">
-    <h2>Create a New Tournament</h2>
-    <form id="createTournamentForm">
-        <div>
-            <label for="tournament-name">Tournament Name:</label>
-            <input
-                id="tournament-name"
-                type="text"
-                placeholder="Enter tournament name"
-                required
-            />
-        </div>
-        <div>
-            <label for="tournament-size">Tournament Size:</label>
-            <select id="tournament-size" required>
-                <option value="2">2</option>
-                <option value="4">4</option>
-                <option value="8">8</option>
-                <option value="16">16</option>
-            </select>
-        </div>
-        <div>
-            <label for="tournament-start-at">Start Time:</label>
-            <input
-                id="tournament-start-at"
-                type="datetime-local"
-                placeholder="Enter start time"
-                required
-            />
-        </div>
-        <button type="submit">Create Tournament</button>
-    </form>
-    <div id="tournamentMessage"></div>
-</div>
+                        <h2>Create a New Tournament</h2>
+                        <form id="createTournamentForm">
+                            <div>
+                                <label for="tournament-name">Tournament Name:</label>
+                                <input
+                                    id="tournament-name"
+                                    type="text"
+                                    placeholder="Enter tournament name"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label for="tournament-size">Tournament Size:</label>
+                                <select id="tournament-size" required>
+                                    <option value="2">2</option>
+                                    <option value="4">4</option>
+                                    <option value="8">8</option>
+                                    <option value="16">16</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="tournament-start-at">Start Time:</label>
+                                <input
+                                    id="tournament-start-at"
+                                    type="datetime-local"
+                                    placeholder="Enter start time"
+                                    required
+                                />
+                            </div>
+                            <button type="submit">Create Tournament</button>
+                        </form>
+                        <div id="tournamentMessage"></div>
+                    </div>
                   </div>
                 </div>
               </div>
