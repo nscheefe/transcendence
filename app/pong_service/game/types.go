@@ -29,6 +29,7 @@ const (
 	GameStateInProgress
 	GameStateFinished
 	GameStatePaused
+	DisconnectedState string = "DISCONNECTED"
 )
 
 type state struct {
