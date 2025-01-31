@@ -1,5 +1,7 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
+from django.utils.timezone import now
+import threading
 
 import grpc
 import google
@@ -11,9 +13,40 @@ from game_service.protos.stat_pb2 import (
     CalculateStatsRequest,
 )
 from game_service.protos.stat_pb2_grpc import StatServiceStub
-
+import game_service.protos.chat_pb2_grpc as chat_pb2_grpc
+import game_service.protos.chat_pb2 as chat_pb2
+import google.protobuf.timestamp_pb2
 from google.protobuf.empty_pb2 import Empty
 from .models import Game, TournamentGameMapping, TournamentUser, TournamentRoom
+
+
+def monitor_disconnected_game(game_id):
+    """
+    Monitors a game with DISCONNECTED state. If the game remains in this state
+    for more than 1 minute, it will mark the game as finished.
+    """
+    try:
+        # Wait for 1 minute before checking the game's state
+        threading.Event().wait(60)  # Wait for 60 seconds
+
+        # Fetch the game
+        game = Game.objects.get(id=game_id)
+
+        # Check if the game is still in the "DISCONNECTED" state
+        if game.state == "DISCONNECTED":
+            # Check if the game has been disconnected for over 1 minute
+            if now() - game.updated_at > timedelta(minutes=1):
+                # Mark the game as finished
+                game.state = "FINISHED"
+                game.finished = True
+                game.updated_at = now()
+                game.save()
+                print(f"Game {game.id} has been marked as finished due to prolonged disconnection.")
+
+    except Game.DoesNotExist:
+        print(f"Game {game_id} does not exist.")
+    except Exception as e:
+        print(f"Error in monitoring game {game_id}: {str(e)}")
 
 
 class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
@@ -46,8 +79,12 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         try:
             # Fetch the game from the database
             game = (
-                Game.objects.filter(player_a_id=request.user_id, finished=False).first() or
-                Game.objects.filter(player_b_id=request.user_id, finished=False).first()
+                    Game.objects.filter(player_a_id=request.user_id, finished=False)
+                    .exclude(state='FRIEND')
+                    .first() or
+                    Game.objects.filter(player_b_id=request.user_id, finished=False)
+                    .exclude(state='FRIEND')
+                    .first()
             )
 
             if not game:
@@ -79,11 +116,11 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 Game.objects.filter(
                     finished=False,
                     player_a_id=request.player_id
-                ).first() or
+                ).exclude(state='FRIEND').first() or
                 Game.objects.filter(
                     finished=False,
                     player_b_id=request.player_id
-                ).first()
+                ).exclude(state='FRIEND').first()
             )
 
             if existing_game:
@@ -243,6 +280,12 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         stat_channel = grpc.insecure_channel(GRPC_STAT_TARGET)
         stat_stub = StatServiceStub(stat_channel)
 
+        GRPC_CHAT_HOST = "chat_service"
+        GRPC_CHAT_PORT = "50052"
+        GRPC_CHAT_TARGET = f"{GRPC_CHAT_HOST}:{GRPC_CHAT_PORT}"
+        chat_channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
+        chat_stub = chat_pb2_grpc.ChatRoomControllerStub(chat_channel)
+
         try:
             # Fetch the game from the database
             game = Game.objects.get(id=request.game_id)
@@ -295,6 +338,13 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 loser_id=loser_id
             )
             create_stat_response = stat_stub.CreateStat(create_stat_request)
+
+            # List all chat rooms and find the one associated with the game
+            chat_rooms = chat_stub.List(chat_pb2.ChatRoomListRequest())
+            for chat_room in chat_rooms.results:
+                if chat_room.game_id == request.game_id:
+                    chat_stub.Destroy(chat_pb2.ChatRoomDestroyRequest(id=chat_room.id))
+                    break
 
             # Return empty response as acknowledgment
             return Empty()
@@ -410,7 +460,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 player_b_id=request.player_b,
                 points_player_a=0,
                 points_player_b=0,
-                state="READY",
+                state="FRIEND",
                 finished=False,
                 created_at=datetime.now(),
                 updated_at=datetime.now()
@@ -444,6 +494,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             context.set_code(grpc.StatusCode.INTERNAL)
             return game_pb2.Game()
 
+
     def UpdateGameState(self, request, context):
         """
             Updates the state of a game.
@@ -460,7 +511,9 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 game.finished = True
             game.updated_at = datetime.now()  # Update the timestamp
             game.save()
-
+            if updated_state == "DISCONNECTED":
+                monitor_thread = threading.Thread(target=monitor_disconnected_game, args=(game.id,))
+                monitor_thread.start()
             # Prepare the gRPC response
             response = game_pb2.Game(
                 id=game.id,

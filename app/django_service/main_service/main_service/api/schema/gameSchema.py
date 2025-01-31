@@ -30,12 +30,12 @@ from main_service.protos.tournament_pb2 import (
     CreateTournamentGameMappingRequest,
 )
 from main_service.protos.tournament_pb2_grpc import TournamentServiceStub
+
 from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime, timedelta
 import grpc
 from graphql import GraphQLResolveInfo
 from main_service.protos import chat_pb2, chat_pb2_grpc
-
 
 
 from .userSchema import resolve_profile
@@ -535,14 +535,21 @@ def resolve_create_friend_game(_, info: GraphQLResolveInfo, player_a: int, playe
     """
     user_id = info.context["request"].user_id
     user_chanel = grpc.insecure_channel("user_service:50051")
+    chat_chanel = grpc.insecure_channel("chat_service:50051")
+
     try:
         with grpc.insecure_channel(GRPC_TARGET) as channel:
             client = GameServiceStub(channel)
             request = CreateFriendGameRequest(player_a=player_a, player_b=player_b)
             response = client.CreateFriendGame(request)
             notification_stub = NotificationServiceStub(user_chanel)
+            chat_stub = chat_pb2_grpc.ChatRoomControllerStub(chat_chanel)
+
             profile = resolve_profile(_, info, user_id)
+            profileb = resolve_profile(_, info, player_b)
+
             nickname = profile["nickname"]
+            nicknamePlayerB = profileb["nickname"]
             notification_request = CreateNotificationRequest(
                 user_id=player_b,
                 message=f"User {nickname} sent you an Game invitation.",
@@ -550,6 +557,26 @@ def resolve_create_friend_game(_, info: GraphQLResolveInfo, player_a: int, playe
                 sent_at=datetime.utcnow()
             )
             notification_stub.CreateNotification(notification_request)
+            chat_request = chat_pb2.ChatRoomRequest(
+                    name= nickname +  " vs " + nicknamePlayerB,
+                    game_id=response.id,
+            )
+            chatRoom = chat_stub.Create(chat_request)
+            chatRoomUserStub = chat_pb2_grpc.ChatRoomUserControllerStub(chat_chanel)
+            chatRoomUser_request = chat_pb2.ChatRoomUserRequest(chat_room=chatRoom.id, user_id=user_id)
+            chatRoomUser_request_friend = chat_pb2.ChatRoomUserRequest(chat_room=chatRoom.id, user_id=player_b)
+
+            chatRoomUserStub.Create(chatRoomUser_request)
+            chatRoomUserStub.Create(chatRoomUser_request_friend)
+
+            messagestub = chat_pb2_grpc.ChatRoomMessageControllerStub(chat_chanel)
+            messagerequest = chat_pb2.ChatRoomMessageRequest(
+                content = f"§GAME_INVITE§ Game ID:{response.id} {user_id}invited{player_b}",
+                sender_id = user_id,
+                chat_room = chatRoom.id,
+            )
+            messagestub.Create(messagerequest)
+
             return {
                 "id": response.id,
                 "state": response.state,

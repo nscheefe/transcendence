@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const inviter = content.match(/invited(\d+)/)[1];
                 messageContent = `
                     <p>${nickname} has invited you to join a game!</p>
-                    <a href="/home/game/?${gameId}" class="btn btn-primary">Join Game</a>
+                    <a href="/home/game/?game=${gameId}" class="btn btn-primary">Join Game</a>
                 `;
             }
 
