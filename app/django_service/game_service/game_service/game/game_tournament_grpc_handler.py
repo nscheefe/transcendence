@@ -67,8 +67,9 @@ class TournamentServiceHandler:
         room = TournamentRoom.objects.create(
             name=request.name,
             is_active=True,
-            tournament_size=request.tournament_size,  # Added tournament size
-            start_time=start_time  # Ensure timezone-aware datetime is stored
+            tournament_size=request.tournament_size,
+            chat_room_id = request.chatRoomId,
+            start_time=start_time
         )
 
         # Helper function to convert datetime to Protobuf Timestamp

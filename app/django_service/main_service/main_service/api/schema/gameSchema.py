@@ -1,5 +1,6 @@
 from datetime import datetime
-
+import asyncio
+import grpc.aio
 import grpc
 from graphql import GraphQLResolveInfo
 from main_service.api.schema.objectTypes import query, mutation, subscription
@@ -31,6 +32,7 @@ from google.protobuf.timestamp_pb2 import Timestamp
 from datetime import datetime, timedelta
 import grpc
 from graphql import GraphQLResolveInfo
+from main_service.protos import chat_pb2, chat_pb2_grpc
 
 
 
@@ -292,17 +294,29 @@ def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str, tournament
     try:
         # Calculate the default start time as a datetime object
         default_start_time = datetime.utcnow() + timedelta(hours=1)
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
 
         # Convert default_start_time to a Protobuf Timestamp
         start_time_proto = Timestamp()
         start_time_proto.FromDatetime(default_start_time)
-
-        # Send the gRPC request to create the tournament room
+        chatChanel= grpc.aio.insecure_channel("chat_service:50051")
+        # Send the gRPC request to create the tour  nament room
         with grpc.insecure_channel(GRPC_TARGET) as channel:
+            chatClient = chat_pb2_grpc.ChatRoomControllerStub(chatChanel)
             client = TournamentServiceStub(channel)
+
+            chatRequest = chat_pb2.ChatRoomRequest(
+                name=name,
+            )
+            chatResponse=chatClient.Create(chatRequest)
             request = CreateTournamentRoomRequest(
                 name=name,
                 tournament_size=tournament_size,
+                chatRoomId=chatResponse.id,
                 start_time=start_time_proto  # Pass the Protobuf Timestamp
             )
             response = client.CreateTournamentRoom(request)
@@ -328,8 +342,13 @@ def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str, tournament
 def resolve_create_tournament_user(_, info: GraphQLResolveInfo, tournament_id: int, user_id: int):
     """Create a new user in a tournament."""
     try:
+        chatChanel = grpc.aio.insecure_channel("chat_service:50051")
         with grpc.insecure_channel(GRPC_TARGET) as channel:
             client = TournamentServiceStub(channel)
+            chatRoomuserClient = chat_pb2_grpc.ChatRoomUserControllerStub(channel)
+            tournamenRoom = resolve_tournament(_, info, tournament_id)
+            chatUserRequest = chat_pb2.ChatRoomUserRequest(chat_room=response.id, user_id=current_user_id)
+            chatUserResponse = chatRoomuserClient.Create(chatUserRequest)
             request = CreateTournamentUserRequest(
                 tournament_room_id=tournament_id,
                 user_id=user_id,  # Pass the user_id explicitly

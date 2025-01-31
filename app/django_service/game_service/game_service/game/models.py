@@ -37,7 +37,7 @@ class TournamentRoom(models.Model):
     start_time = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)  # Timestamp of room creation
     updated_at = models.DateTimeField(auto_now=True)  # Timestamp of last update
-
+    chat_room_id = models.IntegerField()
     def __str__(self):
         return f"TournamentRoom {self.id}: {self.name}"
 
