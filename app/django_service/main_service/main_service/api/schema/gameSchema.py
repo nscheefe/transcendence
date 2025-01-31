@@ -127,6 +127,7 @@ def resolve_tournament(_, info: GraphQLResolveInfo, tournament_id: int):
                 "name": response.name,
                 "is_active": response.is_active,
                 "started": response.started,
+                "chat_room_id": response.chat_room_id,
                 "tournament_size": response.tournament_size,
                 "start_time": datetime.fromtimestamp(response.start_time.seconds).isoformat() if response.HasField(
                     "start_time") else None,
@@ -381,7 +382,7 @@ def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str, tournament
 def resolve_create_tournament_user(_, info: GraphQLResolveInfo, tournament_id: int, user_id: int):
     """Create a new user in a tournament."""
     try:
-        chatChanel = grpc.aio.insecure_channel("chat_service:50051")
+        chatChanel = grpc.insecure_channel("chat_service:50051")
         with grpc.insecure_channel(GRPC_TARGET) as channel:
             client = TournamentServiceStub(channel)
             chatRoomuserClient = chat_pb2_grpc.ChatRoomUserControllerStub(chatChanel)
