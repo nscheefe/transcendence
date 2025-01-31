@@ -3,15 +3,16 @@ import { executeQuery,  } from './utils.js';
 // Define the GraphQL query using 
 const GET_STATS_BY_USER_QUERY = `
   query StatsByUser($userId: Int!) {
-    statsByUser(userId: $userId) {
-      id
-      userId
-      stat {
-        winnerId
-        loserId
-      }
-      didWin
-    }
+  statsByUser(userId: $userId) {
+                id
+                userId
+                stat {
+                    winnerId
+                    loserId
+                    createdAt
+                    }
+                didWin
+            }
   }
 `;
 
@@ -22,11 +23,12 @@ const GET_STATS_BY_USER_QUERY = `
  */
 export const getStatsByUser = async (userId) => {
   try {
-    // Execute the query, passing the userId as a variable
+    console.log("was here");
     const response = await executeQuery(GET_STATS_BY_USER_QUERY, { userId });
+    console.log(response);
 
     // Return the data from the response
-    return response.data.statsByUser;
+    return response;
   } catch (error) {
     console.error('Error fetching stats by user:', error);
     throw error;
@@ -62,13 +64,12 @@ export const getStatList = async () => {
   try {
     // Log the raw response to see what is returned
     const response = await executeQuery(GET_STAT_LIST_QUERY);
-
     // Check if response and data exist, otherwise throw an error
     if (!response || !response.StatList) {
       throw new Error("Invalid response format: Missing data or StatList in response");
     }
 
-    return response.StatList;
+    return response;
   } catch (error) {
     console.error("Error fetching StatList:", error);
     throw error;

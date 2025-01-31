@@ -220,6 +220,7 @@ def publicProfile(request, user_id):
     context = {
         'show_nav': True,
         'user': user_data,
+        'userProfileId': user_id,
         'profile': profile_data,
         'referrer': referrer,  # Add referrer to the context if needed
     }
