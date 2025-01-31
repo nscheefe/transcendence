@@ -33,8 +33,10 @@ const loadTournaments = async () => {
                 // Tournament details with a Join button
                 tournamentEl.innerHTML = `
                     <div>
+                    <a href="/home/tournaments/${tournament.id}">
                         <h2>${tournament.name}</h2>
                         <small>Created At: ${new Date(tournament.created_at).toLocaleString()}</small>
+                        </a>
                         <br>
                         <button class="join-btn" data-id="${tournament.id}">Join Tournament</button>
                     </div>
@@ -69,32 +71,65 @@ const loadTournaments = async () => {
     }
 };
 
-// Handle creating a new tournament
-const handleCreateTournament = async () => {
-    const tournamentName = prompt('Enter the name for the new tournament:');
 
+const createTournamentForm = document.getElementById('createTournamentForm');
+const tournamentMessage = document.getElementById('tournamentMessage');
+
+const handleCreateTournament = async (event) => {
+    event.preventDefault();
+
+    // Retrieve form input values
+    const tournamentName = document.getElementById('tournament-name').value.trim();
+    const tournamentSize = parseInt(document.getElementById('tournament-size').value.trim(), 10);
+    const tournamentStartAt = document.getElementById('tournament-start-at').value.trim();
+
+    // Validate inputs
     if (!tournamentName) {
         alert('Tournament name is required.');
         return;
     }
+    if (!tournamentSize || isNaN(tournamentSize) || [2, 4, 8, 16].indexOf(tournamentSize) === -1) {
+        alert('A valid tournament size is required.');
+        return;
+    }
+    if (!tournamentStartAt) {
+        alert('A valid start time is required.');
+        return;
+    }
 
     try {
-        const response = await createTournament({ name: tournamentName }); // Adjust based on your API
-        if (response.errors && response.errors.length > 0) {
-            alert(`Error creating tournament: ${response.errors[0].message}`);
-        } else {
-            alert('Tournament created successfully!');
+        // Convert the start time to a format compatible with backend expectations (remove 'Z')
+        const rawDate = new Date(tournamentStartAt); // Parse input as Date object
+        const formattedDate = rawDate.toISOString().split('Z')[0]; // Remove 'Z' suffix
 
-            // Reload tournaments after creating a new one
+        // Call `createTournament` function with the input values
+        const response = await createTournament(tournamentName, tournamentSize);
+
+        // Handle response
+        if (response.errors && response.errors.length > 0) {
+            tournamentMessage.textContent = `Error creating tournament: ${response.errors[0].message}`;
+            tournamentMessage.style.color = 'red';
+        } else {
+            tournamentMessage.textContent = 'Tournament created successfully!';
+            tournamentMessage.style.color = 'green';
+
+            // Reload tournaments or perform any required actions
             await loadTournaments();
+
+            // Reset the form
+            createTournamentForm.reset();
         }
     } catch (error) {
         console.error('Error creating tournament:', error);
-        alert('Failed to create a new tournament. Please try again later.');
+        tournamentMessage.textContent = 'Failed to create a new tournament. Please try again later.';
+        tournamentMessage.style.color = 'red';
     }
 };
 
-// Initialize the page
+// Add event listener for form submission
+createTournamentForm.addEventListener('submit', handleCreateTournament);
+
+
 export const initTournamentsPage = async () => {
     await loadTournaments(); // Load the tournaments list
 

@@ -262,16 +262,15 @@ type_defs = """
         create_game: Game
         create_game_event(game_id: Int!, event_type: String!, event_data: String!): GameEvent
         start_game(game_id: Int!): StartGameResponse
-        create_tournament(name: String!): Tournament
+        create_tournament(name: String!, tournament_size: Int!): Tournament
         create_tournament_user(tournament_id: Int!, user_id: Int!): TournamentUserResponse
         update_tournament_user(
-           tournament_id: Int!,
-           user_id: Int!,
+           tournament_user_id: Int!,
            state: String,
            play_order: Int,
            games_played: Int
        ): TournamentUserResponse
-        create_tournament_game(game_id: Int!, tournament_id: Int!, user_id: Int!): TournamentGame
+        create_tournament_game(tournament_id: Int!, user_id: Int!, opponent_id: Int!): TournamentGame
         create_friend_game(player_a: Int!, player_b: Int!): Game!
         update_game_state(game_id: Int!, state: String!): Game!
         create_chat_room(name: String!, game_id: Int): ChatRoom
@@ -347,6 +346,7 @@ type_defs = """
         users: [TournamentUser] # Extend tournament type
         is_active: Boolean
         started: Boolean
+        chat_room_id: Int
         tournament_size: Int
         start_time: String
         created_at: String
@@ -358,8 +358,8 @@ type TournamentUser {
     name: String
     user_id: Int
     tournament_id: Int
-    play_order: Int  # Add play order field
-    games_played: Int # Add games played field
+    play_order: Int  
+    games_played: Int 
     state: String
     created_at: String
     updated_at: String
@@ -367,6 +367,7 @@ type TournamentUser {
     type TournamentGame {
         id: Int
         game_id: Int
+        user_id: Int
         tournament_id: Int
         created_at: String
         updated_at: String

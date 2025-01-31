@@ -6,6 +6,7 @@ from datetime import datetime
 # Import auto-generated gRPC and proto files
 from game_service.protos import tournament_pb2
 from game_service.protos import tournament_pb2_grpc
+from django.utils.timezone import make_aware
 
 # Import Django models
 from .models import TournamentRoom, TournamentUser, TournamentGameMapping
@@ -55,11 +56,38 @@ class TournamentServiceHandler:
         return response
 
     def CreateTournamentRoom(self, request, context):
-        room = TournamentRoom.objects.create(name=request.name, is_active=True)
+        from google.protobuf.timestamp_pb2 import Timestamp
+        from datetime import datetime
+        from django.utils.timezone import make_aware
+
+        # Convert Protobuf Timestamp to Python datetime and make it timezone-aware
+        start_time = make_aware(datetime.fromtimestamp(request.start_time.seconds))
+        print("chromrequest id", request.chat_room_id)
+        # Create the tournament room with additional fields: tournament_size and start_time
+        room = TournamentRoom.objects.create(
+            name=request.name,
+            is_active=True,
+            tournament_size=request.tournament_size,
+            chat_room_id = request.chat_room_id,
+            start_time=start_time
+        )
+
+        # Helper function to convert datetime to Protobuf Timestamp
+        def datetime_to_proto(dt):
+            if dt is None:
+                return None
+            timestamp = Timestamp()
+            timestamp.FromDatetime(dt)
+            return timestamp
+
+        # Prepare the response, including the newly added fields
         response = tournament_pb2.TournamentRoom(
             id=room.id,
             name=room.name,
             is_active=room.is_active,
+            chat_room_id= room.chat_room_id,
+            tournament_size=room.tournament_size,  # Include tournament size
+            start_time=datetime_to_proto(room.start_time),  # Ensure Protobuf Timestamp is used
             created_at=datetime_to_proto(room.created_at),
             updated_at=datetime_to_proto(room.updated_at),
         )
@@ -101,7 +129,7 @@ class TournamentServiceHandler:
                 id=user.id,
                 tournament_room_id=user.tournament_room_id,
                 user_id=user.user_id,
-                state=user.state,
+                State=user.state,
                 play_order=user.play_order,
                 games_played=user.games_played,
                 created_at=datetime_to_proto(user.created_at),
@@ -120,7 +148,7 @@ class TournamentServiceHandler:
                     tournament_room_id=user.tournament_room_id,
                     user_id=user.user_id,
                     play_order=user.play_order,
-                    state=user.state,
+                    State=user.state,
                     games_played=user.games_played,
                     created_at=datetime_to_proto(user.created_at),
                     updated_at=datetime_to_proto(user.updated_at),
@@ -160,7 +188,7 @@ class TournamentServiceHandler:
             return tournament_pb2.TournamentUser(
                 id=user.id,
                 tournament_room_id=user.tournament_room_id,
-                state=user.state,
+                State=user.state,
                 user_id=user.user_id,
                 play_order=user.play_order,
                 games_played=user.games_played,
@@ -175,15 +203,21 @@ class TournamentServiceHandler:
     def UpdateTournamentUser(self, request, context):
         try:
             user = TournamentUser.objects.get(id=request.tournament_user_id)
-            user.play_order = request.play_order
-            user.games_played = request.games_played
-            user.state = request.state
+            if request.play_order is not None and request.play_order != 0:
+                user.play_order = request.play_order
+
+            if request.games_played is not None and request.games_played != 0:
+                user.games_played = request.games_played
+
+            if request.state is not None:
+                user.state = request.state
+
             user.save()
             response = tournament_pb2.TournamentUser(
                 id=user.id,
                 tournament_room_id=user.tournament_room_id,
                 user_id=user.user_id,
-                state=user.state,
+                State=user.state,
                 play_order=user.play_order,
                 games_played=user.games_played,
                 created_at=datetime_to_proto(user.created_at),

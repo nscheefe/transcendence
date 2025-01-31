@@ -66,8 +66,6 @@ def home(request):
     context = get_home_context(request)
     return render(request, 'frontend/home.html', context)
 
-def home2(request):
-    return render(request, 'frontend/homeNils.html')
 
 @jwt_required
 def game(request):
@@ -192,8 +190,18 @@ def tournament(request):
         'user': user_data,
 
     }
-    return render(request, 'frontend/tournament.html', context)
+    return render(request, 'frontend/tournaments.html', context)
 
+@jwt_required
+def tournamentDetails(request, tournament_id):
+    user_data = getUserProfileData(request)
+    context = {
+        'tournament': tournament_id,
+        'show_nav': True,
+        'user': user_data,
+
+    }
+    return render(request, 'frontend/tournament.html', context)
 
 @jwt_required
 def community(request):
@@ -228,6 +236,7 @@ def publicProfile(request, user_id):
     context = {
         'show_nav': True,
         'user': user_data,
+        'userProfileId': user_id,
         'profile': profile_data,
         'referrer': referrer,  # Add referrer to the context if needed
     }
