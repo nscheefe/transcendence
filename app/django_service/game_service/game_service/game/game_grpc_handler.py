@@ -13,6 +13,8 @@ from game_service.protos.stat_pb2 import (
     CalculateStatsRequest,
 )
 from game_service.protos.stat_pb2_grpc import StatServiceStub
+import game_service.protos.chat_pb2_grpc as chat_pb2_grpc
+import game_service.protos.chat_pb2 as chat_pb2
 import google.protobuf.timestamp_pb2
 from google.protobuf.empty_pb2 import Empty
 from .models import Game
@@ -278,6 +280,12 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         stat_channel = grpc.insecure_channel(GRPC_STAT_TARGET)
         stat_stub = StatServiceStub(stat_channel)
 
+        GRPC_CHAT_HOST = "chat_service"
+        GRPC_CHAT_PORT = "50052"
+        GRPC_CHAT_TARGET = f"{GRPC_CHAT_HOST}:{GRPC_CHAT_PORT}"
+        chat_channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
+        chat_stub = chat_pb2_grpc.ChatRoomControllerStub(chat_channel)
+
         try:
             # Fetch the game from the database
             game = Game.objects.get(id=request.game_id)
@@ -307,6 +315,13 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 loser_id=loser_id
             )
             create_stat_response = stat_stub.CreateStat(create_stat_request)
+
+            # List all chat rooms and find the one associated with the game
+            chat_rooms = chat_stub.List(chat_pb2.ChatRoomListRequest())
+            for chat_room in chat_rooms.results:
+                if chat_room.game_id == request.game_id:
+                    chat_stub.Destroy(chat_pb2.ChatRoomDestroyRequest(id=chat_room.id))
+                    break
 
             # Return empty response as acknowledgment
             return Empty()
