@@ -1,9 +1,10 @@
-import { fetchFriendships, fetchFriendsWithProfiles, addFriend, deleteFriendship, blockUser } from './friendservice.js';
-import { fetchUserProfileAndStats, fetchProfiles, fetchProfileByUserId } from './profileservice.js';
-import { showError, generateUserAvatarHTML, fillUserCache, initializeOnlineStatusSubscriptions, userCache } from './utils.js'; // Import the new function
-import { createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate } from './domHelpers.js';
-import { createFriendGame } from "./gameService.js"
-import { startChatWithUser } from "./chatservice.js"
+import {addFriend, blockUser, deleteFriendship, fetchFriendships, fetchFriendsWithProfiles} from './friendservice.js';
+import {fetchProfileByUserId, fetchProfiles, fetchUserProfileAndStats} from './profileservice.js';
+import {generateUserAvatarHTML, showError, userCache} from './utils.js'; // Import the new function
+import {createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate} from './domHelpers.js';
+import {createFriendGame} from "./gameService.js"
+import {startChatWithUser} from "./chatservice.js"
+
 const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';
 const LOADING_FRIENDS_HTML = '<p class="text-light">Loading friends...</p>';
 const NO_FRIENDS_WARNING = 'Sad ... you don\'t seem to have any friends 😞.';
@@ -26,13 +27,13 @@ const refetchFriends = async () => {
  * @param {Object} friendship - Friendship object.
  * @param {Object} profile - Profile object for the friend.
  * @returns {HTMLElement} - Generated friend list item as DOM element.
-*/
+ */
 const generateFriendHTML = (friendship, profile) => {
     const establishedDate = formatDate(friendship.establishedAt);
     const avatarUrl = profile.avatarUrl || DEFAULT_AVATAR;
 
     if (!userCache[profile.userId]) {
-        userCache[profile.userId] = { profile };
+        userCache[profile.userId] = {profile};
     }
 
     return createElement(
@@ -65,7 +66,7 @@ const generateFriendHTML = (friendship, profile) => {
         `,
         'list-group-item bg-dark text-light d-flex align-items-center p-3 rounded-3 mb-2', // className
         {},
-        { id: `friendship-${friendship.id}` }
+        {id: `friendship-${friendship.id}`}
     );
 };
 
@@ -139,6 +140,7 @@ async function loadOpponentProfile(opponentId) {
         console.error('Failed to fetch opponent profile:', error);
     }
 }
+
 /**
  * Renders the profile and stats of the logged-in user.
  * @param {Object} user - User object returned from the API.
@@ -153,7 +155,7 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
         statsByUser.map(async (stat) => {
             const isWinner = stat.stat.winnerId === user.id;
             const opponentId = isWinner ? stat.stat.loserId : stat.stat.winnerId;
-            return { opponentId, opponent: await fetchProfileByUserId(opponentId) };
+            return {opponentId, opponent: await fetchProfileByUserId(opponentId)};
         })
     );
 
@@ -179,9 +181,42 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                 <h5>Additional Information</h5>
                 <p>${profile.additionalInfo || 'No additional information available.'}</p>
                 <h5>Stats:</h5>
+                <style>
+                  .pie-chart {
+                    position: relative;
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                    background: conic-gradient(
+                       ${stats.totalLosses > stats.totalWins ? '#dc3545' : '#0d6efd'} 0% calc(var(--wins) * 1%), /* Winning portion (Bootstrap \`primary\`) */
+                       ${stats.totalLosses < stats.totalWins ? '#dc3545' : '#0d6efd'} calc(var(--wins) * 1%) 100% /* Losing portion (Bootstrap \`danger\`) */
+                    );
+                    margin: auto;
+                  }
+                
+                  .pie-chart .center-text {
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    text-align: center;
+                  }
+                
+                  .pie-chart .center-text h6 {
+                    margin: 0;
+                    font-size: 1rem;
+                    color: white;
+                  }
+                
+                  .pie-chart .center-text span {
+                    font-size: 0.9rem;
+                    color: lightgray;
+                  }
+                </style>
+                <div class="d-flex justify-content-between mb-4">
 
                 <!-- Stats Summary -->
-                <div class="card bg-dark text-light shadow-sm rounded-3 p-3">
+                <div class="card bg-dark text-light shadow-sm rounded-3 p-3" style="width:66%">
                     <div class="row text-center">
                         <div class="col">
                             <div class="p-2">
@@ -203,15 +238,24 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                         </div>
                     </div>
                 </div>
-
+                 <div class="card bg-dark text-light shadow-sm rounded-3 p-3 " style="width:33%">
+                    <div class="pie-chart" style="--wins: ${(stats.totalWins / stats.totalLosses) * 100};">
+                      <div class="center-text">
+                            <h6>${stats.totalGames}</h6>
+                            <span>Total Games</span>
+                      </div>
+                    </div>
+                
+                 </div>
+                </div>
                 <!-- Detailed User Stats -->
                 <div class="stats-list mt-3">
                     ${statsByUser.map((stat, index) => {
-                        const date = stat.stat.createdAt;
-                        const result = stat.didWin ? 'win' : 'loss';
-                        const opponentData = opponents.find(o => o.opponentId === (stat.stat.winnerId === user.id ? stat.stat.loserId : stat.stat.winnerId));
-                        const opponent = opponentData?.opponent?.profile || {};
-                        return `
+                const date = stat.stat.createdAt;
+                const result = stat.didWin ? 'win' : 'loss';
+                const opponentData = opponents.find(o => o.opponentId === (stat.stat.winnerId === user.id ? stat.stat.loserId : stat.stat.winnerId));
+                const opponent = opponentData?.opponent?.profile || {};
+                return `
                             <div class="game-stat bg-dark ${result === 'win' ? 'victory' : 'defeat'}">
                                 <div class="d-flex justify-content-between mb-2">
                                     <span>${new Date(date).toLocaleDateString()}</span>
@@ -236,7 +280,7 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                                 </div>
                             </div>
                         `;
-                    }).join('')}
+            }).join('')}
                 </div>
             </div>
             `
@@ -336,7 +380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.error("Invalid friendUserId in the data-friendship-id attribute.");
             }
         }
-});
+    });
 });
 
 const NO_PROFILES_HTML = '<p class="text-light">No profiles found.</p>';
@@ -365,10 +409,10 @@ const renderProfiles = (profiles, profilesContainer) => {
     let flattenedFriendships = Array.isArray(cachedFriendships) ? cachedFriendships.flat() : [];
 
     profiles.forEach((profile) => {
-        userCache[profile.userId] = { profile }; // Cache the profile for later use
+        userCache[profile.userId] = {profile}; // Cache the profile for later use
         // Check if the profile userId exists in cachedFriendships
         const isFriendAlready = flattenedFriendships.some(
-                (friendship) => friendship.friendId == profile.userId && friendship.accepted
+            (friendship) => friendship.friendId == profile.userId && friendship.accepted
         );
 
         const isBlocked = flattenedFriendships.some(
@@ -413,7 +457,7 @@ const renderProfiles = (profiles, profilesContainer) => {
             </div>
         </li>
             `;
-            profilesContainer.innerHTML += profileHTML;
+        profilesContainer.innerHTML += profileHTML;
     });
 
     // Attach event listeners to "Add Friend" buttons
@@ -433,13 +477,13 @@ const renderProfiles = (profiles, profilesContainer) => {
                 const response = await addFriend(friendId);
 
                 if (response && response.success) {
-                refetchFriends(); // Refresh the cached friendships
+                    refetchFriends(); // Refresh the cached friendships
                     button.textContent = "Friend Added!";
                     button.classList.remove("btn-success");
                     button.classList.add("btn-secondary");
                     button.disabled = true; // Disable the button after a successful add
                     // Optionally update cachedFriendships
-                    cachedFriendships.push({ friendId }); // Add the new friend to the cache
+                    cachedFriendships.push({friendId}); // Add the new friend to the cache
                 } else {
                     console.error(`Failed to add friend: ${response.message}`);
                     alert(`Error: ${response.message}`);
@@ -533,8 +577,6 @@ const fetchAndRenderProfiles = async (
         profilesContainer.innerHTML = `<p class="text-danger">Failed to load profiles. Please try again later.</p>`;
     }
 };
-
-
 
 
 document.addEventListener('DOMContentLoaded', async () => {
