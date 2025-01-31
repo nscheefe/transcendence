@@ -1,5 +1,5 @@
 import { getStatList } from "./statService.js"; // Import the StatList query function
-import { generateUserAvatarHTML, fillUserCache, userCache} from "./utils.js";
+import { generateUserAvatarHTML, fillUserCache, userCache, initializeOnlineStatusSubscriptions} from "./utils.js";
 
 /**
  * Renders the leaderboard UI with fetched StatList data.
@@ -167,6 +167,7 @@ const fetchTop3Leaderboard = async () => {
     const statList = await getStatList();
     console.log("Processed StatList:", statList); // Log the final stat list
     renderTop3Leaderboard(statList);
+    initializeOnlineStatusSubscriptions();
   } catch (error) {
     console.error("Error fetching leaderboard data:", error.message);
 

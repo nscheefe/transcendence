@@ -521,6 +521,7 @@ const fetchAndRenderProfiles = async (
         if (data && data.getAllProfiles) {
             const profiles = data.getAllProfiles.profiles;
             renderProfiles(profiles, profilesContainer);
+            initializeOnlineStatusSubscriptions(); // Initialize online status subscriptions
             prevPageBtn.disabled = offset === 0;
             nextPageBtn.disabled = profiles.length < limit;
         } else {
