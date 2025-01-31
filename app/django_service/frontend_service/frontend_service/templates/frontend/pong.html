@@ -45,16 +45,21 @@
       "https://unpkg.com/three@0.128.0/examples/js/postprocessing/RenderPass.js",
       "https://unpkg.com/three@0.128.0/examples/js/postprocessing/ShaderPass.js",
       "https://unpkg.com/three@0.128.0/examples/js/shaders/RGBShiftShader.js",
-      "https://unpkg.com/three@0.128.0/examples/js/shaders/GammaCorrectionShader.js",
-      "{% static 'js/pong.js' %}"
+      "https://unpkg.com/three@0.128.0/examples/js/shaders/GammaCorrectionShader.js"
     ];
 
     // Load scripts and initialize the game
     loadScripts(scripts, () => {
       console.log("All scripts loaded");
-      window.initPongGame();
+      const isLocalGame = {{ is_local_game|yesno:"true,false" }};
+      if (typeof window.initPongGame === 'function') {
+        window.initPongGame(isLocalGame);
+      } else {
+        console.error("initPongGame is not defined");
+      }
     });
   });
 </script>
+<script type="module" src="{% static 'js/pong.js' %}"></script>
 {% endblock %}
 
