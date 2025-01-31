@@ -118,7 +118,7 @@ function createWebSocket(gameId = null) {
             }
             if (state.points !== undefined) {
                 updateTextMesh(player1TextMesh, `${state.points.player1}`, camera1);
-                updateTextMesh(player2TextMesh, `${state.points.player2}`, camera2);
+                updateTextMesh(player2TextMesh, `${state.points.player2}`, camera1);
             }
             if (state.direction !== undefined) {
                 direction = state.direction;
