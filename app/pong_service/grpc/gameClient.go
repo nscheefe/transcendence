@@ -77,3 +77,12 @@ func (c *GameClient) GetOnGoingGameByUser(userID int32) (*pb.Game, error) {
 
 	return c.client.GetOnGoingGameByUser(context.Background(), req)
 }
+
+func (c *GameClient) GetGameByID(gameID int32) (*pb.Game, error) {
+	req := &pb.GetGameRequest{
+		GameId: gameID,
+	}
+
+	return c.client.GetGame(context.Background(), req)
+}
+

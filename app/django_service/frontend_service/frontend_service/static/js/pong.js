@@ -64,7 +64,7 @@ function gameOver(winner) {
 }
 
 // WebSocket setup
-function createWebSocket() {
+function createWebSocket(gameId = null) {
     if (socket && socket.readyState !== WebSocket.CLOSED) {
         console.log('WebSocket connection already exists');
         return;
@@ -77,7 +77,15 @@ function createWebSocket() {
 
     console.log('Attempting to connect to WebSocket server...');
     isConnecting = true;
-    socket = new WebSocket(`wss://${document.location.hostname}/game`);
+    let wsUrl = `wss://${document.location.hostname}`;
+    if (document.location.port) {
+        wsUrl += `:${document.location.port}`;
+    }
+    wsUrl += `/game`;
+    if (gameId) {
+        wsUrl += `?gameId=${gameId}`;
+    }
+    socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
         console.log('Connected to the server');
@@ -127,7 +135,7 @@ function createWebSocket() {
         console.log('Disconnected from the server', event);
         isConnecting = false;
         // Attempt to reconnect after 1 second
-        setTimeout(() => createWebSocket(), 1000);
+        setTimeout(() => createWebSocket(gameId), 1000);
     };
 
     socket.onerror = (error) => {
@@ -349,12 +357,13 @@ function handleKeyState(event) {
     keyState[event.key] = event.type === 'keydown';
 
     // Update local game state
-    updateLocalGameState(event.key, keyState[event.key]);
 
     // Send key state to server if WebSocket is open
     if (socket && socket.readyState === WebSocket.OPEN) {
         socket.send(JSON.stringify({ type: 'keyState', key: event.key, state: keyState[event.key] }));
     }
+    else
+        updateLocalGameState(event.key, keyState[event.key]);
 
     // Handle local paddle movement for preview
     updatePaddlePosition();
@@ -543,8 +552,8 @@ function generateHTML() {
         });
     });
 }
-function main(local = false) {
-    if (local) {
+function main(local = false, gameId = null) {
+    if (local === true) {
         console.log("local game");
         updateScene(true);
         generateHTML().then((winningScore) => {
@@ -577,8 +586,7 @@ function main(local = false) {
     }
     else {
         console.log("initPongGame called");
-        updateScene(false);
-        createWebSocket();
+        createWebSocket(gameId);
     }
 }
 // Expose the init function to be called externally

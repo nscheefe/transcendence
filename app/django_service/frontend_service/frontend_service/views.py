@@ -71,15 +71,17 @@ def home2(request):
 def game(request):
     context = get_home_context(request)
     game = None
+    gameId = request.GET.get('game', None)
     # Check for the 'local' query parameter
     is_local_game = request.GET.get('local', 'false').lower() == 'true'
-    if is_local_game != True:
+    if is_local_game != True and gameId != None:
         game = create_game.createGame(request)
         logger.info(game)
 
     # Extend the context with additional data for the game view
     context.update({
         'game': game,  # Example function for getting game data
+        'game_id': gameId,  # Add the game ID to the context
         'is_local_game': is_local_game,  # Add the local game flag to the context
     })
 

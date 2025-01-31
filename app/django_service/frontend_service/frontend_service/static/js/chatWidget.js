@@ -72,6 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 chatRoomMessagesContainer.appendChild(dateElement);
                 lastMessageDate = messageDate;
             }
+
+            let messageContent = content;
+            if (content.startsWith('§GAME_INVITE§')) {
+                const gameId = content.match(/Game ID:(\d+)/)[1];
+                const inviter = content.match(/invited(\d+)/)[1];
+                messageContent = `
+                    <p>${nickname} has invited you to join a game!</p>
+                    <a href="/home/game/?game=${gameId}" class="btn btn-primary">Join Game</a>
+                `;
+            }
+
             const messageElement = createElement(
                 'li',
                 `
@@ -89,7 +100,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p class="text-muted mb-0" style="font-size: 0.875rem;">${nickname}</p>
                         </div>
                         <div class="card-body" style="background-color: #202020; color: #ffffff;">
-                            <p class="mb-0">${content}</p>
+                            <p class="mb-0">${messageContent}</p>
                         </div>
                     </div>
                 </div>

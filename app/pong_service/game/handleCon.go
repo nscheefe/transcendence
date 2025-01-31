@@ -26,17 +26,8 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 
 var games = make(map[int]*Game)
 
-// var user_id_int int = 0
-
 func handshake(r *http.Request) (int, *Game, error) {
-	// user_id_int++
-	// if games[1] == nil {
-	// 	games[1] = initGame(1)
-	// }
-	// return user_id_int, games[1], nil
 	token, err_token := r.Cookie("jwt_token")
-	// _, err_game_id := r.Cookie("game_id")
-
 	if err_token != nil {
 		return 0, nil, errors.New("jwt_token is required: " + err_token.Error())
 	}
@@ -46,13 +37,29 @@ func handshake(r *http.Request) (int, *Game, error) {
 		return 0, nil, errors.New("invalid jwt token")
 	}
 
-	game, err := grpc.GameCon.GetOnGoingGameByUser(int32(userID))
-	if err != nil {
-		return 0, nil, errors.New("no ongoing game found for user " + strconv.Itoa(int(userID)) + ": " + err.Error())
+	gameIDStr := r.URL.Query().Get("gameId")
+	var gameID int
+	if gameIDStr != "" {
+		gameID, err = strconv.Atoi(gameIDStr)
+		if err != nil {
+			return 0, nil, errors.New("invalid game ID")
+		}
+	} else {
+		game, err := grpc.GameCon.GetOnGoingGameByUser(int32(userID))
+		if err != nil {
+			return 0, nil, errors.New("no ongoing game found for user " + strconv.Itoa(int(userID)) + ": " + err.Error())
+		}
+		gameID = int(game.Id)
 	}
 
-	gameID := int(game.Id)
 	if games[gameID] == nil {
+		game, err := grpc.GameCon.GetGameByID(int32(gameID))
+		if err != nil {
+			return 0, nil, errors.New("game not found: " + err.Error())
+		}
+		if game.State == "finished" {
+			return 0, nil, errors.New("game is finished")
+		}
 		games[gameID] = initGame(gameID, game)
 	}
 
