@@ -80,6 +80,14 @@ func updateClients(game *Game) {
 			logGame(game, "client "+strconv.Itoa(id)+" disconnected")
 			delete(game.Clients, id)
 		default:
+			if game.info.State != WaitingState {
+				gameInfo, err := grpc.GameCon.UpdateGameState(int32(game.id), WaitingState)
+				if err != nil {
+					logGame(game, "GRPCerror updating game state: "+err.Error())
+				} else {
+				game.info = gameInfo
+				}
+			}
 		}
 	}
 }
@@ -90,6 +98,14 @@ func startGame(game *Game) {
 		return
 	}
 	game.State = GameStateInProgress
+	if game.info.State != InProgressState {
+		gameInfo, err := grpc.GameCon.UpdateGameState(int32(game.id), InProgressState)
+		if err != nil {
+			logGame(game, "GRPCerror updating game state: "+err.Error())
+		} else {
+			game.info = gameInfo
+		}
+	}
 
 	sendIndividually(game, int(game.info.PlayerAId), map[string]interface{}{
 		"type":   "gameStarted",

@@ -29,7 +29,12 @@ const (
 	GameStateInProgress
 	GameStateFinished
 	GameStatePaused
+)
+
+const (
+	InProgressState string = "IN_PROGRESS"
 	DisconnectedState string = "DISCONNECTED"
+	WaitingState string = "WAITING"
 )
 
 type state struct {
