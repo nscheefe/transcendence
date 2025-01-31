@@ -35,14 +35,28 @@ class ChatRoomService(generics.AsyncModelService):
             Serialized chat room data for each chat room associated with the specified user.
         """
         user_id = request.user_id
+        last_chat_rooms = set()
 
-        # Fetch chat rooms where the specified user is a participant
-        chat_rooms = await sync_to_async(list)(ChatRoom.objects.filter(participants__user_id=user_id))
+        while True:
+            # Fetch chat rooms where the specified user is a participant
+            chat_rooms = await sync_to_async(list)(ChatRoom.objects.filter(participants__user_id=user_id))
 
-        # Yield each chat room's serialized data
-        for chat_room in chat_rooms:
-            serialized_message = await sync_to_async(lambda: self.serializer_class(chat_room).data)()
-            yield ParseDict(serialized_message, ChatRoomResponse())
+            # Convert chat rooms to a set of IDs for comparison
+            current_chat_rooms = set(chat_room.id for chat_room in chat_rooms)
+
+            # Check for new or updated chat rooms
+            new_or_updated_chat_rooms = current_chat_rooms - last_chat_rooms
+
+            for chat_room in chat_rooms:
+                if chat_room.id in new_or_updated_chat_rooms:
+                    serialized_message = await sync_to_async(lambda: self.serializer_class(chat_room).data)()
+                    yield ParseDict(serialized_message, ChatRoomResponse())
+
+            # Update the last chat rooms set
+            last_chat_rooms = current_chat_rooms
+
+            # Sleep for a while before checking for updates again
+            await asyncio.sleep(5)
 
 class ChatRoomMessageService(generics.AsyncModelService):
     queryset = ChatRoomMessage.objects.all()
