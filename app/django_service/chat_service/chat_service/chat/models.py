@@ -32,6 +32,7 @@ class ChatRoomUser(models.Model):
         ChatRoom, related_name="participants", on_delete=models.CASCADE
     )  # Foreign key to the ChatRoom
     joined_at = models.DateTimeField(default=now)  # Timestamp when the user joined the room
-
+    class Meta:
+        unique_together = [['user_id', 'chat_room']]
     def __str__(self):
         return f"User {self.user_id} in ChatRoom {self.chat_room}"
