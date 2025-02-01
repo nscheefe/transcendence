@@ -21,7 +21,7 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 		disconnected: make(chan int, 1),
 	}
 
-	websockets.HandleConnection(w, r, user_id, game.Clients[user_id].msgReceived, game.Clients[user_id].connected, game.Clients[user_id].disconnected, game.id)
+	websockets.HandleConnection(w, r, user_id, game.Clients[user_id].msgReceived, game.Clients[user_id].connected, game.Clients[user_id].disconnected, game.info.Id)
 }
 
 var games = make(map[int]*Game)
@@ -50,6 +50,8 @@ func handshake(r *http.Request) (int, *Game, error) {
 			return 0, nil, errors.New("no ongoing game found for user " + strconv.Itoa(int(userID)) + ": " + err.Error())
 		}
 		gameID = int(game.Id)
+		games[gameID] = initGame(gameID, game)
+		return int(userID), games[gameID], nil
 	}
 
 	if games[gameID] == nil {
