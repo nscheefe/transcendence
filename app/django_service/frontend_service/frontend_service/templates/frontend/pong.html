@@ -22,7 +22,7 @@
 
 {% block extra_js %}
 <script>
-  const referrer = {{ referrer|default:'#' }};
+  const referrer ="{{ referrer|default:'#' }}";
   document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for the close button after content is injected
 
