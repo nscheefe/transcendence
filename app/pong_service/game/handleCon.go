@@ -21,7 +21,7 @@ func HandleConnection(w http.ResponseWriter, r *http.Request) {
 		disconnected: make(chan int, 1),
 	}
 
-	websockets.HandleConnection(w, r, user_id, game.Clients[user_id].msgReceived, game.Clients[user_id].connected, game.Clients[user_id].disconnected)
+	websockets.HandleConnection(w, r, user_id, game.Clients[user_id].msgReceived, game.Clients[user_id].connected, game.Clients[user_id].disconnected, game.id)
 }
 
 var games = make(map[int]*Game)

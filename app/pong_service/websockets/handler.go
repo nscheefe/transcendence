@@ -26,7 +26,7 @@ type MsgToSend struct {
 	Msg interface{}
 }
 
-func HandleConnection(w http.ResponseWriter, r *http.Request, id int, msgReceived chan<- MsgReceived, connected chan<- int, disconnected chan<- int) {
+func HandleConnection(w http.ResponseWriter, r *http.Request, id int, msgReceived chan<- MsgReceived, connected chan<- int, disconnected chan<- int, gameID int) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		errorResponse(w, err.Error(), err, http.StatusInternalServerError)
@@ -69,7 +69,7 @@ func HandleConnection(w http.ResponseWriter, r *http.Request, id int, msgReceive
 		logWebsocket("Error sending message to disconnected channel ", id)
 	}
 
-	_, err = grpc.GameCon.UpdateGameState(int32(id), DisconnectedState)
+	_, err = grpc.GameCon.UpdateGameState(int32(gameID), DisconnectedState)
 	if err != nil {
 		logWebsocket("GRPCerror updating game state: ", err.Error())
 	}
