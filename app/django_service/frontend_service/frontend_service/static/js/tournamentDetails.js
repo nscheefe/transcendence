@@ -69,7 +69,6 @@ async function matches(users) {
             if (eligiblePlayers.length < 2) {
                 if (eligiblePlayers.length === 1) {
                     const [winner] = eligiblePlayers;
-                    console.log(`Winner Found: ${winner.name}`);
                     currentRoundContainer.innerHTML += `
             <div class="winner card bg-success text-light mb-3">
               <div class="card-body">
@@ -136,7 +135,6 @@ async function matches(users) {
 }
 
 async function playerReady() {
-    console.log("Marking player as ready...");
 
     try {
         if (!userId || !currentUser.id) {
@@ -156,7 +154,6 @@ async function playerReady() {
 }
 
 async function playerStartGame() {
-    console.log("currentOpponent", currentMatch);
 
     try {
         const opponentId =
@@ -227,7 +224,6 @@ async function renderStateButton() {
 }
 
 async function getTournamentGamesByTournamentId(tournamentId) {
-    console.log(`Fetching games for tournament ID: ${tournamentId}`);
 
     try {
         if (!tournamentId) {
@@ -243,12 +239,10 @@ async function getTournamentGamesByTournamentId(tournamentId) {
         }
 
 
-        console.log(`Games retrieved for tournament ID ${tournamentId}:`, games);
 
         // Extract only unique game IDs
         const uniqueGameIds = [...new Set(games.tournament_games.map(game => game.game_id))];
 
-        console.log(`Unique game IDs for tournament ID ${tournamentId}:`, uniqueGameIds);
 
         return uniqueGameIds;
     } catch (error) {
@@ -258,7 +252,6 @@ async function getTournamentGamesByTournamentId(tournamentId) {
 }
 
 const displayUniqueGamesForTournament = async (tournamentId) => {
-    console.log(`Displaying unique games for tournament ID: ${tournamentId}`);
 
     try {
         const uniqueGameIds = await getTournamentGamesByTournamentId(tournamentId);
@@ -276,7 +269,6 @@ const displayUniqueGamesForTournament = async (tournamentId) => {
         );
 
         const finishedGames = games.filter((game) => game.finished); // Filter only finished games
-        console.log("Finished Games:", finishedGames);
 
         // Gather all the player IDs for filling the user cache
         const players = finishedGames.flatMap((game) => [
@@ -328,7 +320,6 @@ const displayUniqueGamesForTournament = async (tournamentId) => {
             </div>
         `;
 
-        console.log("Previous Matches HTML:", previousMatches);
 
         // Render the previous matches wherever needed
         // For example:

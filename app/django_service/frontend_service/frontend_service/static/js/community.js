@@ -19,7 +19,23 @@ const refetchFriends = async () => {
         : Object.values(data); // If it's an object (with numeric keys), convert it to an array
     cachedFriendships = friendships;
 };
+const onpageNav = document.getElementById('onpage-nav');
 
+// Attach a single event listener to the parent container
+onpageNav.addEventListener('click', async (event) => {
+    if (event.target.classList.contains('nav-link')) {
+        try {
+            document.querySelectorAll('#onpage-nav .nav-link').forEach((link) => {
+                link.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            await refetchFriends();
+        } catch (error) {
+            console.error('Error refetching data:', error);
+            alert('Failed to refetch data. Please try again later.');
+        }
+    }
+});
 //const avatarHtml = generateUserAvatarHTML(profile.user_id, 50);
 
 /**
@@ -508,10 +524,6 @@ const renderProfiles = (profiles, profilesContainer) => {
             }
 
             try {
-                console.log(`Block status: ${block}`);
-                console.log(`Friendship ID: ${id}`);
-                console.log(`User ID: ${userId}`);
-                // Call the blockUser service function
                 const response = await blockUser(id, block, userId);
 
                 if (response && response.success) {

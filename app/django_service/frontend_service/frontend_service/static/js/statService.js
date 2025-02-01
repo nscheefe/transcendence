@@ -23,9 +23,7 @@ const GET_STATS_BY_USER_QUERY = `
  */
 export const getStatsByUser = async (userId) => {
   try {
-    console.log("was here");
     const response = await executeQuery(GET_STATS_BY_USER_QUERY, { userId });
-    console.log(response);
 
     // Return the data from the response
     return response;

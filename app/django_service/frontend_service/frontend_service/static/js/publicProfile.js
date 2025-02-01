@@ -3,8 +3,6 @@ import {getStatsByUser} from "./statService.js";
 
 
 const renderDetailedUserStats = async (statsByUser, userProfile, userId) => {
-    console.log(statsByUser, userProfile)
-    // Preload opponent profiles
     const opponents = await Promise.all(
         statsByUser.map(async (stat) => {
             const isWinner = stat.stat.winnerId === userId;
@@ -12,8 +10,6 @@ const renderDetailedUserStats = async (statsByUser, userProfile, userId) => {
             return { opponentId, opponent: await fetchProfileByUserId(opponentId) };
         })
     );
-
-    // Render stats list
     return `
         <div class="stats-list mt-3 scrollable">
             ${statsByUser.map((stat) => {
@@ -53,36 +49,21 @@ const renderDetailedUserStats = async (statsByUser, userProfile, userId) => {
 };
 const updateUserGameStats = async (userId, userProfile) => {
     try {
-        // Fetch stats for the user
         const response = await getStatsByUser(userId);
 
-        // Debugging confirmation
-        console.log('Response from getStatsByUser:', response);
-
-        // Extract statsByUser from the response
         const statsByUser = response.statsByUser;
-
-        // Confirm the structure contains the expected array
         if (!Array.isArray(statsByUser)) {
             throw new Error('Invalid statsByUser: not an array');
         }
-
-        // Locate the HTML container
         const statsContainer = document.getElementById('user-games-stats');
         if (!statsContainer) {
             console.error("Container with id 'user-games-stats' not found!");
             return;
         }
-
-        // Pass data to renderDetailedUserStats
         const statsHtml = await renderDetailedUserStats(statsByUser, userProfile, userId);
-
-        // Inject the generated HTML into the container
         statsContainer.innerHTML = statsHtml;
     } catch (error) {
         console.error('Error in updateUserGameStats:', error);
-
-        // Fallback for errors
         const statsContainer = document.getElementById('user-games-stats');
         if (statsContainer) {
             statsContainer.innerHTML = `

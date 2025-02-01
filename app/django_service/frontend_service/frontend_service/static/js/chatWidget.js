@@ -26,10 +26,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const populateChatRoomMessages = async (chatRoomId) => {
         chatRoomMessagesContainer.innerHTML = '';
         let friendships = await fetchFriendships(); // Await the result of fetchFriendships
-        console.log('Fetched Friendships:', friendships);
 
         friendships = Array.isArray(friendships) ? friendships.flat() : Object.values(friendships).flat(); // Ensure friendships is an array
-        console.log('Processed Friendships:', friendships);
 
         let blockedUsers = friendships.filter(friendship => friendship.blocked).map(friendship => friendship.friendId);
         console.log('Blocked users:', blockedUsers);
@@ -47,7 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 try {
                     // Fetch user details and update the cache
                     await fillUserCache([{ user_id: sender_id }]);
-                    console.log('User details:', userCache[sender_id]);
                 } catch (error) {
                     console.error('Error fetching user details:', error);
                     showError(chatRoomMessagesContainer, 'Failed to load user details. Please try again.');

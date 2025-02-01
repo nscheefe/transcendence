@@ -60,7 +60,6 @@ const handleNewNotification = (notification) => {
 
   // Store the state in local storage
   const latestNotificationTime = new Date(notification.sentAt).getTime();
-  console.log('latestNotificationTime:', latestNotificationTime);
   const storedNotificationTime = localStorage.getItem('latestNotificationTime');
   if (!storedNotificationTime || latestNotificationTime > storedNotificationTime) {
     localStorage.setItem('latestNotificationTime', latestNotificationTime);

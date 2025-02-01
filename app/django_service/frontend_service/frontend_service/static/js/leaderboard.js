@@ -151,7 +151,6 @@ const fetchLeaderboard = async () => {
     if (!Array.isArray(statList)) {
       throw new Error("StatList is not an array");
     }
-    console.log("Processed StatList:", statList); // Log the final stat list
     renderLeaderboard(statList);
   } catch (error) {
     console.error("Error fetching leaderboard data:", error.message);
@@ -173,7 +172,6 @@ const fetchTop3Leaderboard = async () => {
     if (!Array.isArray(statList)) {
       throw new Error("StatList is not an array");
     }
-    console.log("Processed StatList:", statList); // Log the final stat list
     renderTop3Leaderboard(statList);
     initializeOnlineStatusSubscriptions();
   } catch (error) {
