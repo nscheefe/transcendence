@@ -12,7 +12,7 @@ document.getElementById('close-btn').addEventListener('click', function () {
         console.log('WebSocket connection closed');
     }
     document.getElementById('pong-container').style.display = 'none';
-    window.location.href = '/home';
+    window.location.href = referrer;
 });
 
 // Global variables

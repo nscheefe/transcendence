@@ -72,7 +72,9 @@ def game(request):
     context = get_home_context(request)
     game = None
     gameId = request.GET.get('game', None)
-    # Check for the 'local' query parameter
+    referrer = request.META.get('HTTP_REFERER', None)
+
+# Check for the 'local' query parameter
     is_local_game = request.GET.get('local', 'false').lower() == 'true'
 
     logger.info(f"is_local_game: {is_local_game}, gameId: {gameId}")
@@ -85,6 +87,7 @@ def game(request):
 
     # Extend the context with additional data for the game view
     context.update({
+        'referrer': referrer,
         'game': game,  # Example function for getting game data
         'game_id': gameId,  # Add the game ID to the context
         'is_local_game': is_local_game,  # Add the local game flag to the context
