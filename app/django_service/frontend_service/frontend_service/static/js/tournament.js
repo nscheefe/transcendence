@@ -32,13 +32,22 @@ const loadTournaments = async () => {
 
                 // Tournament details with a Join button
                 tournamentEl.innerHTML = `
-                    <div>
-                    <a href="/home/tournaments/${tournament.id}">
-                        <h2>${tournament.name}</h2>
-                        <small>Created At: ${new Date(tournament.created_at).toLocaleString()}</small>
-                        </a>
-                        <br>
-                        <button class="join-btn" data-id="${tournament.id}">Join Tournament</button>
+                    <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                        <div>
+                            <a href="/home/tournaments/${tournament.id}" class="text-decoration-none">
+                                <h5 class="mb-0">${tournament.name}</h5>
+                                <small class=" d-block">
+                                    Created At: ${new Date(tournament.created_at).toLocaleString()}
+                                </small>
+                                <small class=" d-block">
+                                    Tournament Size: ${tournament.tournament_size}
+                                </small>
+                                <small class=" d-block">
+                                    Start Time: ${new Date(tournament.start_time).toLocaleString()}
+                                </small>
+                            </a>
+                        </div>
+                        <button class="btn btn-primary join-btn" data-id="${tournament.id}">Join Tournament</button>
                     </div>
                 `;
 

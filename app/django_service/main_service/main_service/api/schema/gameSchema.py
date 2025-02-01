@@ -323,15 +323,6 @@ def resolve_create_tournament(_, info: GraphQLResolveInfo, name: str, tournament
             print(f"Chat room created with ID: {chat_response.id}")  # Debug: Check chat creation response
             logger.info(f"Chat room created: {chat_response}")
 
-            # Example: Adding the creator to the chat room
-            user_stub = chat_pb2_grpc.ChatRoomUserControllerStub(chat_channel)
-            user_request = chat_pb2.ChatRoomUserRequest(
-                chat_room=chat_response.id,
-                user_id=current_user_id
-            )
-            user_response = user_stub.Create(user_request)
-            print(f"User {current_user_id} added to chat room {chat_response.id}")  # Debug
-            logger.info(f"User {current_user_id} added to chat room {chat_response.id}")
 
         # Create the tournament room using another gRPC service
         print("Setting up tournament service gRPC channel...")

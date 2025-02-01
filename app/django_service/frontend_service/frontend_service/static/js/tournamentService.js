@@ -109,6 +109,8 @@ export const getTournaments = async () => {
       tournaments {
         id
         name
+        tournament_size
+        start_time
         created_at
         updated_at
       }
