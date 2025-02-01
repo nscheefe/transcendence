@@ -329,18 +329,19 @@ const displayUniqueGamesForTournament = async (tournamentId) => {
         console.error("Error displaying unique games:", error);
     }
 };
-
-// Example call
 async function run() {
     await buildTournamentView();
     if (tournamentFull == 1)
         renderStateButton();
 }
+// Example call
+export const iniTournamenDetailPage = async () => {
 
-document.addEventListener("DOMContentLoaded", () => {
     run();
 
     setInterval(() => {
         run();
     }, 30000);
-});
+};
+
+
