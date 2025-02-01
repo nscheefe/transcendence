@@ -34,7 +34,7 @@ const loadTournaments = async () => {
                 tournamentEl.innerHTML = `
                     <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
                         <div>
-                            <a href="/home/tournaments/${tournament.id}" class="text-decoration-none">
+                            <a href="#tournament?tournament=${tournament.id}" class="text-decoration-none">
                                 <h5 class="mb-0">${tournament.name}</h5>
                                 <small class=" d-block">
                                     Created At: ${new Date(tournament.created_at).toLocaleString()}
@@ -62,7 +62,7 @@ const loadTournaments = async () => {
                             const errorMessage = response.errors[0].message || 'Failed to join the tournament.';
                             alert(`Error: ${errorMessage}`);
                         }else {
-                          window.location.href = `/home/tournaments/${tournament.id}`;
+                            history.pushState(null, '', `?tournament=${tournament.id}`);
                         }
                     } catch (error) {
                         console.error('Error joining tournament:', error);
@@ -149,5 +149,5 @@ export const initTournamentsPage = async () => {
     }
 };
 
+
 // Start the process when the DOM is ready
-document.addEventListener('DOMContentLoaded', initTournamentsPage);
