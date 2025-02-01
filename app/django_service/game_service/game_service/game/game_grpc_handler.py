@@ -1,3 +1,4 @@
+import logging
 import time
 from datetime import datetime, timedelta
 from django.utils.timezone import now
@@ -19,12 +20,15 @@ import google.protobuf.timestamp_pb2
 from google.protobuf.empty_pb2 import Empty
 from .models import Game, TournamentGameMapping, TournamentUser, TournamentRoom
 
+logger = logging.getLogger('game_service')
+
 
 def monitor_disconnected_game(game_id):
     """
     Monitors a game with DISCONNECTED state. If the game remains in this state
     for more than 1 minute, it will mark the game as finished.
     """
+    logger.debug(f"Monitoring game {game_id} for prolonged disconnection.")
     try:
         # Wait for 1 minute before checking the game's state
         threading.Event().wait(60)  # Wait for 60 seconds
@@ -37,7 +41,7 @@ def monitor_disconnected_game(game_id):
             # Check if the game has been disconnected for over 1 minute
             if now() - game.updated_at > timedelta(minutes=1):
                 # Mark the game as finished
-                game.state = "FINISHED"
+                game.state = "ABORTED"
                 game.finished = True
                 game.updated_at = now()
                 game.save()
@@ -55,6 +59,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         pass
 
     def GetGame(self, request, context):
+        logger.info(f"GetGame Fetching game with ID {request.game_id}")
         try:
             # Fetch the game from the database
             game = Game.objects.get(id=request.game_id)
@@ -76,6 +81,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             return game_pb2.Game()  # Return empty Game proto on failure
 
     def GetOnGoingGameByUser(self, request, context):
+        logger.info(f"GetOnGoingGameByUser Fetching game for player ID {request.user_id}")
         try:
             # Fetch the game from the database
             game = (
@@ -110,6 +116,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             return game_pb2.Game()
 
     def CreateGame(self, request, context):
+        logger.info(f"CreateGame Request received for player ID {request.player_id}")
         try:
             # Check if there's an existing game for the user
             existing_game = (
@@ -208,12 +215,13 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             return response
 
         except Exception as e:
-            # Handle errors and return gRPC error response
+            #  errors and return gRPC error response
             context.set_details(f"Error creating or finding game: {str(e)}")
             context.set_code(grpc.StatusCode.INTERNAL)
             return game_pb2.Game()
 
     def GetOngoingGames(self, request, context):
+        logger.info("GetOngoingGames Fetching all ongoing games")
         try:
             # Query all ongoing (unfinished) games
             games = Game.objects.filter(finished=False)
@@ -242,6 +250,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         """
         Start a game and return WebSocket URL for real-time updates.
         """
+        logger.info(f"StartGame Request received for game ID {request.game_id}")
         try:
             # Fetch the game from the database
             game = Game.objects.get(id=request.game_id)
@@ -281,11 +290,11 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
         stat_stub = StatServiceStub(stat_channel)
 
         GRPC_CHAT_HOST = "chat_service"
-        GRPC_CHAT_PORT = "50052"
+        GRPC_CHAT_PORT = "50051"
         GRPC_CHAT_TARGET = f"{GRPC_CHAT_HOST}:{GRPC_CHAT_PORT}"
         chat_channel = grpc.insecure_channel(GRPC_CHAT_TARGET)
         chat_stub = chat_pb2_grpc.ChatRoomControllerStub(chat_channel)
-
+        logger.info(f"HandleGameFinished Request received for game ID {request.game_id}")
         try:
             # Fetch the game from the database
             game = Game.objects.get(id=request.game_id)
@@ -318,18 +327,18 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                     ).first()
 
                     if winner_tournament_user:
-                        logging.info(f"Winner User {winner_id} is part of TournamentRoom {tournament_room.id}")
+                        logger.info(f"Winner User {winner_id} is part of TournamentRoom {tournament_room.id}")
                         winner_tournament_user.games_played += 1
                         winner_tournament_user.state= "WAITING"
                         winner_tournament_user.save()
 
                     else:
-                        logging.warning(
+                        logger.warning(
                             f"Winner {winner_id} is not a participant in TournamentRoom {tournament_room.id}")
                 except TournamentGameMapping.DoesNotExist:
-                    logging.error(f"Tournament mapping not found for Game {game.id}")
+                    logger.error(f"Tournament mapping not found for Game {game.id}")
                 except Exception as e:
-                    logging.error(f"Error while determining tournament winner: {str(e)}")
+                    logger.error(f"Error while determining tournament winner: {str(e)}")
 
             game.save()
             create_stat_request = CreateStatRequest(
@@ -340,10 +349,13 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             create_stat_response = stat_stub.CreateStat(create_stat_request)
 
             # List all chat rooms and find the one associated with the game
+            logger.info(f"Listing chat rooms to find the one associated with game {request.game_id}")
             chat_rooms = chat_stub.List(chat_pb2.ChatRoomListRequest())
             for chat_room in chat_rooms.results:
+                logger.debug(f"Checking chat room {chat_room.id} associated with game {chat_room.game_id}")
                 if chat_room.game_id == request.game_id:
                     chat_stub.Destroy(chat_pb2.ChatRoomDestroyRequest(id=chat_room.id))
+                    logger.info(f"Destroyed chat room {chat_room.id} associated with game {request.game_id}")
                     break
 
             # Return empty response as acknowledgment
@@ -377,7 +389,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             # Simulate an async subscription
             while True:
                 # Fetch the latest game state from the DB
-                logging.debug("Fetching the latest state for the game with ID: %s", game.id)
+                logger.debug("Fetching the latest state for the game with ID: %s", game.id)
                 game.refresh_from_db()
 
                 # Prepare debug message for the WebSocket client
@@ -403,7 +415,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 }
 
                 # After notification, break the loop as no more updates are needed
-                logging.debug("Stopping stream after game state READY for game ID: %s", game.id)
+                logger.debug("Stopping stream after game state READY for game ID: %s", game.id)
                 break
 
                 # Send a "heartbeat" to keep the connection alive (optional)
