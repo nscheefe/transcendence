@@ -52,8 +52,8 @@ const loadTournaments = async () => {
                         if (response.errors && response.errors.length > 0) {
                             const errorMessage = response.errors[0].message || 'Failed to join the tournament.';
                             alert(`Error: ${errorMessage}`);
-                        } else {
-                            alert(`Successfully joined the tournament: ${tournament.name}`);
+                        }else {
+                          window.location.href = `/home/tournaments/${tournament.id}`;
                         }
                     } catch (error) {
                         console.error('Error joining tournament:', error);

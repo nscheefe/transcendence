@@ -170,7 +170,7 @@ async function playerStartGame() {
         if (tournamentGame) {
             const response = await updateTournamentUser(currentUser.id, userId, { state: "PLAYING" });
             console.log("Tournament game created successfully:", tournamentGame);
-            window.location.href = "/home/game/?game=" . tournamentGame.game_id ;
+            window.location.href = `/home/game/?game=${tournamentGame.create_tournament_game.game_id}` ;
         } else {
             console.error("Failed to create tournament game!");
         }
@@ -237,10 +237,11 @@ async function getTournamentGamesByTournamentId(tournamentId) {
         // Fetch all games for the tournament
         const games = await getTournamentGames(tournamentId);
 
-        if (!games || games.length === 0) {
+        if (!games || !games.tournament_games || games.tournament_games.length === 0) {
             console.log(`No games found for tournament ID: ${tournamentId}`);
             return [];
         }
+
 
         console.log(`Games retrieved for tournament ID ${tournamentId}:`, games);
 

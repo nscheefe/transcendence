@@ -193,8 +193,9 @@ def resolve_tournament_games(_, info: GraphQLResolveInfo, tournament_id: int):
             # Fetch the correct field from the response
             tournament_game_mappings = getattr(response, "tournament_game_mappings", None)
 
-            if not tournament_game_mappings:  # If the expected field doesn't exist, handle gracefully
-                raise Exception(f"Unexpected response structure: {response}")
+
+            if not tournament_game_mappings or not isinstance(tournament_game_mappings, list):
+                return []  # Gracefully return an empty list when no games are found
 
             # Map each tournament_game_mapping to the GraphQL response format
             return [
@@ -203,10 +204,11 @@ def resolve_tournament_games(_, info: GraphQLResolveInfo, tournament_id: int):
                     "game_id": game.game_id,
                     "tournament_id": game.tournament_room_id,
                     "created_at": datetime.fromtimestamp(game.created_at.seconds).isoformat(),
-                    "updated_at": None,  # If `updated_at` does not exist, handle gracefully
+                    "updated_at": None,  # If `updated_at` is not provided
                 }
                 for game in tournament_game_mappings
             ]
+
     except grpc.RpcError as e:
         raise Exception(f"gRPC error: {e.details()}")
 
