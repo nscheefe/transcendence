@@ -59,7 +59,7 @@ func handshake(r *http.Request) (int, *Game, error) {
 		if err != nil {
 			return 0, nil, errors.New("game not found: " + err.Error())
 		}
-		if game.State == "finished" {
+		if game.Finished {
 			return 0, nil, errors.New("game is finished")
 		}
 		games[gameID] = initGame(gameID, game)
