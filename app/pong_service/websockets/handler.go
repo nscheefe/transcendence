@@ -26,7 +26,7 @@ type MsgToSend struct {
 	Msg interface{}
 }
 
-func HandleConnection(w http.ResponseWriter, r *http.Request, id int, msgReceived chan<- MsgReceived, connected chan<- int, disconnected chan<- int, gameID int) {
+func HandleConnection(w http.ResponseWriter, r *http.Request, id int, msgReceived chan<- MsgReceived, connected chan<- int, disconnected chan<- int, gameID int32) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		errorResponse(w, err.Error(), err, http.StatusInternalServerError)
