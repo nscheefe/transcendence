@@ -13,7 +13,7 @@ const loadTournaments = async () => {
     tournamentListEl.innerHTML = '<span>Loading Tournaments...</span>';  // Show loading message
 
     try {
-        const response = await getTournaments();
+        const response = await getTournaments() || [];
 
         // Validate and parse the response
         const tournaments = response.tournaments || [];
@@ -60,13 +60,12 @@ const loadTournaments = async () => {
                         // Handle errors from the API response
                         if (response.errors && response.errors.length > 0) {
                             const errorMessage = response.errors[0].message || 'Failed to join the tournament.';
-                            alert(`Error: ${errorMessage}`);
+                            showToast(`Error: ${errorMessage}`);
                         }else {
                             history.pushState(null, '', `?tournament=${tournament.id}`);
                         }
                     } catch (error) {
-                        console.error('Error joining tournament:', error);
-                        alert('Failed to join the tournament. Please try again later.');
+                        showToast('Error joining tournament:', error);
                     }
                 });
 
@@ -94,15 +93,15 @@ const handleCreateTournament = async (event) => {
 
     // Validate inputs
     if (!tournamentName) {
-        alert('Tournament name is required.');
+        showToast('Tournament name is required.');
         return;
     }
     if (!tournamentSize || isNaN(tournamentSize) || [2, 4, 8, 16].indexOf(tournamentSize) === -1) {
-        alert('A valid tournament size is required.');
+        showToast('A valid tournament size is required.');
         return;
     }
     if (!tournamentStartAt) {
-        alert('A valid start time is required.');
+        showToast('A valid start time is required.');
         return;
     }
 

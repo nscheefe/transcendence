@@ -35,10 +35,10 @@ async function handleDeleteNotification(notification, listItem) {
       }
     } else {
       // Log the actual response
-      console.error("Error deleting notification:", deleteResponse?.message ?? "Unknown server response");
+      showToast("Error deleting notification:", deleteResponse?.message ?? "Unknown server response");
     }
   } catch (error) {
-    console.error("Error handling notification deletion:", error);
+    showToast("Error handling notification deletion:", error);
   }
 }
 

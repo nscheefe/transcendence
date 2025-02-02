@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Fetch user details and update the cache
                     await fillUserCache([{ user_id: sender_id }]);
                 } catch (error) {
-                    console.error('Error fetching user details:', error);
+                    showToast('Error fetching user details:', error);
                     showError(chatRoomMessagesContainer, 'Failed to load user details. Please try again.');
                     return;
                 }
@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = userCache[sender_id];
             const profile = user.profile;
             if (!user) {
-                console.error('User details not found for user_id:', sender_id);
+                showToast('User details not found for user_id:', sender_id);
                 return;
             }
             const avatar = profile.avatarUrl || DEFAULT_AVATAR;
@@ -110,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         const onError = (error) => {
-            console.error('Error populating messages:', error);
+            showToast('Error populating messages:', error);
             showError(chatRoomMessagesContainer, 'Failed to load messages. Please try again.');
         };
 
@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 await sendChatRoomMessage(chatRoomId, messageContent);
                 messageInput.value = '';
             } catch (error) {
-                console.error('Error sending message:', error);
+                showToast('Error sending message:', error);
                 showError(chatRoomMessagesContainer, 'Failed to send message. Please try again.');
             }
         }
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 },
                 (error) => {
-                    console.error("Subscription error:", error);
+                    showToast("Subscription error:", error);
                     showError(chatRoomList, "Failed to load chat rooms.");
                 }
             );
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Save `unsubscribe` to use it when needed (e.g., when navigating away)
             //window.chatRoomUnsubscriber = unsubscribe;
         } catch (error) {
-            console.error("Error loading chat rooms:", error);
+            showToast("Error loading chat rooms:", error);
 
             // Display an error message in the UI
             showError(chatRoomList, "Failed to load chat rooms.");

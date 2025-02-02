@@ -60,7 +60,7 @@ export const subscribeToOnlineStatus = (userId, onStatusUpdate) => {
             const status = response.data.onlineStatus.status;
             onStatusUpdate(userId, status);
         } else {
-            console.error('Invalid response data:', response);
+            showToast('Invalid response data:', response);
             if (response.errors) {
                 response.errors.forEach(error => console.error('Error message:', error.message));
             }

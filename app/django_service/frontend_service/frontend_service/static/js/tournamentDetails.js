@@ -10,7 +10,7 @@ async function buildTournamentView() {
     try {
         const tournament = await getTournamentById(tournamentId);
         if (!tournament || !tournament.tournament) {
-            console.error('Tournament data not found');
+            showToast('Tournament data not found');
             return;
         }
         const {name, created_at, users} = tournament.tournament;
@@ -20,7 +20,7 @@ async function buildTournamentView() {
         }
         currentUser = users.find(user => user.user_id == userId);
         if (!currentUser) {
-            console.error(`User with ID ${userId} not found in tournament users.`);
+            showToast(`User with ID ${userId} not found in tournament users.`);
             return;
         }
         const tournamentDateElement = document.getElementById('tournamentDate');
@@ -39,7 +39,7 @@ async function buildTournamentView() {
             tournamentFull = 0;
         }
     } catch (error) {
-        console.error('Error building tournament view:', error);
+        showToast('Error building tournament view:', error);
     }
 }
 
@@ -47,7 +47,7 @@ async function matches(users) {
     try {
         const roundContainer = document.getElementById('currentMatches');
         if (!roundContainer) {
-            console.error('Round container not found in the DOM!');
+            showToast('Round container not found in the DOM!');
             return;
         }
         roundContainer.innerHTML = '';
@@ -132,7 +132,7 @@ async function matches(users) {
             console.log(`No current match found for userId: ${userId}`);
         }
     } catch (error) {
-        console.error("Error generating matches:", error);
+        showToast("Error generating matches:", error);
     }
 }
 
@@ -146,11 +146,11 @@ async function playerReady() {
         if (response.update_tournament_user?.success) {
             console.log(`Player ${userId} in tournament ${tournamentId} is now READY!`);
         } else {
-            console.error("Failed to update player state to READY. Response:", response);
+            showToast("Failed to update player state to READY. Response:", response);
         }
             run();
     } catch (error) {
-        console.error("Error in playerReady:", error);
+        showToast("Error in playerReady:", error);
     }
 }
 
@@ -168,11 +168,11 @@ async function playerStartGame() {
             const response = await updateTournamentUser(currentUser.id, userId, { state: "PLAYING" });
             window.location.href = `/home/game/?game=${tournamentGame.create_tournament_game.game_id}` ;
         } else {
-            console.error("Failed to create tournament game!");
+            showToast("Failed to create tournament game!");
         }
 
     } catch (error) {
-        console.error("Error in playerStartGame:", error);
+        showToast("Error in playerStartGame:", error);
     }
 }
 
@@ -180,12 +180,10 @@ async function renderStateButton() {
     const buttonContainer = document.getElementById('stateButtonContainer');
     buttonContainer.innerHTML = '';
     if (!currentUser) {
-        console.error("Current user is not defined.");
         buttonContainer.innerHTML = '<p>Current user is not available.</p>';
         return;
     }
     if (currentUser.state === 'LOST') {
-        console.log(`Player ${currentUser.user_id} has lost. No button will be displayed.`);
         return;
     }
     const actionButton = document.createElement('button');
@@ -198,13 +196,13 @@ async function renderStateButton() {
                 currentUser.state = 'READY';
                 actionButton.textContent = 'Play';
             } catch (e) {
-                console.error("Error setting player as ready:", e);
+                showToast("Error setting ready state:", e);
             }
         } else if (currentUser.state === 'READY') {
             try {
                 await playerStartGame();
             } catch (e) {
-                console.error("Error starting the game:", e);
+                showToast("Error starting the game:", e);
             }
         }else if (currentUser.state === 'PLAYING') {
             window.location.href = `/home/game/?game=${tournamentGame.create_tournament_game.game_id}` ;
@@ -226,7 +224,7 @@ async function getTournamentGamesByTournamentId(tournamentId) {
         const uniqueGameIds = [...new Set(games.tournament_games.map(game => game.game_id))];
         return uniqueGameIds;
     } catch (error) {
-        console.error(`Failed to fetch games for tournament ID ${tournamentId}:`, error);
+        showToast(`Failed to fetch games for tournament ID ${tournamentId}:`, error);
         throw error;
     }
 }
@@ -293,7 +291,7 @@ const displayUniqueGamesForTournament = async (tournamentId) => {
         document.getElementById('previousMatchesContainer').innerHTML = previousMatches;
 
     } catch (error) {
-        console.error("Error displaying unique games:", error);
+        showToast("Error displaying unique games:", error);
     }
 };
 

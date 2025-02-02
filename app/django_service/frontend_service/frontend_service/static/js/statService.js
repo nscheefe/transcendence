@@ -28,7 +28,7 @@ export const getStatsByUser = async (userId) => {
     // Return the data from the response
     return response;
   } catch (error) {
-    console.error('Error fetching stats by user:', error);
+    showToast('Error fetching stats by user:', error);
     throw error;
   }
 };
@@ -69,7 +69,7 @@ export const getStatList = async () => {
 
     return response;
   } catch (error) {
-    console.error("Error fetching StatList:", error);
+    showToast("Error fetching StatList:", error);
     throw error;
   }
 };
