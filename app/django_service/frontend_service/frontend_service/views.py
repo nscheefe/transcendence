@@ -195,19 +195,6 @@ def community(request):
     }
     return render(request, 'frontend/community.html', context)
 
-
-@jwt_required
-def chat(request):
-    user_data = getUserProfileData(request)
-    ChatRooms = getDetailedChatRoomData(request)
-    context = {
-        'show_nav': True,
-        'user': user_data,
-    }
-    pprint(ChatRooms)
-
-    return render(request, 'frontend/chat.html', context)
-
 @jwt_required
 def publicProfile(request, user_id):
     # Example: Fetch data or log the user_id

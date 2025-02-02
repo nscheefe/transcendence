@@ -17,7 +17,6 @@ urlpatterns = [
     #path('home/game/', views.game, name='game'),  # Game view
     path('home/profile/', views.profile, name='profile'),  # Profile view
     path('home/profile/<int:user_id>/', views.publicProfile, name='publicProfile'),
-    path('home/chat/', views.chat, name='chat'),  # chat view
                   # Game
     path('home/game/', views.game, name='game'),  # Start game view
 

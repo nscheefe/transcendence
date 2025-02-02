@@ -11,7 +11,7 @@ const renderDetailedUserStats = async (statsByUser, userProfile, userId) => {
         })
     );
     return `
-        <div class="stats-list mt-3 scrollable">
+        <div class="stats-list mt-3 scrollable" style="max-height: 50vh">
             ${statsByUser.map((stat) => {
                 const date = stat.stat.createdAt;
                 const result = stat.didWin ? 'win' : 'loss';
