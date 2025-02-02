@@ -176,8 +176,8 @@ function updateTextMeshOrientation(textMesh, camera) {
 
 // Constants for vaporwave textures
 const TEXTURE_PATH = "/static/images/Grid.png";
-const DISPLACEMENT_PATH = "https://res.cloudinary.com/dg5nsedzw/image/upload/v1641657200/blog/vaporwave-threejs-textures/displacement.png";
-const METALNESS_PATH = "https://res.cloudinary.com/dg5nsedzw/image/upload/v1641657200/blog/vaporwave-threejs-textures/metalness.png";
+const DISPLACEMENT_PATH = "/static/images/displacement.png";
+const METALNESS_PATH = "/static/images/metalness.png";
 
 // Scene creation functions
 function createScene() {
