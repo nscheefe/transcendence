@@ -1,36 +1,61 @@
 {% extends "frontend/base.html" %}
-
-{% block title %}Manage Profile{% endblock %}
-
+{% block title %}
+  Manage Profile
+{% endblock title %}
 {% block content %}
   <section class="section-3">
     <div class="w-layout-blockcontainer container-2 w-container">
       <h1 class="heading-2">Manage Your Profile</h1>
       <h2 class="heading-3">{{ user.name }}</h2>
       <div class="form-block w-form">
-        <form id="profile-form" name="profile-form" data-name="Profile Form" method="post" enctype="multipart/form-data" class="form">
+        <form id="profile-form"
+              name="profile-form"
+              data-name="Profile Form"
+              method="post"
+              enctype="multipart/form-data"
+              class="form">
           {% csrf_token %}
           <div class="w-embed">
-            <input class="file-input" type="file" id="myFile" accept="image/*" name="filename" onchange="previewFile()">
+            <input class="file-input"
+                   type="file"
+                   id="myFile"
+                   accept="image/*"
+                   name="filename"
+                   onchange="previewFile()">
             <label for="myFile" class="file-input-label">
-              <img src="{% if user.profile.avatarUrl %}{{ user.profile.avatarUrl }}{% else %}# {% endif %}" alt="Profile Avatar" id="avatarPreview" class="profile-avatar">
+              <img src="{% if user.profile.avatarUrl %}{{ user.profile.avatarUrl }}{% else %}# {% endif %}"
+                   alt="Profile Avatar"
+                   id="avatarPreview"
+                   class="profile-avatar"
+                   width="150"
+                   height="150">
             </label>
           </div>
           <div class="text-input-wrapper">
             <label for="Bio">Bio</label>
-            <textarea
-              placeholder="[Your Name] is a passionate developer and retro gaming enthusiast, specializing in creating classic games with a modern twist. Inspired by the simplicity and fun of old-school arcade games,"
-              maxlength="5000"
-              id="Bio"
-              name="Bio"
-              data-name="Bio"
-              class="form-text-input-transparent w-input">{% if user.profile.bio %}{{ user.profile.bio }}{% endif %}</textarea>
+            <textarea placeholder="[Your Name] is a passionate developer and retro gaming enthusiast, specializing in creating classic games with a modern twist. Inspired by the simplicity and fun of old-school arcade games,"
+                      maxlength="5000"
+                      id="Bio"
+                      name="Bio"
+                      data-name="Bio"
+                      class="form-text-input-transparent w-input">{% if user.profile.bio %}{{ user.profile.bio }}{% endif %}</textarea>
           </div>
           <div class="text-input-wrapper">
             <label for="Nickname">Nickname</label>
-            <input class="form-text-input-transparent w-input" maxlength="256" name="Nickname" data-name="Nickname" placeholder="eg. nscheefe" type="text" id="Nickname" required="" value="{% if user.profile.nickname %}{{ user.profile.nickname }}{% endif %}">
+            <input class="form-text-input-transparent w-input"
+                   maxlength="256"
+                   name="Nickname"
+                   data-name="Nickname"
+                   placeholder="eg. nscheefe"
+                   type="text"
+                   id="Nickname"
+                   required=""
+                   value="{% if user.profile.nickname %}{{ user.profile.nickname }}{% endif %}">
           </div>
-          <input type="submit" data-wait="Please wait..." class="submit-button w-button" value="Submit">
+          <input type="submit"
+                 data-wait="Please wait..."
+                 class="submit-button w-button"
+                 value="Submit">
         </form>
         <div class="w-form-done">
           <div>Thank you! Your submission has been received!</div>
@@ -42,9 +67,8 @@
     </div>
   </section>
 {% endblock content %}
-
 {% block extra_js %}
-<script>
+  <script>
 function previewFile() {
   const preview = document.getElementById('avatarPreview');
   const file = document.getElementById('myFile').files[0];
@@ -135,5 +159,5 @@ document.getElementById('profile-form').addEventListener('submit', async functio
     }
   }
 });
-</script>
+  </script>
 {% endblock extra_js %}

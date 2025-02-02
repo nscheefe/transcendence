@@ -1,14 +1,13 @@
 {% extends "frontend/base.html" %}
 {% load static %}
-<link href="{% static 'css/tournament.css' %}" rel="stylesheet" type="text/css" />
-
-{% block title %}Home{% endblock %}
-
+<link href="{% static 'css/tournament.css' %}"
+      rel="stylesheet"
+      type="text/css" />
+{% block title %}
+  Home
+{% endblock title %}
 {% block content %}
-        {% comment %}{% include "frontend/chatWidget.html" %}{% endcomment %}
-<style>
-
-</style>
+  <style></style>
   <section class="section">
     <div class="leaderboard-wrapper">
       <h3 class="heading">Top Players</h3>
@@ -23,17 +22,23 @@
         <div class="game-mode-card">
           <h4 class="heading-3">Quick Search</h4>
           <p>Search for a Quick Game. First Person with 10 Points wins!</p>
-          <a href="{% url 'game' %}" id="search-game-btn" class="nav-link w-nav-link z-1">Search Game</a>
+          <a href="{% url 'game' %}"
+             id="search-game-btn"
+             class="nav-link w-nav-link z-1">Search Game</a>
         </div>
         <div class="game-mode-card">
           <h4 class="heading-tournament">Tournament</h4>
           <p>Experience fast-paced action with unique challenges.</p>
-          <a href="#" id="tournament-btn" class="nav-link w-nav-link btn-tournament z-1">Open Tournament</a>
+          <a href="#"
+             id="tournament-btn"
+             class="nav-link w-nav-link btn-tournament z-1">Open Tournament</a>
         </div>
         <div class="game-mode-card">
           <h4 class="heading-3">Local 1v1</h4>
           <p>Play a Local game in Split Screen</p>
-          <a href="{% url 'game' %}?local=true" id="start-local-game-btn" class="nav-link w-nav-link z-1">Start Game</a>
+          <a href="{% url 'game' %}?local=true"
+             id="start-local-game-btn"
+             class="nav-link w-nav-link z-1">Start Game</a>
         </div>
       </div>
     </div>
@@ -42,19 +47,18 @@
     </div>
     <div class="backround-m42 z-n1"></div>
     <div data-dynamic-windows>
-      {% block dynamic_windows %}{% endblock %}
+      {% block dynamic_windows %}
+      {% endblock dynamic_windows %}
     </div>
   </section>
-{% endblock %}
-
+{% endblock content %}
 {% block extra_js %}
-    {% load static %}
-    <script type="module" src="{% static 'js/leaderboard.js' %}"></script>
-    <script type="module" src="{% static 'js/home.js' %}"></script>
-
-    <script>
+  {% load static %}
+  <script type="module" src="{% static 'js/leaderboard.js' %}"></script>
+  <script type="module" src="{% static 'js/home.js' %}"></script>
+  <script>
         const userId = {{ user.id }};
         let tournamentId = null;
 
-    </script>
-{% endblock %}
+  </script>
+{% endblock extra_js %}

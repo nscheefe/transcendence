@@ -1,65 +1,57 @@
 {% block chatWidget %}
-
     <!-- Trigger Button -->
     <!-- Offcanvas Bottom-Right -->
     <div class="chatWidget">
-    <div
-        class="offcanvas offcanvas-bottom-right offcanvas-hidden"
-        id="offcanvasBottom"
-        aria-labelledby="offcanvasBottomLabel">
-
-        <div class="offcanvas-body overflow-y-auto offcanvas-body-custom">
-    <button
-        id="closeOffcanvasButton"
-        type="button"
-        data-bs-theme="dark"
-        class="btn close-offcanvas-button"
-        data-bs-dismiss="offcanvas"
-        aria-label="Close"> x
-    </button>
-            <!-- Chat Widget Content -->
-            <div class="chat-container d-flex flex-row chat-container-custom">
-                <div class="card chat-card">
-                    <div class="card-body flex-fill overflow-y-auto chat-card-body">
-                        <ul id="chatRoomList" class="list-unstyled mb-0 chat-room-list">
-                            <!-- The chat room list will be dynamically populated by JavaScript -->
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Chat Details and Messages -->
-                <div class="chat-details flex-fill chat-details-custom">
-
-                    <div class="d-flex flex-column chat-details-column">
-                        <div class="flex-fill overflow-y-auto chat-messages">
-                            <ul class="list-unstyled chat-messages-container" id="chat-Room-Messages">
-                                <!-- Chat messages will be dynamically populated by JavaScript -->
+        <div class="offcanvas offcanvas-bottom-right offcanvas-hidden"
+             id="offcanvasBottom"
+             aria-labelledby="offcanvasBottomLabel">
+            <div class="offcanvas-body overflow-y-auto offcanvas-body-custom">
+                <button id="closeOffcanvasButton"
+                        type="button"
+                        data-bs-theme="dark"
+                        class="btn close-offcanvas-button"
+                        data-bs-dismiss="offcanvas"
+                        aria-label="Close">x</button>
+                <!-- Chat Widget Content -->
+                <div class="chat-container d-flex flex-row chat-container-custom">
+                    <div class="card chat-card">
+                        <div class="card-body flex-fill overflow-y-auto chat-card-body">
+                            <ul id="chatRoomList" class="list-unstyled mb-0 chat-room-list">
+                                <!-- The chat room list will be dynamically populated by JavaScript -->
                             </ul>
-
-                            <div data-mdb-input-init class="form-outline mt-2">
-                                <label class="form-label" for="chatMessageInput">Message</label>
-                                <textarea class="form-text-input-transparent w-input" id="chatMessageInput" rows="3"></textarea>
-                            </div>
-                            <button type="button" data-mdb-button-init data-mdb-ripple-init id="sendChatMessageButton"
-                            class="btn btn-rounded btn-outline-light float-end send-chat-message-button">Send
-                        </button>
+                        </div>
                     </div>
+                    <!-- Chat Details and Messages -->
+                    <div class="chat-details flex-fill chat-details-custom">
+                        <div class="d-flex flex-column chat-details-column">
+                            <div class="flex-fill overflow-y-auto chat-messages">
+                                <ul class="list-unstyled chat-messages-container" id="chat-Room-Messages">
+                                    <!-- Chat messages will be dynamically populated by JavaScript -->
+                                </ul>
+                                <div data-mdb-input-init class="form-outline mt-2">
+                                    <label class="form-label" for="chatMessageInput">Message</label>
+                                    <textarea class="form-text-input-transparent w-input"
+                                              id="chatMessageInput"
+                                              rows="3"></textarea>
+                                </div>
+                                <button type="button"
+                                        data-mdb-button-init
+                                        data-mdb-ripple-init
+                                        id="sendChatMessageButton"
+                                        class="btn btn-rounded btn-outline-light float-end send-chat-message-button">
+                                    Send
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <button class="position-fixed btn shadow-lg toggle-offcanvas-button"
+                id="toggleOffcanvasButton">Open Chat</button>
     </div>
-    <button class="position-fixed btn shadow-lg toggle-offcanvas-button"
-            id="toggleOffcanvasButton">
-        Open Chat
-    </button>
-    </div>
-    <style>
-
-    </style>
-    <script>
-
-    </script>
+    <style></style>
+    <script></script>
     {% load static %}
     <script type="module" src="{% static 'js/chatWidget.js' %}"></script>
 {% endblock chatWidget %}
