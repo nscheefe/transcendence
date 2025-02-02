@@ -65,7 +65,6 @@ function gameOver(winner) {
     // Close the WebSocket connection
     if (socket) {
         socket.close();
-        console.log('WebSocket connection closed');
     }
     gameEnded = true;
 }
@@ -73,16 +72,15 @@ function gameOver(winner) {
 // WebSocket setup
 function createWebSocket(gameId = null) {
     if (socket && socket.readyState !== WebSocket.CLOSED) {
-        console.log('WebSocket connection already exists');
+        showToast('WebSocket connection already exists');
         return;
     }
 
     if (isConnecting) {
-        console.log('Already attempting to connect to WebSocket server');
+        showToast('Already attempting to connect to WebSocket server');
         return;
     }
 
-    console.log('Attempting to connect to WebSocket server...');
     isConnecting = true;
     let wsUrl = `wss://${document.location.hostname}`;
     if (document.location.port) {
@@ -95,7 +93,6 @@ function createWebSocket(gameId = null) {
     socket = new WebSocket(wsUrl);
 
     socket.onopen = () => {
-        console.log('Connected to the server');
         isConnecting = false;
     };
 
@@ -105,7 +102,6 @@ function createWebSocket(gameId = null) {
         if (state.type === 'gameStarted') {
             updateScene()
             player = state.player;
-            console.log('Game started');
             gameStarted = true;
             updateCamera(); // Update the camera position
         }
@@ -133,21 +129,17 @@ function createWebSocket(gameId = null) {
         }
         if (state.type === 'gameOver') {
             gameStarted = false;
-            console.log('Game Over');
             gameOver(state.winner);
         }
     };
 
     socket.onclose = (event) => {
-        console.log('Disconnected from the server', event);
         isConnecting = false;
-        // Attempt to reconnect after 1 second
         if (!gameEnded)
             setTimeout(() => createWebSocket(gameId), 1000);
     };
 
     socket.onerror = (error) => {
-        console.error('WebSocket error:', error);
         isConnecting = false;
     };
 }
@@ -593,10 +585,8 @@ function main(local = false, gameId = null) {
         });
     }
     else {
-        console.log("initPongGame called");
         createWebSocket(gameId);
     }
 }
 // Expose the init function to be called externally
 window.initPongGame = main;
-console.log("initPongGame defined");

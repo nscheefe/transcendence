@@ -157,7 +157,7 @@ def resolve_tournaments(_, info: GraphQLResolveInfo):
             tournament_rooms = getattr(response, "tournament_rooms", None)
 
             if not tournament_rooms:  # Handle invalid structure
-                raise Exception(f"Unexpected response structure: {response}")
+                return []
 
             # Process the "tournament_rooms" data and format it for GraphQL response
 

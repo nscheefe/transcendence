@@ -16,11 +16,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Perform the next query or action here
                     // Example: query("/next-endpoint/", `query NextQuery { clientId: "${clientId}", state: "${state}" }`);
                 }).catch(error => {
-                    console.error("Error fetching data:", error);
+                    showToast("Error fetching data:", error);
                 });
             }
         } else {
-            console.error("Element with ID 'sign-in-with-intra' not found.");
+            showToast("Element with ID 'sign-in-with-intra' not found.");
         }
     }
 });

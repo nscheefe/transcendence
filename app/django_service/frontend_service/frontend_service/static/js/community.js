@@ -1,6 +1,6 @@
 import {addFriend, blockUser, deleteFriendship, fetchFriendships, fetchFriendsWithProfiles} from './friendservice.js';
 import {fetchProfileByUserId, fetchProfiles, fetchUserProfileAndStats} from './profileservice.js';
-import {generateUserAvatarHTML, showError, userCache, initializeOnlineStatusSubscriptions} from './utils.js'; // Import the new function
+import {generateUserAvatarHTML, showError, userCache, initializeOnlineStatusSubscriptions} from './utils.js';
 import {createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate} from './domHelpers.js';
 import {createFriendGame} from "./gameService.js"
 import {startChatWithUser} from "./chatservice.js"
@@ -185,7 +185,7 @@ const loadFriends = async (friendsContainer) => {
         const combinedData = await fetchFriendsWithProfiles(friendships);
         renderFriendsList(combinedData.friendships, combinedData, friendsContainer);
     } catch (error) {
-        console.error('Failed to load friends:', error);
+        showToast('Failed to load friends:', error);
         showError(friendsContainer, 'Failed to load friends. Try again later.');
     }
 };
@@ -196,7 +196,7 @@ async function loadOpponentProfile(opponentId) {
 
         return opponent;
     } catch (error) {
-        console.error('Failed to fetch opponent profile:', error);
+        showToast('Failed to fetch opponent profile:', error);
     }
 }
 
@@ -349,7 +349,7 @@ const loadUserProfile = async (profileContainer, profileLoading) => {
             throw new Error('User data is missing.');
         }
     } catch (error) {
-        console.error('Failed to load profile:', error);
+        showToast('Failed to load profile:', error);
         showError(profileLoading, 'Failed to load profile. Please try again later.');
     }
 };
@@ -371,19 +371,20 @@ const renderProfiles = (profiles, profilesContainer) => {
     let flattenedFriendships = Array.isArray(cachedFriendships) ? cachedFriendships.flat() : [];
 
     profiles.forEach((profile) => {
-        userCache[profile.userId] = {profile};
-        const isFriendAlready = flattenedFriendships.some(
-            (friendship) => friendship.friendId == profile.userId && friendship.accepted
-        );
-        const isBlocked = flattenedFriendships.some(
-            (friendship) => friendship.friendId == profile.userId && friendship.blocked
-        );
-        const friendship = flattenedFriendships.find(
-            (friendship) => friendship.friendId == profile.userId
-        );
-        const friendshipId = friendship ? friendship.id : 0;
-        const avatarHtml = generateUserAvatarHTML(profile.userId, 50);
-        const profileHTML = `
+        if(profile.userId !== userId) {
+            userCache[profile.userId] = {profile};
+            const isFriendAlready = flattenedFriendships.some(
+                (friendship) => friendship.friendId == profile.userId && friendship.accepted
+            );
+            const isBlocked = flattenedFriendships.some(
+                (friendship) => friendship.friendId == profile.userId && friendship.blocked
+            );
+            const friendship = flattenedFriendships.find(
+                (friendship) => friendship.friendId == profile.userId
+            );
+            const friendshipId = friendship ? friendship.id : 0;
+            const avatarHtml = generateUserAvatarHTML(profile.userId, 50);
+            const profileHTML = `
         <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center p-3 rounded-3 mb-2">
             <div class="d-flex align-items-center">
                 <div class="avatar me-3">
@@ -414,7 +415,8 @@ const renderProfiles = (profiles, profilesContainer) => {
             </div>
         </li>
             `;
-        profilesContainer.innerHTML += profileHTML;
+            profilesContainer.innerHTML += profileHTML;
+        }
     });
     const buttons = profilesContainer.querySelectorAll('.btn-success');
 
@@ -424,11 +426,12 @@ const renderProfiles = (profiles, profilesContainer) => {
 
             const friendId = parseInt(button.getAttribute('data-friend-id'), 10);
             if (isNaN(friendId)) {
-                console.error("Invalid friend ID.");
+                showToast("Invalid friend ID.");
                 return;
             }
 
             try {
+                if(friendId !== userId){
                 const response = await addFriend(friendId);
 
                 if (response && response.success) {
@@ -439,12 +442,12 @@ const renderProfiles = (profiles, profilesContainer) => {
                     button.disabled = true;
                     cachedFriendships.push({friendId});
                 } else {
-                    console.error(`Failed to add friend: ${response.message}`);
-                    alert(`Error: ${response.message}`);
+                    showToast(`Failed to add friend: ${response.message}`);
+                }
+                    showToast(`418 I'm a teapot`);
                 }
             } catch (error) {
-                console.error("An unexpected error occurred:", error);
-                alert("An unexpected error occurred. Please try again later.");
+                showToast("An unexpected error occurred:", error);
             }
         });
     });
@@ -457,7 +460,7 @@ const renderProfiles = (profiles, profilesContainer) => {
             const id = parseInt(button.getAttribute('data-friendship-id'), 10);
             const userId = parseInt(button.getAttribute('data-user-id'), 10);
             if (isNaN(userId)) {
-                console.error("Invalid user ID.");
+                showToast("Invalid user ID.");
                 return;
             }
 
@@ -482,12 +485,10 @@ const renderProfiles = (profiles, profilesContainer) => {
                         button.classList.add("btn-danger");
                     }
                 } else {
-                    console.error(`Failed to update block status: ${response.message}`);
-                    alert(`Error: ${response.message}`);
+                    showToast(`Failed to update block status: ${response.message}`);
                 }
             } catch (error) {
-                console.error("An unexpected error occurred:", error);
-                alert("An unexpected error occurred. Please try again later.");
+                showToast("An unexpected error occurred:", error);
             }
         });
     });
@@ -506,6 +507,7 @@ const fetchAndRenderProfiles = async (
         const data = await fetchProfiles(limit, offset);
         if (data && data.getAllProfiles) {
             const profiles = data.getAllProfiles.profiles;
+
             renderProfiles(profiles, profilesContainer);
             initializeOnlineStatusSubscriptions();
             prevPageBtn.disabled = offset === 0;
@@ -514,7 +516,6 @@ const fetchAndRenderProfiles = async (
             throw new Error('Unable to fetch profiles.');
         }
     } catch (error) {
-        console.error('Failed to fetch profiles:', error);
         profilesContainer.innerHTML = `<p class="text-danger">Failed to load profiles. Please try again later.</p>`;
     }
 };
@@ -556,16 +557,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const elementToRemove = document.getElementById(`friendship-${friendshipId}`);
                         if (elementToRemove) {
                             elementToRemove.remove(); // Remove from the DOM
+                            refetchFriends();
                         } else {
-                            console.error(`Element with id "friendship-${friendshipId}" not found.`);
+                            showToast(`Element with id "friendship-${friendshipId}" not found.`);
                         }
                     } else {
-                        console.error(`Failed to delete friendship: ${response ? response.message : 'Unknown error'}`);
-                        alert(`Error: ${response.message || 'Failed to delete friendship.'}`);
+                        showToast(`Failed to delete friendship: ${response ? response.message : 'Unknown error'}`);
                     }
                 } catch (error) {
-                    console.error("An unexpected error occurred while deleting friendship:", error);
-                    alert("An error occurred while deleting the friendship. Please try again later.");
+                    showToast("An unexpected error occurred while deleting friendship:", error);
                 }
             }
         } else if (event.target.classList.contains('start-game')) {
@@ -576,11 +576,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const game = await createFriendGame(userId, friendUserId);
                     showToast(`Game created successfully! Check Chat To Play Game!`);
                 } catch (error) {
-                    console.error("Error creating the game:", error);
-                    alert("Failed to create the game. Please try again later.");
+                    showToast("Error creating the game:", error);
                 }
             } else {
-                console.error("Invalid friendUserId in the data-friendship-id attribute.");
+                showToast("Invalid friendUserId in the data-friendship-id attribute.");
             }
         } else if (event.target.classList.contains('start-chat-room')) {
             const friendUserId = parseInt(event.target.getAttribute('data-user-id'), 10);
@@ -593,7 +592,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     showToast("Failed to start the chat. Please try again later.");
                 }
             } else {
-                console.error("Invalid friendUserId in the data-friendship-id attribute.");
+                showToast("Invalid friendUserId in the data-friendship-id attribute.");
             }
         }
     });
