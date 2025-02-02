@@ -160,26 +160,7 @@ services:
       retries: 3
       start_period: 5s
       #start_interval: 1s: 1s
-##############################################
-  admin_service:
-    build:
-      context: ./django_service/auth_service
-      dockerfile: Dockerfile
-    container_name: admin_service
-    command: sh -c "python manage.py migrate && python manage.py grpcrunaioserver --dev"
-    volumes:
-      - ./django_service/admin_service:/usr/src/app
-    depends_on:
-      postgres:
-        condition: service_started
-      user_service:
-        condition: service_started
-    networks:
-      - django_network
-      - db_network
-    environment:
-      - DEBUG=True
-      - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+
 ## DJANGO SERVICES WITH DATABASE CONNECTION ##
 ##############################################
 

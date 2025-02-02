@@ -43,7 +43,6 @@ async function buildTournamentView() {
     }
 }
 
-
 async function matches(users) {
     try {
         const roundContainer = document.getElementById('currentMatches');
@@ -62,21 +61,21 @@ async function matches(users) {
             const currentRoundContainer = document.createElement('div');
             currentRoundContainer.className = `round-container mb-4`;
             currentRoundContainer.innerHTML = `
-        <h3 class="text-center">Round ${currentRound + 1}</h3>
-        <div class="d-flex flex-wrap justify-content-center round-matches"></div>
-      `;
+                <h3 class="text-center">Round ${currentRound + 1}</h3>
+                <div class="d-flex flex-wrap justify-content-center round-matches"></div>
+            `;
             const currentMatchesSection = currentRoundContainer.querySelector('.round-matches');
             if (eligiblePlayers.length < 2) {
                 if (eligiblePlayers.length === 1) {
                     const [winner] = eligiblePlayers;
                     currentRoundContainer.innerHTML += `
-            <div class="winner card bg-success text-light mb-3">
-              <div class="card-body">
-                <h5 class="card-title text-center">Winner</h5>
-                <p class="card-text text-center">${winner.user_id} (Games Played: ${winner.games_played})</p>
-              </div>
-            </div>
-          `;
+                        <div class="winner card bg-success text-light mb-3">
+                          <div class="card-body">
+                            <h5 class="card-title text-center">Winner</h5>
+                            <p class="card-text text-center">${winner.user_id} (Games Played: ${winner.games_played})</p>
+                          </div>
+                        </div>
+                      `;
                 } else {
                     console.log(`Not enough players for Round ${currentRound}. No matches possible.`);
                 }
@@ -101,17 +100,13 @@ async function matches(users) {
                 let player2Profile = await fetchProfileByUserId(player2.user_id);
                 matchElement.innerHTML = `
                     <div class="" style="display: flex; align-items: center; justify-content: center;">
-                      <!-- Player 1 -->
                       <div style="display: flex; flex-direction: column; align-items: center;">
                         <div class="player" style="border-top: 2px solid red; border-bottom: 2px solid red; border-left: 2px solid red; box-shadow: -5px 0 10px red;">
                           <img src="${player1Profile.profile.avatarUrl}" alt="${player1Profile.profile.nickname}'s Avatar" style="width: 120px; height: 120px; object-fit: cover;">
                         </div>
                         <p class="nickname" style="margin-top: 8px; font-weight: bold; text-align: center;">${player1Profile.profile.nickname}</p>
                             <span>${player1.state}</span>
-
                       </div>
-
-                      <!-- Player 2 -->
                       <div style="display: flex; flex-direction: column; align-items: center;">
                         <div class="player" style="border-top: 2px solid blue; border-bottom: 2px solid blue; border-right: 2px solid blue; box-shadow: 5px 0 10px blue;">
                           <img src="${player2Profile.profile.avatarUrl}" alt="${player2Profile.profile.nickname}'s Avatar" style="width: 120px; height: 120px; object-fit: cover;">
@@ -135,7 +130,6 @@ async function matches(users) {
 }
 
 async function playerReady() {
-
     try {
         if (!userId || !currentUser.id) {
             throw new Error("Missing userId or tournamentId");
@@ -154,7 +148,6 @@ async function playerReady() {
 }
 
 async function playerStartGame() {
-
     try {
         const opponentId =
             currentMatch?.player1?.user_id === userId
@@ -166,7 +159,6 @@ async function playerStartGame() {
         const tournamentGame = await createTournamentGame(tournamentId, currentUser.id, opponentId);
         if (tournamentGame) {
             const response = await updateTournamentUser(currentUser.id, userId, { state: "PLAYING" });
-            console.log("Tournament game created successfully:", tournamentGame);
             window.location.href = `/home/game/?game=${tournamentGame.create_tournament_game.game_id}` ;
         } else {
             console.error("Failed to create tournament game!");
@@ -175,14 +167,6 @@ async function playerStartGame() {
     } catch (error) {
         console.error("Error in playerStartGame:", error);
     }
-}
-
-/**
- * Placeholder for opening the game's user interface after successful creation.
- */
-
-async function playedMatches() {
-    //@todo the already played matches
 }
 
 async function renderStateButton() {
@@ -206,14 +190,12 @@ async function renderStateButton() {
                 await playerReady();
                 currentUser.state = 'READY';
                 actionButton.textContent = 'Play';
-                console.log(`Player ${currentUser.user_id} is now ready.`);
             } catch (e) {
                 console.error("Error setting player as ready:", e);
             }
         } else if (currentUser.state === 'READY') {
             try {
                 await playerStartGame();
-                console.log(`Player ${currentUser.user_id} is now playing.`);
             } catch (e) {
                 console.error("Error starting the game:", e);
             }
@@ -226,26 +208,15 @@ async function renderStateButton() {
 }
 
 async function getTournamentGamesByTournamentId(tournamentId) {
-
     try {
         if (!tournamentId) {
             throw new Error("Tournament ID is required to fetch games.");
         }
-
-        // Fetch all games for the tournament
         const games = await getTournamentGames(tournamentId);
-
         if (!games || !games.tournament_games || games.tournament_games.length === 0) {
-            console.log(`No games found for tournament ID: ${tournamentId}`);
             return [];
         }
-
-
-
-        // Extract only unique game IDs
         const uniqueGameIds = [...new Set(games.tournament_games.map(game => game.game_id))];
-
-
         return uniqueGameIds;
     } catch (error) {
         console.error(`Failed to fetch games for tournament ID ${tournamentId}:`, error);
@@ -262,26 +233,17 @@ const displayUniqueGamesForTournament = async (tournamentId) => {
             console.log("No unique games to display.");
             return;
         }
-
-        // Fetch all games and filter finished ones
         const games = await Promise.all(
             uniqueGameIds.map(async (gameId) => {
                 return await getGameById(gameId);
             })
         );
-
         const finishedGames = games.filter((game) => game.finished); // Filter only finished games
-
-        // Gather all the player IDs for filling the user cache
         const players = finishedGames.flatMap((game) => [
             { user_id: game.player_a_id },
             { user_id: game.player_b_id }
         ]);
-
-        // Fill the userCache for both players
         await fillUserCache(players);
-
-        // Render finished games
         const previousMatches = `
             <div class="matches-list mt-3 scrollable">
                 ${finishedGames.map((game) => {
@@ -321,22 +283,19 @@ const displayUniqueGamesForTournament = async (tournamentId) => {
                 }).join('')}
             </div>
         `;
-
-
-        // Render the previous matches wherever needed
-        // For example:
         document.getElementById('previousMatchesContainer').innerHTML = previousMatches;
 
     } catch (error) {
         console.error("Error displaying unique games:", error);
     }
 };
+
 async function run() {
     await buildTournamentView();
     if (tournamentFull == 1)
         renderStateButton();
 }
-// Example call
+
 export const iniTournamenDetailPage = async () => {
 
     run();

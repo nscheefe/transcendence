@@ -1,7 +1,6 @@
 
 document.addEventListener('DOMContentLoaded', function () {
-    let windowIsOpen = false; // Track whether the tournament window is currently open
-
+    let windowIsOpen = false;
     function openGenericTournamentWindow() {
         const dynamicWindows = document.querySelector('[data-dynamic-windows]');
         dynamicWindows.innerHTML = `
@@ -61,160 +60,129 @@ document.addEventListener('DOMContentLoaded', function () {
                 </div>
             </div>
         `;
-
-        // Dynamically load tournament-related logic
         import('/static/js/tournament.js')
             .then((module) => {
-                module.initTournamentsPage(); // Trigger the logic for initializing tournaments
+                module.initTournamentsPage();
             })
             .catch((error) => {
                 console.error('Error loading tournament module:', error);
             });
-
-        // Track that the window is open
         windowIsOpen = true;
-
-        // Add functionality to close the window explicitly
         const closeBtn = document.getElementById('close-btn');
         if (closeBtn) {
             closeBtn.addEventListener('click', () => {
                 closeTournamentWindow();
-                history.pushState(null, null, '#'); // Replace the URL hash
+                history.pushState(null, null, '#');
             });
         }
     }
-
     function closeTournamentWindow() {
         const dynamicWindows = document.querySelector('[data-dynamic-windows]');
         dynamicWindows.innerHTML = ''; // Clear the content
         windowIsOpen = false;
     }
-
     const tournamentBtn = document.getElementById('tournament-btn');
-
     tournamentBtn.addEventListener('click', (event) => {
-        event.preventDefault(); // Prevent default anchor navigation
-
+        event.preventDefault();
         const targetHash = '#tournament';
         if (window.location.hash !== targetHash) {
-            history.pushState(null, null, targetHash); // Set the URL hash dynamically
+            history.pushState(null, null, targetHash);
         }
-
-        // Open the tournament window
         openGenericTournamentWindow();
     });
-
-    // Detect back/forward navigation changes
     window.addEventListener('popstate', () => {
         const targetHash = '#tournament';
 
         if (window.location.hash === targetHash) {
             if (!windowIsOpen) {
-                openGenericTournamentWindow(); // Reopen the window if needed
+                openGenericTournamentWindow();
             }
         } else {
             if (windowIsOpen) {
-                closeTournamentWindow(); // Close the window if the hash is no longer '#tournament'
+                closeTournamentWindow();
             }
         }
     });
-
-    // Handle the case where the page loads with the #tournament hash already in the URL
     if (window.location.hash === '#tournament') {
         openGenericTournamentWindow();
     }
     function openTournamentDetails(tournamentId) {
         const tournamentsTabPane = document.querySelector('[data-dynamic-windows]');
         tournamentsTabPane.innerHTML = `
-                 <div id="pong-container">
-                <button id="close-btn">Close</button>
-                <div class="d-flex card bg-transparent text-light h-100 w-100" style="position: relative; z-index: 20;">
-
-        <section id="tournamentSection" class="tournamentSection">
-            <div class="text-light">
-                <div class="text-center py-4">
-                    <h1 id="tournamentName">Tournament: ${tournamentId}</h1>
-                </div>
-                <div class="card bg-dark text-light mb-4 shadow">
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 text-center">
-                                <h5>Start Date & Time</h5>
-                                <p id="tournamentDate">Start Date</p>
+        <div id="pong-container">
+            <button id="close-btn">Close</button>
+            <div class="d-flex card bg-transparent text-light h-100 w-100" style="position: relative; z-index: 20;">
+                <section id="tournamentSection" class="tournamentSection">
+                    <div class="text-light">
+                        <div class="text-center py-4">
+                            <h1 id="tournamentName">Tournament: ${tournamentId}</h1>
+                        </div>
+                        <div class="card bg-dark text-light mb-4 shadow">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4 text-center">
+                                        <h5>Start Date & Time</h5>
+                                        <p id="tournamentDate">Start Date</p>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        <h5>Players</h5>
+                                        <p id="playerCount">Players Count</p>
+                                    </div>
+                                    <div class="col-md-4 text-center">
+                                        <h5>Status</h5>
+                                        <p id="tournamentStatus">Status</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="col-md-4 text-center">
-                                <h5>Players</h5>
-                                <p id="playerCount">Players Count</p>
+                        </div>
+                        <div class="card bg-dark text-light mb-4 shadow scrollable" style="max-height: 50vh">
+                            <div class="card-body">
+                                <h4>Current Matches</h4>
+                                <div id="currentMatches" class="list-group mt-3" style="flex-direction: column-reverse;"></div>
+                                <div id="stateButtonContainer"></div>
                             </div>
-                            <div class="col-md-4 text-center">
-                                <h5>Status</h5>
-                                <p id="tournamentStatus">Status</p>
+                        </div>
+                        <div class="card bg-dark text-light shadow scrollable" style="max-height: 20vh">
+                            <div class="card-body">
+                                <h4>Brackets</h4>
+                                <div id="previousMatchesContainer"></div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="card bg-dark text-light mb-4 shadow scrollable" style="max-height: 50vh">
-                    <div class="card-body">
-                        <h4>Current Matches</h4>
-                        <div id="currentMatches" class="list-group mt-3" style="flex-direction: column-reverse;"></div>
-                        <div id="stateButtonContainer"></div>
-                    </div>
-                </div>
-                <div class="card bg-dark text-light shadow scrollable" style="max-height: 20vh">
-                    <div class="card-body">
-                        <h4>Brackets</h4>
-                        <div id="previousMatchesContainer"></div>
-                    </div>
-                </div>
+                </section>
             </div>
-        </section>
-</div>
-</div>`;
+        </div>`;
         import('/static/js/tournamentDetails.js')
             .then((module) => {
-                module.iniTournamenDetailPage(); // Call the initialization function
+                module.iniTournamenDetailPage();
             })
             .catch((error) => {
                 console.error('Error loading tournament Details module:', error);
             });
     }
-
     function handleUrl() {
-        const hash = window.location.hash.split('?')[0]; // Extract the hash without any query string
+        const hash = window.location.hash.split('?')[0];
         const queryString = window.location.hash.includes('?')
             ? window.location.hash.split('?')[1]
             : '';
-
         if (hash === '#tournament') {
             if (queryString) {
-                // Parse the query string for additional parameters
                 const urlParams = new URLSearchParams(queryString);
-                console.log(urlParams);
-                tournamentId = parseInt(urlParams.get('tournament')); // Extract `tournament` parameter
-                console.log(`Tournament ID: ${tournamentId}`);
+                tournamentId = parseInt(urlParams.get('tournament'));
                 if (tournamentId) {
-                    console.log(`Opening details for tournament ID: ${tournamentId}`);
                     openTournamentDetails(tournamentId);
                 } else {
-                    console.log("No tournament ID found in URL, opening generic tournament view.");
                     openGenericTournamentWindow();
                 }
             } else {
-                console.log("Opening generic tournament view without any query parameters.");
                 openGenericTournamentWindow();
             }
         }
     }
-
-    // Handle the URL hash on page load
     handleUrl();
-
-    // Listen for popstate events (e.g., user presses back or forward button)
     window.addEventListener('popstate', function () {
         handleUrl();
     });
-
-    // Close button event handler
     document.addEventListener('click', function (event) {
         if (event.target.id === 'close-btn') {
             const dynamicWindows = document.querySelector('[data-dynamic-windows]');
