@@ -182,3 +182,24 @@ export const removeUserFromChatRoom = async (chatRoomId) => {
     };
     return executeMutation(mutation, variables);
 };
+
+export const declineGameInvitation = async (gameId) => {
+    const mutation = `
+    mutation Update_game_state($gameId: Int!, $state: String!) {
+        update_game_state(game_id: $gameId, state: $state) {
+            id
+            state
+            points_player_a
+            points_player_b
+            player_a_id
+            player_b_id
+            finished
+            created_at
+            updated_at
+            }
+        }
+    `;
+    const variables = { gameId: parseInt(gameId, 10), state: "DECLINED" };
+    return executeMutation(mutation, variables);
+};
+
