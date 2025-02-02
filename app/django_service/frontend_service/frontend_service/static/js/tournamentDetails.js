@@ -68,14 +68,21 @@ async function matches(users) {
             if (eligiblePlayers.length < 2) {
                 if (eligiblePlayers.length === 1) {
                     const [winner] = eligiblePlayers;
+                    const winnerProfile = await fetchProfileByUserId(winner.user_id);
                     currentRoundContainer.innerHTML += `
-                        <div class="winner card bg-success text-light mb-3">
-                          <div class="card-body">
+                    <div class="winner card bg-success text-light mb-3">
+                        <div class="card-body">
                             <h5 class="card-title text-center">Winner</h5>
-                            <p class="card-text text-center">${winner.user_id} (Games Played: ${winner.games_played})</p>
-                          </div>
+                            <div class="text-center">
+                                <img src="${winnerProfile.profile.avatarUrl}" 
+                                     alt="${winnerProfile.profile.nickname}'s Avatar" 
+                                     style="width: 100px; height: 100px; object-fit: cover; border-radius: 50%;">
+                                <p class="card-text" style="margin-top: 8px; font-weight: bold;">${winnerProfile.profile.nickname}</p>
+                                <p class="card-text">(Games won: ${winner.games_played})</p>
+                            </div>
                         </div>
-                      `;
+                    </div>
+                `;
                 } else {
                     console.log(`Not enough players for Round ${currentRound}. No matches possible.`);
                 }
