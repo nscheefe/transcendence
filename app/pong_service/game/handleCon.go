@@ -50,8 +50,9 @@ func handshake(r *http.Request) (int, *Game, error) {
 			return 0, nil, errors.New("no ongoing game found for user " + strconv.Itoa(int(userID)) + ": " + err.Error())
 		}
 		gameID = int(game.Id)
-		games[gameID] = initGame(gameID, game)
-		return int(userID), games[gameID], nil
+		if games[gameID] == nil {
+			games[gameID] = initGame(gameID, game)
+		}
 	}
 
 	if games[gameID] == nil {
