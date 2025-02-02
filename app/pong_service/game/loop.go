@@ -85,7 +85,7 @@ func updateClients(game *Game) {
 				if err != nil {
 					logGame(game, "GRPCerror updating game state: "+err.Error())
 				} else {
-				game.info = gameInfo
+					game.info = gameInfo
 				}
 			}
 		}
@@ -198,6 +198,14 @@ func checkWinner(game *Game) {
 	winnerId := 0
 	if game.state.Points.Player1 >= winningPoints || game.state.Points.Player2 >= winningPoints {
 		game.State = GameStateFinished
+		broadcast(game, map[string]interface{}{
+			"type":      "updateState",
+			"ball":      game.state.Ball,
+			"paddle1":   game.state.Paddle1,
+			"paddle2":   game.state.Paddle2,
+			"points":    game.state.Points,
+			"direction": game.state.Direction,
+		})
 		if game.state.Points.Player1 >= winningPoints {
 			broadcast(game, map[string]interface{}{
 				"type":   "gameOver",
