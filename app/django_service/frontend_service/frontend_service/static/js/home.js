@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 <form id="createTournamentForm">
                                     <div>
                                         <label for="tournament-name">Tournament Name:</label>
-                                        <input class="form-control bg-secondary text-light" id="tournament-name" type="text" placeholder="Enter tournament name" required />
+                                        <input class="form-control bg-secondary text-light" id="tournament-name" type="text" maxlength="50"  placeholder="Enter tournament name" required />
                                     </div>
                                     <div>
                                         <label for="tournament-size">Tournament Size:</label>

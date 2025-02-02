@@ -270,6 +270,7 @@ type_defs = """
            play_order: Int,
            games_played: Int
        ): TournamentUserResponse
+        remove_user_from_chat_room(chat_room_id: Int!): RemoveUserFromChatRoomResponse
         create_tournament_game(tournament_id: Int!, user_id: Int!, opponent_id: Int!): TournamentGame
         create_friend_game(player_a: Int!, player_b: Int!): Game!
         update_game_state(game_id: Int!, state: String!): Game!
@@ -283,7 +284,12 @@ type_defs = """
         success: Boolean!
         message: String!
     }
-
+    type RemoveUserFromChatRoomResponse {
+        id: Int!
+        user_id: Int!
+        chat_room_id: Int!
+        removed_at: DateTime
+    }
     type FriendshipMutationResponse {
         success: Boolean!
         message: String!

@@ -160,3 +160,25 @@ export const fetchChatRoomDetails = async (ids) => {
     const data = await fetchGraphQL(query);
     return ids.map((id, index) => data[`chatRoom${index + 1}`]);
 };
+
+/**
+ * Removes the current user from a specified chat room.
+ * @param {number} chatRoomId - The ID of the chat room.
+ * @returns {Promise<Object>} The response from the GraphQL server.
+ */
+export const removeUserFromChatRoom = async (chatRoomId) => {
+    const mutation = `
+    mutation RemoveUserFromChatRoom($chatRoomId: Int!) {
+        remove_user_from_chat_room(chat_room_id: $chatRoomId) {
+            id
+            user_id
+            chat_room_id
+            removed_at
+        }
+    }
+    `;
+    const variables = {
+        chatRoomId: parseInt(chatRoomId, 10), // Ensure the ID is an integer
+    };
+    return executeMutation(mutation, variables);
+};
