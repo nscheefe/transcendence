@@ -10,80 +10,63 @@ const profileLoading = document.getElementById('profile-loading');
 const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';
 const LOADING_FRIENDS_HTML = '<p class="text-light">Loading friends...</p>';
 const NO_FRIENDS_WARNING = 'Sad ... you don\'t seem to have any friends 😞.';
-let cachedFriendships = null; // Holds the friendships in memory
-const refetchFriends = async () => {
-    const data = await fetchFriendships(); // Fetch friendships data
+const NO_PROFILES_HTML = '<p class="text-light">No profiles found.</p>';
+const LOADING_PROFILES_HTML = '<p class="text-light">Loading profiles, please wait...</p>';
 
-    // Ensure data is an array of objects
+let cachedFriendships = null;
+
+const refetchFriends = async () => {
+    const data = await fetchFriendships();
     const friendships = Array.isArray(data)
         ? data
-        : Object.values(data); // If it's an object (with numeric keys), convert it to an array
+        : Object.values(data);
     cachedFriendships = friendships;
 };
+
 const initializePageNavigation = () => {
     const tabs = document.querySelectorAll('#onpage-nav .nav-link');
     const tabContent = document.querySelectorAll('.tab-pane');
 
-    // Handle tab click navigation
     tabs.forEach((tab) => {
         tab.addEventListener('click', async (event) => {
             event.preventDefault();
-
-            // Deactivate all tabs
             tabs.forEach((otherTab) => {
                 otherTab.classList.remove('active');
             });
-
-            // Deactivate all tab content
             tabContent.forEach((content) => {
                 content.classList.remove('show', 'active');
             });
-
-            // Activate the clicked tab and its corresponding content
             tab.classList.add('active');
-            const targetId = tab.getAttribute('href').substring(1); // Get the target tab content ID
+            const targetId = tab.getAttribute('href').substring(1);
             const targetContent = document.getElementById(targetId);
             if (targetContent) {
                 targetContent.classList.add('show', 'active');
-
-                // Update the URL hash to reflect the active tab
                 window.history.pushState(null, '', `#${targetId}`);
-
-                // Perform specific logic based on the active tab
                 await handleTabSwitch(targetId);
             }
         });
     });
 };
-/**
- * Handles logic specific to each tab when it is activated.
- * @param {string} tabId - The ID of the activated tab content.
- */
+
 const handleTabSwitch = async (tabId) => {
-    // Define logic for each specific tab
     switch (tabId) {
         case 'profile':
             const profileContainer = document.getElementById('profile');
             const profileLoading = document.getElementById('profile-loading');
-            await loadUserProfile(profileContainer, profileLoading); // Load the profile information
+            await loadUserProfile(profileContainer, profileLoading);
             break;
-
         case 'friends':
             const friendsContainer = document.querySelector('#friends ul');
-            await loadFriends(friendsContainer); // Load the friends list
+            await loadFriends(friendsContainer);
             break;
-
         case 'add-friend':
             const profilesContainer = document.getElementById('profilesContainer');
             const prevPageBtn = document.getElementById('prevPageBtn');
             const nextPageBtn = document.getElementById('nextPageBtn');
-            const limit = 10; // Pagination limit
-            let currentOffset = 0; // Initial offset
-
-            // Fetch and render the initial set of profiles
+            const limit = 10;
+            let currentOffset = 0;
             await fetchAndRenderProfiles(profilesContainer, prevPageBtn, nextPageBtn, limit, currentOffset);
 
-            // Add listeners for pagination
             prevPageBtn.addEventListener('click', async () => {
                 if (currentOffset > 0) {
                     currentOffset -= limit;
@@ -104,47 +87,30 @@ const handleTabSwitch = async (tabId) => {
     }
 };
 
-// Initialize everything when the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', async () => {
     const friendsContainer = document.querySelector('#friends ul');
-
-    // Preload friends and initialize tab navigation
     await Promise.all([
         loadFriends(friendsContainer),
         initializePageNavigation()
     ]);
-
-    // Check the initial URL hash and load the corresponding tab
     handleHashChange();
-
-    // Listen to hash changes caused by back/forward buttons
     window.addEventListener('popstate', handleHashChange);
 });
 
-/**
- * Handles hash change and activates the appropriate tab and content.
- */
 const handleHashChange = () => {
-    const currentHash = window.location.hash.substring(1); // Get the hash without the "#" symbol
+    const currentHash = window.location.hash.substring(1);
     if (!currentHash) {
-        return; // No hash, just return
+        return;
     }
-
-    // Find the navigation link corresponding to the hash
     const activeTab = document.querySelector(`#onpage-nav .nav-link[href="#${currentHash}"]`);
 
     if (activeTab) {
-        activeTab.click(); // Trigger a click event to update the UI
+        activeTab.click();
     } else {
         console.warn(`No matching tab found for hash: #${currentHash}`);
     }
 };
-/**
- * Generates individual friend's HTML using the friendship and profile data.
- * @param {Object} friendship - Friendship object.
- * @param {Object} profile - Profile object for the friend.
- * @returns {HTMLElement} - Generated friend list item as DOM element.
- */
+
 const generateFriendHTML = (friendship, profile) => {
     const establishedDate = formatDate(friendship.establishedAt);
     const avatarUrl = profile.avatarUrl || DEFAULT_AVATAR;
@@ -152,9 +118,8 @@ const generateFriendHTML = (friendship, profile) => {
     if (!userCache[profile.userId]) {
         userCache[profile.userId] = {profile};
     }
-
     return createElement(
-        'li', // tagName
+        'li',
         `
         <div class="avatar me-3">
             <a href="/home/profile/${profile.userId}" class="text-decoration-none">
@@ -187,12 +152,6 @@ const generateFriendHTML = (friendship, profile) => {
     );
 };
 
-/**
- * Renders the list of friends with their profiles.
- * @param {Array} friendships - Array of friendship objects fetched from the API.
- * @param {Object} combinedData - Combined API data containing friendship details and profiles.
- * @param {HTMLElement} friendsContainer - The DOM container for the friends list.
- */
 const renderFriendsList = (friendships, combinedData, friendsContainer) => {
     friendsContainer.innerHTML = '';
     let friendCount = 0;
@@ -212,33 +171,18 @@ const renderFriendsList = (friendships, combinedData, friendsContainer) => {
     }
 };
 
-/**
- * Loads the friends list and their profiles.
- * @param {HTMLElement} friendsContainer - The DOM container for the friends list.
- */
 const loadFriends = async (friendsContainer) => {
     friendsContainer.innerHTML = LOADING_FRIENDS_HTML;
     try {
-        const data = await fetchFriendships(); // Fetch friendships data
+        const data = await fetchFriendships();
+        const friendships = Array.isArray(data) ? data : Object.values(data);
 
-        // Ensure data is an array of objects
-        const friendships = Array.isArray(data)
-            ? data
-            : Object.values(data); // If it's an object (with numeric keys), convert it to an array
-
-
-        // Check if friendships array is empty
         if (!friendships.length) {
             friendsContainer.innerHTML = `<p class="text-light">${NO_FRIENDS_WARNING}</p>`;
             return;
         }
-        cachedFriendships = friendships; // Cache friendships here
-
-
-        // Fetch more data based on friendships
+        cachedFriendships = friendships;
         const combinedData = await fetchFriendsWithProfiles(friendships);
-
-        // Render the friends list
         renderFriendsList(combinedData.friendships, combinedData, friendsContainer);
     } catch (error) {
         console.error('Failed to load friends:', error);
@@ -246,28 +190,18 @@ const loadFriends = async (friendsContainer) => {
     }
 };
 
-
-/*************************************************************************************************************/
 async function loadOpponentProfile(opponentId) {
     try {
         const opponent = await fetchProfileByUserId(opponentId);
 
-        return opponent; // Use the resolved value if needed later
+        return opponent;
     } catch (error) {
         console.error('Failed to fetch opponent profile:', error);
     }
 }
 
-/**
- * Renders the profile and stats of the logged-in user.
- * @param {Object} user - User object returned from the API.
- * @param {Object} stats - User stats object returned from the API.
- * @param {HTMLElement} profileContainer - The DOM container for the user profile.
- */
 const renderUserProfile = async (user, stats, statsByUser, profileContainer) => {
     const profile = user.profile;
-
-    // Preload opponent profiles in parallel
     const opponents = await Promise.all(
         statsByUser.map(async (stat) => {
             const isWinner = stat.stat.winnerId === user.id;
@@ -275,7 +209,6 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
             return {opponentId, opponent: await fetchProfileByUserId(opponentId)};
         })
     );
-
     profileContainer.appendChild(
         createElement(
             'div',
@@ -305,9 +238,9 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                     height: 100px;
                     border-radius: 50%;
                      background: conic-gradient(
-        #0d6efd 0% calc(var(--wins) * 1%),  
-        #dc3545 calc(var(--wins) * 1%) 100%
-         );
+                        #0d6efd 0% calc(var(--wins) * 1%),  
+                        #dc3545 calc(var(--wins) * 1%) 100%
+                     );
                     margin: auto;
                   }
 
@@ -331,41 +264,38 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                   }
                 </style>
                 <div class="d-flex justify-content-between mb-4">
-
-                <!-- Stats Summary -->
-                <div class="card bg-dark text-light shadow-sm rounded-3 p-3" style="width:66%">
-                    <div class="row text-center">
-                        <div class="col">
-                            <div class="p-2">
-                                <h6 class="fw-bold text-light">Total Games</h6>
-                                <span class="fs-5">${stats.totalGames}</span>
+                    <div class="card bg-dark text-light shadow-sm rounded-3 p-3" style="width:66%">
+                        <div class="row text-center">
+                            <div class="col">
+                                <div class="p-2">
+                                    <h6 class="fw-bold text-light">Total Games</h6>
+                                    <span class="fs-5">${stats.totalGames}</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col border-start border-secondary">
-                            <div class="p-2">
-                                <h6 class="fw-bold text-primary">Total Wins</h6>
-                                <span class="fs-5 text-primary">${stats.totalWins}</span>
+                            <div class="col border-start border-secondary">
+                                <div class="p-2">
+                                    <h6 class="fw-bold text-primary">Total Wins</h6>
+                                    <span class="fs-5 text-primary">${stats.totalWins}</span>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col border-start border-secondary">
-                            <div class="p-2">
-                                <h6 class="fw-bold text-danger">Total Losses</h6>
-                                <span class="fs-5 text-danger">${stats.totalLosses}</span>
+                            <div class="col border-start border-secondary">
+                                <div class="p-2">
+                                    <h6 class="fw-bold text-danger">Total Losses</h6>
+                                    <span class="fs-5 text-danger">${stats.totalLosses}</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+                     <div class="card bg-dark text-light shadow-sm rounded-3 p-3 " style="width:33%">
+                        <div class="pie-chart" style="--wins: ${(stats.totalGames > 0 ? (stats.totalWins / stats.totalGames) * 100 : 0)};">
+                          <div class="center-text">
+                                <h6>${stats.totalGames}</h6>
+                                <span>Total Games</span>
+                          </div>
+                        </div>
+    
+                     </div>
                 </div>
-                 <div class="card bg-dark text-light shadow-sm rounded-3 p-3 " style="width:33%">
-                    <div class="pie-chart" style="--wins: ${(stats.totalGames > 0 ? (stats.totalWins / stats.totalGames) * 100 : 0)};">
-                      <div class="center-text">
-                            <h6>${stats.totalGames}</h6>
-                            <span>Total Games</span>
-                      </div>
-                    </div>
-
-                 </div>
-                </div>
-                <!-- Detailed User Stats -->
                 <div class="stats-list mt-3 scrollable">
                     ${statsByUser.map((stat, index) => {
                 const date = stat.stat.createdAt;
@@ -404,11 +334,7 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
         )
     );
 };
-/**
- * Loads the profile and stats of the logged-in user.
- * @param {HTMLElement} profileContainer - The DOM container for the user profile.
- * @param {HTMLElement} profileLoading - The loading container for the profile.
- */
+
 const loadUserProfile = async (profileContainer, profileLoading) => {
     try {
         profileContainer.innerHTML = '';
@@ -428,23 +354,12 @@ const loadUserProfile = async (profileContainer, profileLoading) => {
     }
 };
 
-
-
-const NO_PROFILES_HTML = '<p class="text-light">No profiles found.</p>';
-const LOADING_PROFILES_HTML = '<p class="text-light">Loading profiles, please wait...</p>';
-
 const updateFlattendFriendships = async (flattenedFriendships) => {
     await refetchFriends();
     flattenedFriendships = Array.isArray(cachedFriendships) ? cachedFriendships.flat() : [];
     return flattenedFriendships;
 };
 
-/**
- * Renders profiles into the DOM.
- * Disables the "Add Friend" button for profiles already in friendships.
- * @param {Array} profiles - The profiles to render.
- * @param {HTMLElement} profilesContainer - The container to render profiles in.
- */
 const renderProfiles = (profiles, profilesContainer) => {
     profilesContainer.innerHTML = '';
 
@@ -456,23 +371,18 @@ const renderProfiles = (profiles, profilesContainer) => {
     let flattenedFriendships = Array.isArray(cachedFriendships) ? cachedFriendships.flat() : [];
 
     profiles.forEach((profile) => {
-        userCache[profile.userId] = {profile}; // Cache the profile for later use
-        // Check if the profile userId exists in cachedFriendships
+        userCache[profile.userId] = {profile};
         const isFriendAlready = flattenedFriendships.some(
             (friendship) => friendship.friendId == profile.userId && friendship.accepted
         );
-
         const isBlocked = flattenedFriendships.some(
             (friendship) => friendship.friendId == profile.userId && friendship.blocked
         );
-
         const friendship = flattenedFriendships.find(
             (friendship) => friendship.friendId == profile.userId
         );
-
         const friendshipId = friendship ? friendship.id : 0;
         const avatarHtml = generateUserAvatarHTML(profile.userId, 50);
-
         const profileHTML = `
         <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center p-3 rounded-3 mb-2">
             <div class="d-flex align-items-center">
@@ -506,9 +416,8 @@ const renderProfiles = (profiles, profilesContainer) => {
             `;
         profilesContainer.innerHTML += profileHTML;
     });
-
-    // Attach event listeners to "Add Friend" buttons
     const buttons = profilesContainer.querySelectorAll('.btn-success');
+
     buttons.forEach((button) => {
         button.addEventListener('click', async (event) => {
             event.preventDefault();
@@ -520,17 +429,15 @@ const renderProfiles = (profiles, profilesContainer) => {
             }
 
             try {
-                // Call the addFriend service function
                 const response = await addFriend(friendId);
 
                 if (response && response.success) {
-                    refetchFriends(); // Refresh the cached friendships
+                    refetchFriends();
                     button.textContent = "Friend Added!";
                     button.classList.remove("btn-success");
                     button.classList.add("btn-secondary");
-                    button.disabled = true; // Disable the button after a successful add
-                    // Optionally update cachedFriendships
-                    cachedFriendships.push({friendId}); // Add the new friend to the cache
+                    button.disabled = true;
+                    cachedFriendships.push({friendId});
                 } else {
                     console.error(`Failed to add friend: ${response.message}`);
                     alert(`Error: ${response.message}`);
@@ -541,8 +448,6 @@ const renderProfiles = (profiles, profilesContainer) => {
             }
         });
     });
-
-    // Attach event listeners to "Block/Unblock" buttons
     const blockButtons = profilesContainer.querySelectorAll('#block-user');
     blockButtons.forEach((button) => {
         button.addEventListener('click', async (event) => {
@@ -588,14 +493,6 @@ const renderProfiles = (profiles, profilesContainer) => {
     });
 };
 
-/**
- * Fetches profiles using pagination and renders them to the DOM.
- * @param {HTMLElement} profilesContainer - The container to display profiles.
- * @param {HTMLElement} prevPageBtn - The "Previous" page button.
- * @param {HTMLElement} nextPageBtn - The "Next" page button.
- * @param {number} limit - Number of profiles per page.
- * @param {number} offset - The offset for pagination.
- */
 const fetchAndRenderProfiles = async (
     profilesContainer,
     prevPageBtn,
@@ -610,7 +507,7 @@ const fetchAndRenderProfiles = async (
         if (data && data.getAllProfiles) {
             const profiles = data.getAllProfiles.profiles;
             renderProfiles(profiles, profilesContainer);
-            initializeOnlineStatusSubscriptions(); // Initialize online status subscriptions
+            initializeOnlineStatusSubscriptions();
             prevPageBtn.disabled = offset === 0;
             nextPageBtn.disabled = profiles.length < limit;
         } else {
@@ -621,7 +518,6 @@ const fetchAndRenderProfiles = async (
         profilesContainer.innerHTML = `<p class="text-danger">Failed to load profiles. Please try again later.</p>`;
     }
 };
-
 
 async function initProfileList(){
     const profilesContainer = document.querySelector('#profilesContainer');
@@ -647,28 +543,16 @@ async function initProfile(){
 
 }
 
-initProfileList();
-initProfile()
-loadFriends(friendsContainer);
-
-
 document.addEventListener('DOMContentLoaded', async () => {
     const friendsContainer = document.querySelector('#friends ul');
 
-
-
     friendsContainer.addEventListener('click', async (event) => {
-        // Handle "Delete Friend" button click
         if (event.target.classList.contains('delete-friend')) {
             const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
-
             if (!isNaN(friendshipId)) {
                 try {
-
                     const response = await deleteFriendship(friendshipId);
-
                     if (response && response.success) {
-
                         const elementToRemove = document.getElementById(`friendship-${friendshipId}`);
                         if (elementToRemove) {
                             elementToRemove.remove(); // Remove from the DOM
@@ -685,14 +569,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }
             }
         } else if (event.target.classList.contains('start-game')) {
-            // Handle "Play a Game" button click
             const friendUserId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
 
             if (!isNaN(friendUserId)) {
                 try {
-                    // Call the createFriendGame GraphQL mutation
                     const game = await createFriendGame(userId, friendUserId);
-                    //alert(`Game created successfully! Game ID: ${game.id}`);
                     showToast(`Game created successfully! Check Chat To Play Game!`);
                 } catch (error) {
                     console.error("Error creating the game:", error);
@@ -702,13 +583,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                 console.error("Invalid friendUserId in the data-friendship-id attribute.");
             }
         } else if (event.target.classList.contains('start-chat-room')) {
-            // Handle "Start Chat" button click
-            const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
             const friendUserId = parseInt(event.target.getAttribute('data-user-id'), 10);
-
             if (!isNaN(friendUserId)) {
                 try {
-                    // Call the startChatWithUser function
                     const chatRoom = await startChatWithUser(friendUserId);
                     showToast(`Chat room created successfully! Chat Room ID: ${chatRoom.id}`);
                 } catch (error) {
@@ -721,3 +598,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 });
+
+initProfileList();
+initProfile()
+loadFriends(friendsContainer);
