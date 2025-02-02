@@ -29,7 +29,7 @@ REDIRECT_URI_IDENTITY_PROVIDER = os.getenv('REDIRECT_URI_IDENTITY_PROVIDER')
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-153te+lh2hos)^atn+snip(dbk+i1u0$y%!%g@)y@1n5c4ede^'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
