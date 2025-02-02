@@ -4,12 +4,13 @@ import {generateUserAvatarHTML, showError, userCache, initializeOnlineStatusSubs
 import {createElement, DEFAULT_AVATAR, DEFAULT_USER_AVATAR, formatDate} from './domHelpers.js';
 import {createFriendGame} from "./gameService.js"
 import {startChatWithUser} from "./chatservice.js"
-
+const friendsContainer = document.querySelector('#friends ul');
+const profileContainer = document.getElementById('profile');
+const profileLoading = document.getElementById('profile-loading');
 const NO_FRIENDS_HTML = '<p class="text-light">No friends available 😞.</p>';
 const LOADING_FRIENDS_HTML = '<p class="text-light">Loading friends...</p>';
 const NO_FRIENDS_WARNING = 'Sad ... you don\'t seem to have any friends 😞.';
 let cachedFriendships = null; // Holds the friendships in memory
-
 const refetchFriends = async () => {
     const data = await fetchFriendships(); // Fetch friendships data
 
@@ -19,25 +20,125 @@ const refetchFriends = async () => {
         : Object.values(data); // If it's an object (with numeric keys), convert it to an array
     cachedFriendships = friendships;
 };
-const onpageNav = document.getElementById('onpage-nav');
+const initializePageNavigation = () => {
+    const tabs = document.querySelectorAll('#onpage-nav .nav-link');
+    const tabContent = document.querySelectorAll('.tab-pane');
 
-// Attach a single event listener to the parent container
-onpageNav.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('nav-link')) {
-        try {
-            document.querySelectorAll('#onpage-nav .nav-link').forEach((link) => {
-                link.classList.remove('active');
+    // Handle tab click navigation
+    tabs.forEach((tab) => {
+        tab.addEventListener('click', async (event) => {
+            event.preventDefault();
+
+            // Deactivate all tabs
+            tabs.forEach((otherTab) => {
+                otherTab.classList.remove('active');
             });
-            event.target.classList.add('active');
-            await refetchFriends();
-        } catch (error) {
-            console.error('Error refetching data:', error);
-            alert('Failed to refetch data. Please try again later.');
-        }
-    }
-});
-//const avatarHtml = generateUserAvatarHTML(profile.user_id, 50);
 
+            // Deactivate all tab content
+            tabContent.forEach((content) => {
+                content.classList.remove('show', 'active');
+            });
+
+            // Activate the clicked tab and its corresponding content
+            tab.classList.add('active');
+            const targetId = tab.getAttribute('href').substring(1); // Get the target tab content ID
+            const targetContent = document.getElementById(targetId);
+            if (targetContent) {
+                targetContent.classList.add('show', 'active');
+
+                // Update the URL hash to reflect the active tab
+                window.history.pushState(null, '', `#${targetId}`);
+
+                // Perform specific logic based on the active tab
+                await handleTabSwitch(targetId);
+            }
+        });
+    });
+};
+/**
+ * Handles logic specific to each tab when it is activated.
+ * @param {string} tabId - The ID of the activated tab content.
+ */
+const handleTabSwitch = async (tabId) => {
+    // Define logic for each specific tab
+    switch (tabId) {
+        case 'profile':
+            const profileContainer = document.getElementById('profile');
+            const profileLoading = document.getElementById('profile-loading');
+            await loadUserProfile(profileContainer, profileLoading); // Load the profile information
+            break;
+
+        case 'friends':
+            const friendsContainer = document.querySelector('#friends ul');
+            await loadFriends(friendsContainer); // Load the friends list
+            break;
+
+        case 'add-friend':
+            const profilesContainer = document.getElementById('profilesContainer');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const limit = 10; // Pagination limit
+            let currentOffset = 0; // Initial offset
+
+            // Fetch and render the initial set of profiles
+            await fetchAndRenderProfiles(profilesContainer, prevPageBtn, nextPageBtn, limit, currentOffset);
+
+            // Add listeners for pagination
+            prevPageBtn.addEventListener('click', async () => {
+                if (currentOffset > 0) {
+                    currentOffset -= limit;
+                    await fetchAndRenderProfiles(profilesContainer, prevPageBtn, nextPageBtn, limit, currentOffset);
+                }
+            });
+
+            nextPageBtn.addEventListener('click', async () => {
+                currentOffset += limit;
+                await fetchAndRenderProfiles(profilesContainer, prevPageBtn, nextPageBtn, limit, currentOffset);
+            });
+
+            break;
+
+        default:
+            console.warn(`Unrecognized tab ID: ${tabId}`);
+            break;
+    }
+};
+
+// Initialize everything when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', async () => {
+    const friendsContainer = document.querySelector('#friends ul');
+
+    // Preload friends and initialize tab navigation
+    await Promise.all([
+        loadFriends(friendsContainer),
+        initializePageNavigation()
+    ]);
+
+    // Check the initial URL hash and load the corresponding tab
+    handleHashChange();
+
+    // Listen to hash changes caused by back/forward buttons
+    window.addEventListener('popstate', handleHashChange);
+});
+
+/**
+ * Handles hash change and activates the appropriate tab and content.
+ */
+const handleHashChange = () => {
+    const currentHash = window.location.hash.substring(1); // Get the hash without the "#" symbol
+    if (!currentHash) {
+        return; // No hash, just return
+    }
+
+    // Find the navigation link corresponding to the hash
+    const activeTab = document.querySelector(`#onpage-nav .nav-link[href="#${currentHash}"]`);
+
+    if (activeTab) {
+        activeTab.click(); // Trigger a click event to update the UI
+    } else {
+        console.warn(`No matching tab found for hash: #${currentHash}`);
+    }
+};
 /**
  * Generates individual friend's HTML using the friendship and profile data.
  * @param {Object} friendship - Friendship object.
@@ -310,9 +411,12 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
  */
 const loadUserProfile = async (profileContainer, profileLoading) => {
     try {
-        const data = await fetchUserProfileAndStats(userId);
-        profileLoading.remove();
+        profileContainer.innerHTML = '';
 
+        const data = await fetchUserProfileAndStats(userId);
+        if (profileLoading) {
+            profileLoading.remove();
+        }
         if (data?.user) {
             renderUserProfile(data.user, data.calculateUserStats, data.statsByUser, profileContainer);
         } else {
@@ -325,77 +429,6 @@ const loadUserProfile = async (profileContainer, profileLoading) => {
 };
 
 
-document.addEventListener('DOMContentLoaded', async () => {
-    const friendsContainer = document.querySelector('#friends ul');
-    const profileContainer = document.getElementById('profile');
-    const profileLoading = document.getElementById('profile-loading');
-
-    await Promise.all([loadFriends(friendsContainer), loadUserProfile(profileContainer, profileLoading)]);
-
-    friendsContainer.addEventListener('click', async (event) => {
-        // Handle "Delete Friend" button click
-        if (event.target.classList.contains('delete-friend')) {
-            const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
-
-            if (!isNaN(friendshipId)) {
-                try {
-
-                    const response = await deleteFriendship(friendshipId);
-
-                    if (response && response.success) {
-
-                        const elementToRemove = document.getElementById(`friendship-${friendshipId}`);
-                        if (elementToRemove) {
-                            elementToRemove.remove(); // Remove from the DOM
-                        } else {
-                            console.error(`Element with id "friendship-${friendshipId}" not found.`);
-                        }
-                    } else {
-                        console.error(`Failed to delete friendship: ${response ? response.message : 'Unknown error'}`);
-                        alert(`Error: ${response.message || 'Failed to delete friendship.'}`);
-                    }
-                } catch (error) {
-                    console.error("An unexpected error occurred while deleting friendship:", error);
-                    alert("An error occurred while deleting the friendship. Please try again later.");
-                }
-            }
-        } else if (event.target.classList.contains('start-game')) {
-            // Handle "Play a Game" button click
-            const friendUserId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
-
-            if (!isNaN(friendUserId)) {
-                try {
-                    // Call the createFriendGame GraphQL mutation
-                    const game = await createFriendGame(userId, friendUserId);
-                    //alert(`Game created successfully! Game ID: ${game.id}`);
-                    showToast(`Game created successfully! Check Chat To Play Game!`);
-                } catch (error) {
-                    console.error("Error creating the game:", error);
-                    alert("Failed to create the game. Please try again later.");
-                }
-            } else {
-                console.error("Invalid friendUserId in the data-friendship-id attribute.");
-            }
-        } else if (event.target.classList.contains('start-chat-room')) {
-            // Handle "Start Chat" button click
-            const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
-            const friendUserId = parseInt(event.target.getAttribute('data-user-id'), 10);
-
-            if (!isNaN(friendUserId)) {
-                try {
-                    // Call the startChatWithUser function
-                    const chatRoom = await startChatWithUser(friendUserId);
-                    showToast(`Chat room created successfully! Chat Room ID: ${chatRoom.id}`);
-                } catch (error) {
-                    console.error("Error starting the chat:", error);
-                    showToast("Failed to start the chat. Please try again later.");
-                }
-            } else {
-                console.error("Invalid friendUserId in the data-friendship-id attribute.");
-            }
-        }
-    });
-});
 
 const NO_PROFILES_HTML = '<p class="text-light">No profiles found.</p>';
 const LOADING_PROFILES_HTML = '<p class="text-light">Loading profiles, please wait...</p>';
@@ -590,7 +623,7 @@ const fetchAndRenderProfiles = async (
 };
 
 
-document.addEventListener('DOMContentLoaded', async () => {
+async function initProfileList(){
     const profilesContainer = document.querySelector('#profilesContainer');
     const prevPageBtn = document.getElementById('prevPageBtn');
     const nextPageBtn = document.getElementById('nextPageBtn');
@@ -606,5 +639,85 @@ document.addEventListener('DOMContentLoaded', async () => {
     nextPageBtn.addEventListener('click', async () => {
         currentOffset += limit;
         await fetchAndRenderProfiles(profilesContainer, prevPageBtn, nextPageBtn, limit, currentOffset);
+    });
+}
+async function initProfile(){
+
+    await Promise.all([loadFriends(friendsContainer), loadUserProfile(profileContainer, profileLoading)]);
+
+}
+
+initProfileList();
+initProfile()
+loadFriends(friendsContainer);
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+    const friendsContainer = document.querySelector('#friends ul');
+
+
+
+    friendsContainer.addEventListener('click', async (event) => {
+        // Handle "Delete Friend" button click
+        if (event.target.classList.contains('delete-friend')) {
+            const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
+
+            if (!isNaN(friendshipId)) {
+                try {
+
+                    const response = await deleteFriendship(friendshipId);
+
+                    if (response && response.success) {
+
+                        const elementToRemove = document.getElementById(`friendship-${friendshipId}`);
+                        if (elementToRemove) {
+                            elementToRemove.remove(); // Remove from the DOM
+                        } else {
+                            console.error(`Element with id "friendship-${friendshipId}" not found.`);
+                        }
+                    } else {
+                        console.error(`Failed to delete friendship: ${response ? response.message : 'Unknown error'}`);
+                        alert(`Error: ${response.message || 'Failed to delete friendship.'}`);
+                    }
+                } catch (error) {
+                    console.error("An unexpected error occurred while deleting friendship:", error);
+                    alert("An error occurred while deleting the friendship. Please try again later.");
+                }
+            }
+        } else if (event.target.classList.contains('start-game')) {
+            // Handle "Play a Game" button click
+            const friendUserId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
+
+            if (!isNaN(friendUserId)) {
+                try {
+                    // Call the createFriendGame GraphQL mutation
+                    const game = await createFriendGame(userId, friendUserId);
+                    //alert(`Game created successfully! Game ID: ${game.id}`);
+                    showToast(`Game created successfully! Check Chat To Play Game!`);
+                } catch (error) {
+                    console.error("Error creating the game:", error);
+                    alert("Failed to create the game. Please try again later.");
+                }
+            } else {
+                console.error("Invalid friendUserId in the data-friendship-id attribute.");
+            }
+        } else if (event.target.classList.contains('start-chat-room')) {
+            // Handle "Start Chat" button click
+            const friendshipId = parseInt(event.target.getAttribute('data-friendship-id'), 10);
+            const friendUserId = parseInt(event.target.getAttribute('data-user-id'), 10);
+
+            if (!isNaN(friendUserId)) {
+                try {
+                    // Call the startChatWithUser function
+                    const chatRoom = await startChatWithUser(friendUserId);
+                    showToast(`Chat room created successfully! Chat Room ID: ${chatRoom.id}`);
+                } catch (error) {
+                    console.error("Error starting the chat:", error);
+                    showToast("Failed to start the chat. Please try again later.");
+                }
+            } else {
+                console.error("Invalid friendUserId in the data-friendship-id attribute.");
+            }
+        }
     });
 });
