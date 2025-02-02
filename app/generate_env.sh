@@ -23,6 +23,18 @@ if [ -f ".env" ] || [ -f ".env.postgres" ] || ls .env.* 1> /dev/null 2>&1; then
   fi
 fi
 
+# Check if the DB folder exists
+if [ -d "db" ]; then
+  echo -e "${YELLOW}DB folder detected. Do you want to reset it? (y/n)${NC}"
+  read -r reset_db
+  if [ "$reset_db" == "y" ]; then
+    rm -rf ./DB
+    echo -e "${GREEN}DB folder reset.${NC}"
+  else
+    echo -e "${RED}DB folder not reset.${NC}"
+  fi
+fi
+
 echo -e "${GREEN}Enter DEBUG value (True/False):${NC}"
 read -r DEBUG
 
