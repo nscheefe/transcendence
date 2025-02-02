@@ -54,8 +54,13 @@ function gameOver(winner) {
     } else {
         gameOverviewResult.textContent = 'You lost!';
     }
+    if (renderer2 !== undefined) {
+        gameOverviewResult.textContent = winner + ' won!';
+    }
 
     gameOverview.style.display = 'block';
+
+
 
     // Close the WebSocket connection
     if (socket) {
@@ -573,8 +578,8 @@ function main(local = false, gameId = null) {
                 }
                 if (state.type === 'gameOver') {
                     gameStarted = false;
-                    console.log('Game Over');
                     gameOver(state.winner);
+                    return;
                 }
             }, 1000 / 60); // 60 times per second
         });

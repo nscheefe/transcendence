@@ -17,6 +17,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
 import os
 import jwt
+from django.template.loader import render_to_string
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +66,8 @@ def oauth_callback(request):
 def home(request):
     # Create context dictionary with necessary data
     context = get_home_context(request)
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'html': render_to_string('frontend/home.html', context)})
     return render(request, 'frontend/home.html', context)
 
 
@@ -94,6 +97,8 @@ def game(request):
         'is_local_game': is_local_game,  # Add the local game flag to the context
     })
 
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'html': render_to_string('frontend/pong.html', context)})
     return render(request, 'frontend/pong.html', context)
 
 @csrf_exempt
@@ -139,41 +144,9 @@ def profile(request):
         response = update_profile.manageProfile(request, bio, nickname, avatar_path, additional_info)
         return JsonResponse(response)
 
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'html': render_to_string('frontend/manage-profile.html', context)})
     return render(request, 'frontend/manage-profile.html', context)
-
-#@csrf_exempt
-#def upload_avatar(request):
-#    if request.method == 'POST' and request.FILES.get('filename'):
-#        token = request.COOKIES.get('jwt_token')
-#        if not token:
-#            return JsonResponse({'success': False, 'message': 'Authentication token is missing'}, status=401)
-
-#        try:
-#            decoded_token = jwt.decode(token, settings.JWT_SECRET, algorithms=['HS256'])
-#            user_id = decoded_token.get('user_id')
-#        except jwt.ExpiredSignatureError:
-#            return JsonResponse({'success': False, 'message': 'Token has expired'}, status=401)
-#        except jwt.InvalidTokenError:
-#            return JsonResponse({'success': False, 'message': 'Invalid token'}, status=401)
-#        except jwt.InvalidSignatureError:
-#            return JsonResponse({'success': False, 'message': 'Signature verification failed'}, status=401)
-
-#        avatar_file = request.FILES['filename']
-#        user_upload_dir = os.path.join(settings.MEDIA_ROOT, 'avatars', str(user_id))
-
-#        if not os.path.exists(user_upload_dir):
-#            os.makedirs(user_upload_dir)
-
-#        # Delete old avatar if it exists
-#        for filename in os.listdir(user_upload_dir):
-#            file_path = os.path.join(user_upload_dir, filename)
-#            if os.path.isfile(file_path):
-#                os.remove(file_path)
-
-#        file_name = default_storage.save(os.path.join('avatars', str(user_id), avatar_file.name), ContentFile(avatar_file.read()))
-#        file_url = default_storage.url(file_name)
-#        return JsonResponse({'success': True, 'url': file_url})
-#    return JsonResponse({'success': False, 'message': 'File upload failed'}, status=400)
 
 @jwt_required
 def stats(request):
@@ -184,6 +157,8 @@ def stats(request):
         'user': user_data,
 
     }
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'html': render_to_string('frontend/Leaderboard.html', context)})
     return render(request, 'frontend/Leaderboard.html', context)
 
 @jwt_required
@@ -194,6 +169,8 @@ def community(request):
         'user': user_data,
         #'friends_data': get_user_friends(request.user),  # Example function for getting friends data
     }
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'html': render_to_string('frontend/community.html', context)})
     return render(request, 'frontend/community.html', context)
 
 @jwt_required
@@ -209,10 +186,12 @@ def publicProfile(request, user_id):
         'profile': profile_data,
         'referrer': referrer,  # Add referrer to the context if needed
     }
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'html': render_to_string('frontend/publicProfile.html', context)})
     return render(request, 'frontend/publicProfile.html', context)
 
-
-
-
 def pong_view(request):
+    context = {}
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({'html': render_to_string('frontend/pong.html', context)})
     return render(request, 'frontend/pong.html')

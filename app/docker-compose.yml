@@ -4,18 +4,14 @@ services:
   postgres:
     image: postgres:13
     container_name: postgres_db
-    environment:
-      POSTGRES_USER: django_user
-      POSTGRES_PASSWORD: django_password
-      POSTGRES_DB: django_db
-    ports:
-      - 5432:5432
+    env_file:
+      - .env
     volumes:
       - ./DB:/var/lib/postgresql/data
     networks:
       - db_network
     healthcheck:
-      test: [ "CMD", "pg_isready", "-q", "-d", "django_db", "-U", "django_user" ]
+      test: [ "CMD", "pg_isready", "-q", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -51,9 +47,8 @@ services:
     networks:
       - django_network
       - db_network
-    environment:
-      - DEBUG=True
-      - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+    env_file:
+      - .env.user_service
     healthcheck:
       test: ["CMD-SHELL", "python manage.py showmigrations | grep '\\[ \\]' && exit 1 || exit 0"]
       interval: 30s
@@ -79,9 +74,8 @@ services:
     networks:
       - django_network
       - db_network
-    environment:
-      - DEBUG=True
-      - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+    env_file:
+      - .env.stat_service
 ##############################################
   game_service:
     build:
@@ -99,9 +93,8 @@ services:
     networks:
       - django_network
       - db_network
-    environment:
-      - DEBUG=True
-      - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+    env_file:
+      - .env.game_service
     healthcheck:
       test: ["CMD-SHELL", "python manage.py showmigrations | grep '\\[ \\]' && exit 1 || exit 0"]
       interval: 30s
@@ -118,8 +111,6 @@ services:
     command: sh -c "python manage.py migrate && python manage.py grpcrunaioserver --dev"
     volumes:
       - ./django_service/chat_service:/usr/src/app
-    ports:
-      - '50051:50051'
     depends_on:
       postgres:
         condition: service_started
@@ -128,9 +119,8 @@ services:
     networks:
       - django_network
       - db_network
-    environment:
-      - DEBUG=True
-      - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+    env_file:
+      - .env.chat_service
 ##############################################
   auth_service:
     build:
@@ -148,11 +138,8 @@ services:
     networks:
       - django_network
       - db_network
-    environment:
-      - DEBUG=True
-      - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
     env_file:
-      - .env
+      - .env.auth_service
     healthcheck:
       test: ["CMD-SHELL", "python manage.py showmigrations | grep '\\[ \\]' && exit 1 || exit 0"]
       interval: 30s
@@ -172,8 +159,6 @@ services:
         dockerfile: Dockerfile
       container_name: main_service
       command: sh -c "python manage.py collectstatic --noinput && daphne  -b 0.0.0.0 -p 8000 -v 3 main_service.asgi:application"
-      ports:
-        - '8001:8000'
       volumes:
         - ./django_service/main_service:/usr/src/app
       depends_on:
@@ -181,10 +166,8 @@ services:
           condition: service_started
       networks:
         - django_network
-      environment:
-        - DEBUG=True
-        - DEVELOPMENT=True
-        - DATABASE_URL=postgres://django_user:django_password@postgres_db:5432/django_db
+      env_file:
+        - .env.main_service
 ##########################################
   frontend_service:
     build:
@@ -197,7 +180,7 @@ services:
     networks:
       - django_network
     env_file:
-      - .env
+      - .env.frontend_service
 ##########################################
   pong_service:
     build:
@@ -213,8 +196,6 @@ services:
         condition: service_started
     networks:
       - django_network
-    ports:
-      - '4000:4000'
     command: ["gow", "run", "main.go"]  # Ensure this command matches the ENTRYPOINT in the Dockerfile
 ## DJANGO/PONG SERVICES EXPOSED TO THE USER ##
 ##########################################
