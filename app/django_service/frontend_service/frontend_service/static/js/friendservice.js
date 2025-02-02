@@ -24,7 +24,7 @@ export const fetchFriendships = async () => {
 
         return friendships || [];
     } catch (error) {
-        console.error('Failed to fetch friendships:', error);
+        showToast('Failed to fetch friendships:', error);
         throw error;
     }
 };
@@ -119,9 +119,7 @@ export const fetchFriendsWithProfiles = async (friendships) => {
         return result;
     } catch (error) {
         // Debug: Log detailed error information
-        console.error("Failed to fetch friends and their profiles:", error);
-        console.error("Query that caused the error:\n", GET_FRIENDSHIPS_AND_PROFILES_QUERY);
-
+        showToast("Failed to fetch friends and their profiles:", error);
         throw error;
     }
 };
@@ -159,7 +157,7 @@ const variables = {
         const { manageFriendship } = await executeMutation(ADD_FRIEND_MUTATION, variables);
         return manageFriendship; // Return the success status and message
     } catch (error) {
-        console.error('Error adding friend:', error);
+        showToast('Error adding friend:', error);
         throw error; // Re-throw the error for the caller to handle
     }
 };
@@ -191,7 +189,7 @@ export const deleteFriendship = async (friendshipId) => {
         const { manageFriendship } = await executeMutation(DELETE_FRIENDSHIP_MUTATION, variables);
         return manageFriendship; // Return the success status and message
     } catch (error) {
-        console.error('Error deleting friendship:', error);
+        showToast('Error deleting friendship:', error);
         throw error; // Re-throw the error for the caller to handle
     }
 };
@@ -231,7 +229,7 @@ export const blockUser = async (id, blocked, userId) => {
         else
             return await deleteFriendship(id);
     } catch (error) {
-        console.error('Error blocking user:', error);
+        showToast('Error blocking user:', error);
         throw error; // Re-throw the error for the caller to handle
     }
 }

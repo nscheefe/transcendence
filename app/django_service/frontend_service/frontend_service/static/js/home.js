@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 module.initTournamentsPage();
             })
             .catch((error) => {
-                console.error('Error loading tournament module:', error);
+                showToast('Error loading tournament module:', error);
             });
         windowIsOpen = true;
         const closeBtn = document.getElementById('close-btn');
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 module.iniTournamenDetailPage();
             })
             .catch((error) => {
-                console.error('Error loading tournament Details module:', error);
+                showToast('Error loading tournament Details module:', error);
             });
     }
     function handleUrl() {

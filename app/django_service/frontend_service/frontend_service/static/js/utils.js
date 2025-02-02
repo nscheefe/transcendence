@@ -38,7 +38,7 @@ export async function executeQuery(query, variables = {}) {
 
   const result = await response.json();
   if (result.errors) {
-    console.error("[DEBUG] GraphQL errors:", result.errors);
+      showToast("[DEBUG] GraphQL errors:", result.errors);
   }
   return result.data;
 }
@@ -60,7 +60,6 @@ export async function executeMutation(mutation, variables = {}) {
         variables: variables,
     });
 
-    console.log("[DEBUG] Mutation Request Body:", body); // Log the request body
 
     try {
         const response = await fetch(httpUrl, {
@@ -71,17 +70,17 @@ export async function executeMutation(mutation, variables = {}) {
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error("[DEBUG] HTTP Error Response:", errorText); // Log the error response
+            showToast("[DEBUG] HTTP Error Response:", errorText); // Log the error response
             throw new Error(`HTTP error! status: ${response.status}`);
         }
 
         const result = await response.json();
         if (result.errors) {
-            console.error("[DEBUG] GraphQL errors:", result.errors);
+            showToast("[DEBUG] GraphQL errors:", result.errors);
         }
         return result.data;
     } catch (error) {
-        console.error("[DEBUG] Mutation Error:", error);
+        showToast("[DEBUG] Mutation Error:", error);
         throw error;
     }
 }
@@ -91,6 +90,7 @@ export async function executeMutation(mutation, variables = {}) {
  * @param {Object|string} subscriptionQuery - A raw query string with variables or parsed query object.
  * @param {Function} [onNext] - Callback to handle subscription updates.
  * @param {Function} [onError] - Callback to handle subscription errors.
+ * @param onComplete
  */
 export function executeSubscription(
   subscriptionQuery,
@@ -159,7 +159,7 @@ export const fillUserCache = async (users) => {
         const userDetails = await fetchUserDetails(user.user_id);
         userCache[user.user_id] = userDetails;
       } catch (error) {
-        console.error('Error fetching user details for user_id:', user.user_id, error);
+          showToast('Error fetching user details for user_id:', user.user_id, error);
       }
     }
   }
@@ -196,7 +196,7 @@ export const initializeOnlineStatusSubscriptions = () => {
       }
     });
   } catch (error) {
-    console.error('Error initializing online status subscriptions:', error);
+      showToast('Error initializing online status subscriptions:', error);
   }
 };
 

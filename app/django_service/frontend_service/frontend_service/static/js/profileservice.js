@@ -47,7 +47,7 @@ import { executeQuery,  } from './utils.js';
            const result = await executeQuery(GET_USER_PROFILE_AND_STATS_QUERY, { userId });
            return result;
        } catch (error) {
-           console.error('Error fetching user profile and stats:', error);
+           showToast('Error fetching user profile and stats:', error);
            throw error;
        }
    };
@@ -79,7 +79,7 @@ export const fetchProfiles = async (limit, offset) => {
         const result = await executeQuery(GET_ALL_PROFILES_QUERY, { limit, offset });
         return result;
     } catch (error) {
-        console.error('Error fetching profiles with pagination:', error);
+        showToast('Error fetching profiles with pagination:', error);
         throw error;
     }
 };
@@ -108,7 +108,7 @@ export const fetchProfileByUserId = async (userId) => {
         const result = await executeQuery(GET_PROFILE_BY_USER_ID_QUERY, { userId });
         return result;
     } catch (error) {
-        console.error('Error fetching profile by user ID:', error);
+        showToast('Error fetching profile by user ID:', error);
         throw error;
     }
 };

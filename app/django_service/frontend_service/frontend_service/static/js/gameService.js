@@ -26,7 +26,7 @@ export async function createFriendGame(playerA, playerB) {
         const response = await executeMutation(mutation, variables);
         return response.create_friend_game;
     } catch (error) {
-        console.error('Error creating friend game:', error);
+        showToast('Error creating friend game:', error);
         throw error;
     }
 }
@@ -57,7 +57,7 @@ export async function updateGameState(gameId, state) {
         const response = await executeMutation(mutation, variables);
         return response.update_game_state;
     } catch (error) {
-        console.error('Error updating game state:', error);
+        showToast('Error updating game state:', error);
         throw error;
     }
 }
@@ -90,7 +90,7 @@ export async function getGameById(gameId) {
         const response = await executeQuery(query, variables);
         return response.game;
     } catch (error) {
-        console.error('Error fetching game by ID:', error);
+        showToast('Error fetching game by ID:', error);
         throw error;
     }
 }

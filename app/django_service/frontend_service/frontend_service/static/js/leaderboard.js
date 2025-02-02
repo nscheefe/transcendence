@@ -153,7 +153,7 @@ const fetchLeaderboard = async () => {
     }
     renderLeaderboard(statList);
   } catch (error) {
-    console.error("Error fetching leaderboard data:", error.message);
+    showToast("Error fetching leaderboard data:", error.message);
 
     const leaderboard = document.getElementById("Leaderboard");
     if (leaderboard) {
@@ -175,7 +175,7 @@ const fetchTop3Leaderboard = async () => {
     renderTop3Leaderboard(statList);
     initializeOnlineStatusSubscriptions();
   } catch (error) {
-    console.error("Error fetching leaderboard data:", error.message);
+    showToast("Error fetching leaderboard data:", error.message);
 
     const leaderboardTop3 = document.getElementById("leaderboard-top-3");
     if (leaderboardTop3) {

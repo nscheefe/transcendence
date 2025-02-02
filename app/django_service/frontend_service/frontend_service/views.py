@@ -30,6 +30,7 @@ def root_redirect(request):
 
 def signin(request):
     context = signIn(request)
+    context['show_nav'] = 0
     return render(request, 'frontend/sign-in.html', context)
 
 def signout(request):
@@ -199,7 +200,6 @@ def community(request):
 def publicProfile(request, user_id):
     # Example: Fetch data or log the user_id
     referrer = request.META.get('HTTP_REFERER', None)
-    print(f"User ID is: {user_id}")
     profile_data = getProfileData(request, user_id)
     user_data = getUserProfileData(request)
     context = {

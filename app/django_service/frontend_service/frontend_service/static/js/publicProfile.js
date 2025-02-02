@@ -57,13 +57,13 @@ const updateUserGameStats = async (userId, userProfile) => {
         }
         const statsContainer = document.getElementById('user-games-stats');
         if (!statsContainer) {
-            console.error("Container with id 'user-games-stats' not found!");
+            showToast("Container with id 'user-games-stats' not found!");
             return;
         }
         const statsHtml = await renderDetailedUserStats(statsByUser, userProfile, userId);
         statsContainer.innerHTML = statsHtml;
     } catch (error) {
-        console.error('Error in updateUserGameStats:', error);
+        showToast('Error in updateUserGameStats:', error);
         const statsContainer = document.getElementById('user-games-stats');
         if (statsContainer) {
             statsContainer.innerHTML = `
