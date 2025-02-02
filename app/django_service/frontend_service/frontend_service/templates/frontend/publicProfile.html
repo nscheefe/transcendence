@@ -1,123 +1,82 @@
 {% extends "frontend/base.html" %}
-
-{% block title %}Public Profile{% endblock %}
-
+{% block title %}
+    Public Profile
+{% endblock title %}
 {% block content %}
-<section class="section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <!-- Back Button -->
-<a href="{{ referrer|default:'#' }}" class="btn btn-primary shadow rounded-circle position-absolute d-flex justify-content-center align-items-center"
-   style="top: 20px; left: 20px; width: 60px; height: 60px; text-decoration: none;">
-    <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" class="bi bi-arrow-left-short" viewBox="0 0 16 16">
-        <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5"/>
-    </svg>
-</a>
-
-                <!-- Profile Card -->
-                <div class="card bg-dark text-light shadow-lg rounded-3 p-4">
-                    <div class="card-body text-center">
-                        <!-- Profile Avatar -->
-                        <div class="avatar mb-3">
-                            <img src="{{ profile.profile.avatarUrl|default:'https://via.placeholder.com/150' }}"
-                                 alt="Profile Avatar"
-                                 class="rounded-circle border border-secondary"
-                                 style="width: 150px; height: 150px; object-fit: cover;">
-                        </div>
-
-                        <!-- User Info -->
-                        <h3 class="card-title">{{ profile.profile.nickname|default:"Unknown User" }}</h3>
-                        <p class="card-text " style="color:white">{{ profile.profile.bio|default:"No bio available." }}</p>
-
-                        <!-- Additional Information -->
-                        {% if profile.profile.additionalInfo %}
-                            <div class="mt-3">
-                                <h5 class="text-warning">Additional Information</h5>
-                                <p class="text-light">{{ profile.profile.additionalInfo }}</p>
+    <section class="section">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <!-- Back Button -->
+                    <a href="{{ referrer|default:'#' }}"
+                       class="btn btn-primary shadow rounded-circle position-absolute d-flex justify-content-center align-items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg"
+                             width="36"
+                             height="36"
+                             fill="currentColor"
+                             class="bi bi-arrow-left-short"
+                             viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5" />
+                        </svg>
+                    </a>
+                    <!-- Profile Card -->
+                    <div class="card bg-dark text-light shadow-lg rounded-3 p-4">
+                        <div class="card-body text-center">
+                            <!-- Profile Avatar -->
+                            <div class="avatar mb-3">
+                                <img src="{{ profile.profile.avatarUrl|default:'https://via.placeholder.com/150' }}"
+                                     alt="Profile Avatar"
+                                     class="rounded-circle border border-secondary"
+                                     width="150"
+                                     height="150">
                             </div>
-                        {% endif %}
-
-                        <!-- User Stats Summary -->
-                        <div class="mt-4">
-                            <h5 class="text-primary fw-bold">Stats</h5>
-                            <br>
-                            <div id="calculated-stats" class="text-center">
-<div class="row text-center">
-                    <!-- Total Games -->
-                    <div class="col">
-                        <h6 class="fw-bold text-light">Total Games</h6>
-                        <span class="fs-5">{{ profile.calculateUserStats.totalGames}}</span>
-                    </div>
-
-                    <!-- Total Wins -->
-                    <div class="col">
-                        <h6 class="fw-bold text-success">Total Wins</h6>
-                        <span class="fs-5 text-success">{{ profile.calculateUserStats.totalWins}}</span>
-                    </div>
-
-                    <!-- Total Losses -->
-                    <div class="col">
-                        <h6 class="fw-bold text-danger">Total Losses</h6>
-                        <span class="fs-5 text-danger">{{ profile.calculateUserStats.totalLosses}}</span>
-                    </div>
-                </div>
+                            <!-- User Info -->
+                            <h3 class="card-title">{{ profile.profile.nickname|default:"Unknown User" }}</h3>
+                            <p class="card-text ">{{ profile.profile.bio|default:"No bio available." }}</p>
+                            <!-- Additional Information -->
+                            {% if profile.profile.additionalInfo %}
+                                <div class="mt-3">
+                                    <h5 class="text-warning">Additional Information</h5>
+                                    <p class="text-light">{{ profile.profile.additionalInfo }}</p>
+                                </div>
+                            {% endif %}
+                            <!-- User Stats Summary -->
+                            <div class="mt-4">
+                                <h5 class="text-primary fw-bold">Stats</h5>
+                                <br>
+                                <div id="calculated-stats" class="text-center">
+                                    <div class="row text-center">
+                                        <!-- Total Games -->
+                                        <div class="col">
+                                            <h6 class="fw-bold text-light">Total Games</h6>
+                                            <span class="fs-5">{{ profile.calculateUserStats.totalGames }}</span>
+                                        </div>
+                                        <!-- Total Wins -->
+                                        <div class="col">
+                                            <h6 class="fw-bold text-success">Total Wins</h6>
+                                            <span class="fs-5 text-success">{{ profile.calculateUserStats.totalWins }}</span>
+                                        </div>
+                                        <!-- Total Losses -->
+                                        <div class="col">
+                                            <h6 class="fw-bold text-danger">Total Losses</h6>
+                                            <span class="fs-5 text-danger">{{ profile.calculateUserStats.totalLosses }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Individual Game Stats -->
+                            <div class="mt-4">
+                                <div id="user-games-stats" class="text-center"></div>
                             </div>
                         </div>
-
-                        <!-- Individual Game Stats -->
-                        <div class="mt-4">
-    <div id="user-games-stats" class="text-center">
-
-    </div>
-
-</div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
-
-<style>
-    .game-stat {
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        background-color: rgba(0, 0, 0, 0.5);
-    }
-
-    .game-stat .player,
-    .game-stat .opponent {
-        display: flex;
-        align-items: center;
-    }
-
-    .game-stat .player img,
-    .game-stat .opponent img {
-        width: 50px;
-        height: 50px;
-        object-fit: cover;
-        border-radius: 50%;
-        margin-right: 10px;
-    }
-
-    .game-stat.victory {
-        border-left: 5px solid #28a745; /* Green for win */
-    }
-
-    .game-stat.defeat {
-        border-left: 5px solid #dc3545; /* Red for loss */
-    }
-</style>
+    </section>
 {% endblock content %}
-
 {% block extra_js %}
-<script>
-    const profileUserId= {{ userProfileId }};
-</script>
-        {% load static %}
-        <script type="module" src="{% static 'js/publicProfile.js' %}"></script>
-
+    <script>const profileUserId= {{ userProfileId }};</script>
+    {% load static %}
+    <script type="module" src="{% static 'js/publicProfile.js' %}"></script>
 {% endblock extra_js %}

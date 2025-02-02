@@ -1,27 +1,26 @@
 {% extends "frontend/home.html" %}
 {% load static %}
-
-{% block title %}Pong{% endblock %}
-
+{% block title %}
+  Pong
+{% endblock title %}
 {% block dynamic_windows %}
-<div id="pong-container">
-  <button id="close-btn">Close</button>
-  <div id="waiting-message">
-    <div id="game-info">
-      <h2>Waiting for Game ID: {{ game.id }}</h2>
+  <div id="pong-container">
+    <button id="close-btn">Close</button>
+    <div id="waiting-message">
+      <div id="game-info">
+        <h2>Waiting for Game ID: {{ game.id }}</h2>
+      </div>
+      <p>Waiting for Player B</p>
+      <div class="spinner"></div>
     </div>
-    <p>Waiting for Player B</p>
-    <div class="spinner"></div>
+    <div id="game-overview">
+      <h1 id="game-overview-title">Game Over</h1>
+      <p id="game-overview-result"></p>
+    </div>
   </div>
-  <div id="game-overview" style="display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(0, 0, 0, 0.8); color: white; padding: 20px; border-radius: 10px; text-align: center;">
-  <h1 id="game-overview-title">Game Over</h1>
-  <p id="game-overview-result"></p>
-</div>
-</div>
-{% endblock %}
-
+{% endblock dynamic_windows %}
 {% block extra_js %}
-<script>
+  <script>
   const referrer ="{{ referrer|default:'#' }}";
   document.addEventListener('DOMContentLoaded', function() {
     // Add event listener for the close button after content is injected
@@ -61,7 +60,6 @@
       }
     });
   });
-</script>
-<script type="module" src="{% static 'js/pong.js' %}"></script>
-{% endblock %}
-
+  </script>
+  <script type="module" src="{% static 'js/pong.js' %}"></script>
+{% endblock extra_js %}

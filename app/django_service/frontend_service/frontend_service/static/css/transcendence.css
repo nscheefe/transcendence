@@ -17,57 +17,70 @@
   --toast-animation-start: calc(var(--toast-bottom-position) - 20px);
   --toast-animation-end: var(--toast-bottom-position);
 }
-   .scrollable {
-    overflow-y: auto; /* Enable vertical scrolling */
-    padding: 10px; /* Optional: Add padding for better visual appearance */
-    margin: 10px 0; /* Optional: Add margin for spacing */
-    scrollbar-width: thin; /* Optional: Make scrollbar thinner (for modern browsers) */
-    scrollbar-color: #888 #333; /* Optional: Adjust scrollbar color */
+
+.scrollable {
+  overflow-y: auto;
+  /* Enable vertical scrolling */
+  padding: 10px;
+  /* Optional: Add padding for better visual appearance */
+  margin: 10px 0;
+  /* Optional: Add margin for spacing */
+  scrollbar-width: thin;
+  /* Optional: Make scrollbar thinner (for modern browsers) */
+  scrollbar-color: #888 #333;
+  /* Optional: Adjust scrollbar color */
 }
 
 /* Optional: Customize the scrollbar for webkit-based browsers */
 .scrollable::-webkit-scrollbar {
-    width: 10px; /* Scrollbar width */
+  width: 10px;
+  /* Scrollbar width */
 }
+
 .scrollable::-webkit-scrollbar-thumb {
-    background-color: #888; /* Scrollbar color */
-    border-radius: 5px; /* Rounded scrollbar edges */
+  background-color: #888;
+  /* Scrollbar color */
+  border-radius: 5px;
+  /* Rounded scrollbar edges */
 }
+
 .scrollable::-webkit-scrollbar-thumb:hover {
-    background-color: #555; /* Scrollbar color on hover */
+  background-color: #555;
+  /* Scrollbar color on hover */
 }
 
 /* Add this CSS to your stylesheet or within a <style> tag in your HTML file */
 #score-input-container {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.8);
-    padding: 20px;
-    border-radius: 10px;
-    text-align: center;
-    z-index: 1000; /* Ensure it is above other elements */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  z-index: 1000;
+  /* Ensure it is above other elements */
 }
 
 #score-input-container label,
 #score-input-container input,
 #score-input-container button {
-    display: block;
-    margin: 10px auto;
+  display: block;
+  margin: 10px auto;
 }
 
 #score-input-container input {
-    width: 100px;
-    padding: 5px;
-    font-size: 16px;
-    background: none;
+  width: 100px;
+  padding: 5px;
+  font-size: 16px;
+  background: none;
 }
 
 #score-input-container button {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
 }
 
 .notification-button {
@@ -90,8 +103,8 @@
 }
 
 .btn-primary {
-  background-color: var(--neon-pink)!important;
-  background-image: none!important;
+  background-color: var(--neon-pink) !important;
+  background-image: none !important;
   position: relative;
   z-index: 0;
   overflow: hidden;
@@ -122,32 +135,48 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
 }
 
 .avatar-container {
-    position: relative;
-    display: inline-block;
+  position: relative;
+  display: inline-block;
 }
 
 .status-indicator {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background-color: red; /* Default to offline */
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: red;
+  /* Default to offline */
 }
 
 #notificationIndicator {
   width: 5px;
   height: 5px;
+}
+
+#game-overview {
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
 }
 
 .game-modes-wrapper {
@@ -170,7 +199,8 @@
   text-align: center;
   position: relative;
   overflow: hidden;
-  z-index: 0; /* Ensure the card content is above the pseudo-element */
+  z-index: 0;
+  /* Ensure the card content is above the pseudo-element */
 }
 
 .game-mode-card::before {
@@ -181,13 +211,15 @@
   right: 0;
   bottom: 0;
   border-radius: 5px;
-  border: 2px solid transparent; /* Transparent border to maintain the shape */
+  border: 2px solid transparent;
+  /* Transparent border to maintain the shape */
   background: linear-gradient(45deg, rgba(227, 34, 133, 0.2), rgba(242, 181, 27, 0.2), rgba(255, 5, 247, 0.2), rgba(255, 165, 0, 0.2));
   background-size: 400% 400%;
   z-index: -1;
   opacity: 0;
   transition: opacity 0.3s ease-in-out;
-  pointer-events: none; /* Ensure the pseudo-element does not interfere with interactions */
+  pointer-events: none;
+  /* Ensure the pseudo-element does not interfere with interactions */
 }
 
 .game-mode-card:hover::before {
@@ -199,9 +231,11 @@
   0% {
     background-position: 0% 50%;
   }
+
   50% {
     background-position: 100% 50%;
   }
+
   100% {
     background-position: 0% 50%;
   }
@@ -297,6 +331,64 @@
   padding-right: 2rem
 }
 
+/* Extracted from publicProfile.html */
+.btn-primary.shadow.rounded-circle.position-absolute.d-flex.justify-content-center.align-items-center {
+  top: 20px;
+  left: 20px;
+  width: 60px;
+  height: 60px;
+  text-decoration: none;
+}
+
+.bi.bi-arrow-left-short {
+  width: 36px;
+  height: 36px;
+  fill: currentColor;
+}
+
+.card.bg-dark.text-light.shadow-lg.rounded-3.p-4 .avatar img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+}
+
+.card-text {
+  color: white;
+}
+
+.game-stat {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.game-stat .player,
+.game-stat .opponent {
+  display: flex;
+  align-items: center;
+}
+
+.game-stat .player img,
+.game-stat .opponent img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.game-stat.victory {
+  border-left: 5px solid #28a745;
+  /* Green for win */
+}
+
+.game-stat.defeat {
+  border-left: 5px solid #dc3545;
+  /* Red for loss */
+}
+
 .user-profile-picture {
   position: 50% 50%;
   border-radius: 50%;
@@ -317,11 +409,14 @@
   border-radius: 2px;
   padding: 16px;
   position: fixed;
-  z-index: 1000; /* Increase z-index to ensure it appears above other elements */
+  z-index: 1000;
+  /* Increase z-index to ensure it appears above other elements */
   left: 50%;
-  bottom: var(--toast-bottom-position); /* Use variable for bottom position */
+  bottom: var(--toast-bottom-position);
+  /* Use variable for bottom position */
   font-size: 17px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow for better visibility */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  /* Add shadow for better visibility */
 }
 
 .toast.show {
@@ -331,23 +426,51 @@
 }
 
 @-webkit-keyframes fadein {
-  from {bottom: var(--toast-animation-start); opacity: 0;}
-  to {bottom: var(--toast-animation-end); opacity: 1;}
+  from {
+    bottom: var(--toast-animation-start);
+    opacity: 0;
+  }
+
+  to {
+    bottom: var(--toast-animation-end);
+    opacity: 1;
+  }
 }
 
 @keyframes fadein {
-  from {bottom: var(--toast-animation-start); opacity: 0;}
-  to {bottom: var(--toast-animation-end); opacity: 1;}
+  from {
+    bottom: var(--toast-animation-start);
+    opacity: 0;
+  }
+
+  to {
+    bottom: var(--toast-animation-end);
+    opacity: 1;
+  }
 }
 
 @-webkit-keyframes fadeout {
-  from {bottom: var(--toast-animation-end); opacity: 1;}
-  to {bottom: var(--toast-animation-start); opacity: 0;}
+  from {
+    bottom: var(--toast-animation-end);
+    opacity: 1;
+  }
+
+  to {
+    bottom: var(--toast-animation-start);
+    opacity: 0;
+  }
 }
 
 @keyframes fadeout {
-  from {bottom: var(--toast-animation-end); opacity: 1;}
-  to {bottom: var(--toast-animation-start); opacity: 0;}
+  from {
+    bottom: var(--toast-animation-end);
+    opacity: 1;
+  }
+
+  to {
+    bottom: var(--toast-animation-start);
+    opacity: 0;
+  }
 }
 
 .nav-item-group {
@@ -558,13 +681,14 @@ blockquote {
   line-height: 27px;
 }
 
-.fs-5.text-win{
-  color:var(--success) !important
+.fs-5.text-win {
+  color: var(--success) !important
 }
 
 .fw-bold.text-win {
   color: var(--success) !important
 }
+
 .header {
   background-color: #fff;
   border-bottom: 1px solid #ccc;
@@ -1201,8 +1325,8 @@ blockquote {
 .nav-link {
   -webkit-text-stroke-width: 1px;
   -webkit-text-stroke-color: var(--neon-pink);
-  text-decoration-color: var(--neon-pink)!important;
-  color:#0000;
+  text-decoration-color: var(--neon-pink) !important;
+  color: #0000;
   text-transform: uppercase;
   padding-top: 22px;
   padding-bottom: 22px;
@@ -1212,7 +1336,7 @@ blockquote {
 }
 
 .nav-link.active {
-  color: var(--neon-pink)!important;
+  color: var(--neon-pink) !important;
 }
 
 
@@ -1814,11 +1938,12 @@ blockquote {
   color: transparent;
   text-shadow:
 
-      0 0 25px var(--neon-pink),
-      0 0 30px var(--neon-pink),
+    0 0 25px var(--neon-pink),
+    0 0 30px var(--neon-pink),
     0 0 35px var(--neon-pink);
   font-weight: bold;
-  -webkit-text-stroke: 1px var(--neon-pink); /* Outline */
+  -webkit-text-stroke: 1px var(--neon-pink);
+  /* Outline */
 }
 
 .heading-tournament {
@@ -1987,6 +2112,7 @@ blockquote {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -2029,71 +2155,71 @@ blockquote {
 }
 
 .offcanvas-hidden {
-    visibility: hidden;
-    height: 0;
-    color: #ffffff;
+  visibility: hidden;
+  height: 0;
+  color: #ffffff;
 }
 
 .offcanvas-body-custom {
-    color: #ffffff;
-    padding: 0px;
+  color: #ffffff;
+  padding: 0px;
 }
 
 .close-offcanvas-button {
-    position: absolute;
-    top: 10px;
-    right: 20px;
-    color: #ffffff;
-    fill: white;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  color: #ffffff;
+  fill: white;
 }
 
 .chat-container-custom {
-    height: 100%;
-    background-color: #202020;
+  height: 100%;
+  background-color: #202020;
 }
 
 .chat-card {
-    min-height: 100%;
-    min-width: 175px;
-    background-color: #202020;
-    color: #ffffff;
-    padding-right: 10px;
+  min-height: 100%;
+  min-width: 175px;
+  background-color: #202020;
+  color: #ffffff;
+  padding-right: 10px;
 }
 
 .chat-card-body {
-    height: 100%;
-    background-color: #202020;
-    color: #ffffff;
+  height: 100%;
+  background-color: #202020;
+  color: #ffffff;
 }
 
 .chat-details-custom {
-    background-color: #181818;
-    color: #ffffff;
-    padding-left: 10px;
-    padding-right: 10px;
+  background-color: #181818;
+  color: #ffffff;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .chat-details-column {
-    height: 100%;
+  height: 100%;
 }
 
 .chat-messages {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 
 .send-chat-message-button {
-    background-color: #e32285;
-    color: #ffffff;
+  background-color: #e32285;
+  color: #ffffff;
 }
 
 .toggle-offcanvas-button {
-    bottom: 20px;
-    right: 20px;
-    width: 150px;
-    height: 50px;
-    z-index: 1049;
-    display: inline-flex;
-    justify-content: center;
-    align-items: center;
-    color:rgba(255, 255, 255, 0.5);
+  bottom: 20px;
+  right: 20px;
+  width: 150px;
+  height: 50px;
+  z-index: 1049;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.5);
 }
