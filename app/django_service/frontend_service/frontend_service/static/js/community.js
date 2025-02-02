@@ -599,6 +599,3 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-initProfileList();
-initProfile()
-loadFriends(friendsContainer);
