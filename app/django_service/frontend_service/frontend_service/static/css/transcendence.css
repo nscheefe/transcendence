@@ -2027,3 +2027,73 @@ blockquote {
   cursor: pointer;
   z-index: 1001;
 }
+
+.offcanvas-hidden {
+    visibility: hidden;
+    height: 0;
+    color: #ffffff;
+}
+
+.offcanvas-body-custom {
+    color: #ffffff;
+    padding: 0px;
+}
+
+.close-offcanvas-button {
+    position: absolute;
+    top: 10px;
+    right: 20px;
+    color: #ffffff;
+    fill: white;
+}
+
+.chat-container-custom {
+    height: 100%;
+    background-color: #202020;
+}
+
+.chat-card {
+    min-height: 100%;
+    min-width: 175px;
+    background-color: #202020;
+    color: #ffffff;
+    padding-right: 10px;
+}
+
+.chat-card-body {
+    height: 100%;
+    background-color: #202020;
+    color: #ffffff;
+}
+
+.chat-details-custom {
+    background-color: #181818;
+    color: #ffffff;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.chat-details-column {
+    height: 100%;
+}
+
+.chat-messages {
+    margin-top: 20px;
+}
+
+.send-chat-message-button {
+    background-color: #e32285;
+    color: #ffffff;
+}
+
+.toggle-offcanvas-button {
+    bottom: 20px;
+    right: 20px;
+    width: 150px;
+    height: 50px;
+    z-index: 1049;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    color:rgba(255, 255, 255, 0.5);
+}
