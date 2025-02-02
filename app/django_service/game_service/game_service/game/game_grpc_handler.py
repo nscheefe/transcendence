@@ -539,7 +539,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
 
             # Update the game state
             game.state = updated_state
-            if updated_state == "FINISHED":
+            if updated_state == "FINISHED" or updated_state == "DECLINED":
                 game.finished = True
             game.updated_at = datetime.now()  # Update the timestamp
             game.save()
