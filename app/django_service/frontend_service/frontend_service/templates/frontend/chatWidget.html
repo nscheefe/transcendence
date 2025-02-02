@@ -34,13 +34,21 @@
                                               id="chatMessageInput"
                                               rows="3"></textarea>
                                 </div>
-                                <button type="button"
-                                        data-mdb-button-init
-                                        data-mdb-ripple-init
-                                        id="sendChatMessageButton"
-                                        class="btn btn-rounded btn-outline-light float-end send-chat-message-button">
-                                    Send
-                                </button>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <!-- Leave Button -->
+                                    <button type="button" id="leaveChatButton" class="btn btn-rounded btn-outline-danger">
+                                        Leave
+                                    </button>
+
+                                    <!-- Send Button -->
+                                    <button type="button"
+                                            data-mdb-button-init
+                                            data-mdb-ripple-init
+                                            id="sendChatMessageButton"
+                                            class="btn btn-rounded btn-outline-light float-end send-chat-message-button">
+                                        Send
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>

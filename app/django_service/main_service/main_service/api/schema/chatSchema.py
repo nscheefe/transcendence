@@ -177,6 +177,25 @@ def resolve_add_user_to_chat_room(_, info, chat_room_id, user_id):
             "joined_at": datetime.fromtimestamp(response.joined_at.seconds).isoformat() if hasattr(response.joined_at, 'seconds') else response.joined_at,
         }
 
+@mutation.field("remove_user_from_chat_room")
+def resolve_remove_user_from_chat_room(_, info, chat_room_id):
+    """
+    Removes a user from a chat room via gRPC call.
+    """
+    user_id = info.context["request"].user_id
+    with grpc.insecure_channel(GRPC_CHAT_TARGET) as channel:
+        stub = chat_pb2_grpc.ChatRoomUserControllerStub(channel)
+        grpc_request = chat_pb2.ChatRoomUserRequest(id=chat_room_id)
+        response = stub.Destroy(grpc_request)  # Use the Delete method for removal
+
+        return {
+            "id": response.id,
+            "user_id": response.user_id,
+            "chat_room_id": response.chat_room,
+            "removed_at": datetime.fromtimestamp(response.updated_at.seconds).isoformat() if hasattr(
+                response.updated_at, 'seconds') else response.updated_at,
+        }
+
 @mutation.field("create_chat_room_message")
 def resolve_create_chat_room_message(_, info, chat_room_id, content):
     sender_id = info.context["request"].user_id

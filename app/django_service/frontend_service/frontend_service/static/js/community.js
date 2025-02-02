@@ -586,7 +586,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             if (!isNaN(friendUserId)) {
                 try {
                     const chatRoom = await startChatWithUser(friendUserId);
-                    showToast(`Chat room created successfully! Chat Room ID: ${chatRoom.id}`);
+                    showToast(`Chat room created successfully! Chat Room ID: ${chatRoom.startChatWithUser.id}`);
                 } catch (error) {
                     console.error("Error starting the chat:", error);
                     showToast("Failed to start the chat. Please try again later.");

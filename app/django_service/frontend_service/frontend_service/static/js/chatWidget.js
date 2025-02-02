@@ -1,4 +1,4 @@
-import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage } from './chatservice.js';
+import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage, removeUserFromChatRoom} from './chatservice.js';
 import { blockUser, fetchFriendships } from './friendservice.js';
 import { showError, generateUserAvatarHTML, fillUserCache, initializeOnlineStatusSubscriptions, userCache } from './utils.js'; // Import the new function
 import { addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, formatTime } from './domHelpers.js';
@@ -6,7 +6,7 @@ import { addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, forma
 
 window.userCache = userCache; // Expose user cache for debugging
 
-
+let currentChatUserId = null
 document.addEventListener('DOMContentLoaded', () => {
     const chatRoomList = document.getElementById('chatRoomList');
     const chatRoomMessagesContainer = document.getElementById('chat-Room-Messages');
@@ -139,6 +139,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const selectChatRoom = (room) => {
         document.querySelectorAll('.chat-room').forEach((el) => el.classList.remove('active'));
         document.querySelector(`[data-chat-room-id="${room.id}"]`).classList.add('active');
+        room.users.forEach(user => {
+            if(user.user_id == userId)
+                currentChatUserId = user.id;
+
+        })
+        console.log(currentChatUserId);
+
         populateChatRoomMessages(room.id);
     };
 
@@ -234,7 +241,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    const leaveChatRoom = async () => {
+        try {
+            const chatRoomElement = document.querySelector('.chat-room.active');
+            const response = await removeUserFromChatRoom(currentChatUserId);
+            if (!response.error ) {
+                showToast("success", "Successfully left chat room.");
+
+                chatRoomElement?.remove();
+
+            } else {
+                showToast("error", "Failed to leave the chat room. Please try again.");
+            }
+        } catch (error) {
+            console.error(error);
+            showToast("you need to select a chat room to leave", "error");
+        }
+    };
+
     sendMessageButton?.addEventListener('click', sendMessage);
+    leaveChatButton?.addEventListener('click', leaveChatRoom);
+
     toggleButton?.addEventListener('click', toggleOffcanvas);
     closeButton?.addEventListener('click', toggleOffcanvas);
     loadChatRoomData();
