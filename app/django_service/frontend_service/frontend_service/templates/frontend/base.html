@@ -21,7 +21,7 @@
     <link href="{% static 'images/favicon.ico' %}" rel="shortcut icon" />
     <link href="{% static 'images/webclip.png' %}" rel="apple-touch-icon" />
     <script type="module" src="{% static 'js/main.js' %}"></script>
-    <script type="module" src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script type="module" src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script type="module" src="{% static 'js/notification.js' %}"></script>
     <script>
       function showToast(message) {
@@ -50,11 +50,11 @@
           </span>
         </nav>
         <span class="nav-item-group">
-          <div class="dropdown h-100" style="padding-top: 0%;">
+          <div class="dropdown-center h-100" style="padding-top: 0%;">
             <!-- Bell Icon -->
-            <button class="btn btn-secondary bg-transparent border-0 notification-button" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <div class="d-flex align-items-center position-relative " >
-                <img src="/static/images/bell.png" alt="Bell Icon" />
+            <button class="btn btn-secondary bg-transparent border-0 notification-button dropdown-toggle d-flex align-items-center me-2" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <div class="d-flex align-items-center position-relative" >
+                <img src="/static/images/bell.png" alt="Bell Icon" style="margin-left: 10px"/>
                 <span id="notificationIndicator" class="position-absolute top-10 start-80 translate-middle p-2 bg-danger rounded-circle d-none"></span>
               </div>
             </button>
