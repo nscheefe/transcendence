@@ -299,12 +299,13 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
             # Fetch the game from the database
             game = Game.objects.get(id=request.game_id)
             is_tournament_game = TournamentGameMapping.objects.filter(game_id=game.id).exists()
+            logger.info(f"is a tournament game {is_tournament_game}")
 
 
             # Update game stats
             game.points_player_a = request.points_player_a
             game.points_player_b = request.points_player_b
-            game.state = "finished"
+            game.state = "FINISHED"
             game.finished = True
 
             # Determine the winner and save it as part of the game's state
@@ -319,7 +320,7 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 return Empty()
             if is_tournament_game:
                 try:
-                    tournament_mapping = TournamentGameMapping.objects.get(game_id=game.id)
+                    tournament_mapping = TournamentGameMapping.objects.filter(game_id=game.id).first()
                     tournament_room = tournament_mapping.tournament_room
                     winner_tournament_user = TournamentUser.objects.filter(
                         tournament_room=tournament_room,

@@ -89,7 +89,7 @@ const handleCreateTournament = async (event) => {
     // Retrieve form input values
     const tournamentName = document.getElementById('tournament-name').value.trim();
     const tournamentSize = parseInt(document.getElementById('tournament-size').value.trim(), 10);
-    const tournamentStartAt = document.getElementById('tournament-start-at').value.trim();
+    const tournamentStartAt = new Date();
 
     // Validate inputs
     if (!tournamentName) {

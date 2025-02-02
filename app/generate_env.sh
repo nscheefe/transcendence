@@ -10,7 +10,7 @@ NC='\033[0m' # No Color
 
 # Function to generate a secret key
 generate_secret_key() {
-  python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
+  python -c "import random, string; print(''.join(random.SystemRandom().choice(string.ascii_letters + string.digits + string.punctuation) for _ in range(50)))"
 }
 
 # Confirmation to override existing .env files
@@ -47,7 +47,7 @@ read -r HOST
 echo -e "${GREEN}Enter JWT_SECRET:${NC}"
 read -r JWT_SECRET
 
-REDIRECT_URI="http://$HOST/oauth_callback/"
+REDIRECT_URI="https://$HOST/oauth_callback/"
 DATABASE_URL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres_db:5432/$POSTGRES_DB"
 
 services=("user_service" "stat_service" "game_service" "chat_service" "auth_service" "main_service" "frontend_service")

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         <!-- Navigation Pills -->
                         <ul class="nav nav-tabs" id="tournamentTabs" role="tablist">
                             <li class="nav-item">
-                                <button class="nav-link bg-transparent" id="tournaments-tab" data-bs-toggle="tab" data-bs-target="#tournaments-tab-pane" type="button" role="tab" aria-controls="tournaments-tab-pane" aria-selected="false">
+                                <button class="nav-link bg-transparent active" id="tournaments-tab" data-bs-toggle="tab" data-bs-target="#tournaments-tab-pane" type="button" role="tab" aria-controls="tournaments-tab-pane" aria-selected="true">
                                     Tournaments
                                 </button>
                             </li>
@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </ul>
                     </div>
                     <div class="tab-content card-body" id="tournamentTabContent">
-                        <div class="tab-pane fade" id="tournaments-tab-pane" role="tabpanel" aria-labelledby="tournaments-tab" tabindex="0">
+                        <div class="tab-pane fade  show active" id="tournaments-tab-pane" role="tabpanel" aria-labelledby="tournaments-tab" tabindex="0">
                             <br>
                             <h1>Tournaments</h1>
                             <ul id="tournament" class="scrollable" style="width:100%; max-height:60vh">
@@ -46,10 +46,6 @@ document.addEventListener('DOMContentLoaded', function () {
                                             <option value="8">8</option>
                                             <option value="16">16</option>
                                         </select>
-                                    </div>
-                                    <div>
-                                        <label for="tournament-start-at">Start Time:</label>
-                                        <input class="form-control bg-secondary text-light" id="tournament-start-at" type="datetime-local" placeholder="Enter start time" required />
                                     </div>
                                     <button type="submit" class="btn btn-primary">Create Tournament</button>
                                 </form>
