@@ -25,6 +25,7 @@ let direction = 1;
 let socket = null;
 let isConnecting = false;
 let gameStarted = false;
+let gameEnded = false;
 let player;
 let scene, camera1, camera2, renderer1, renderer2, ball, paddle1, paddle2;
 
@@ -61,6 +62,7 @@ function gameOver(winner) {
         socket.close();
         console.log('WebSocket connection closed');
     }
+    gameEnded = true;
 }
 
 // WebSocket setup
@@ -135,7 +137,8 @@ function createWebSocket(gameId = null) {
         console.log('Disconnected from the server', event);
         isConnecting = false;
         // Attempt to reconnect after 1 second
-        setTimeout(() => createWebSocket(gameId), 1000);
+        if (!gameEnded)
+            setTimeout(() => createWebSocket(gameId), 1000);
     };
 
     socket.onerror = (error) => {
