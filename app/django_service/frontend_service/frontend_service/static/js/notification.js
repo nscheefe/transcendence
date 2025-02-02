@@ -91,7 +91,7 @@ const dropdownMenu = document.getElementById("dropdownMenu");
 dropdownToggle.addEventListener("click", () => {
 
   // Hide the notification indicator when the dropdown is opened
-  if (dropdownMenu.style.display === "block") {
+  if (dropdownMenu.style.display !== "none") {
     const notificationIndicator = document.getElementById("notificationIndicator");
     notificationIndicator.classList.add('d-none');
 
