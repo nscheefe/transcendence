@@ -6,8 +6,6 @@ services:
     container_name: postgres_db
     env_file:
       - .env
-    ports:
-      - 5432:5432
     volumes:
       - ./DB:/var/lib/postgresql/data
     networks:
@@ -113,8 +111,6 @@ services:
     command: sh -c "python manage.py migrate && python manage.py grpcrunaioserver --dev"
     volumes:
       - ./django_service/chat_service:/usr/src/app
-    ports:
-      - '50051:50051'
     depends_on:
       postgres:
         condition: service_started
@@ -163,8 +159,6 @@ services:
         dockerfile: Dockerfile
       container_name: main_service
       command: sh -c "python manage.py collectstatic --noinput && daphne  -b 0.0.0.0 -p 8000 -v 3 main_service.asgi:application"
-      ports:
-        - '8001:8000'
       volumes:
         - ./django_service/main_service:/usr/src/app
       depends_on:
@@ -202,8 +196,6 @@ services:
         condition: service_started
     networks:
       - django_network
-    ports:
-      - '4000:4000'
     command: ["gow", "run", "main.go"]  # Ensure this command matches the ENTRYPOINT in the Dockerfile
 ## DJANGO/PONG SERVICES EXPOSED TO THE USER ##
 ##########################################
