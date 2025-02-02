@@ -1,10 +1,22 @@
-import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage, removeUserFromChatRoom} from './chatservice.js';
+import { fetchChatRoomDetails, fetchChatRoomMessages, subscribeToUserChatRooms, subscribeToChatRoomMessages, sendChatRoomMessage, removeUserFromChatRoom, declineGameInvitation} from './chatservice.js';
 import { blockUser, fetchFriendships } from './friendservice.js';
 import { showError, generateUserAvatarHTML, fillUserCache, initializeOnlineStatusSubscriptions, userCache } from './utils.js'; // Import the new function
 import { addMessageToContainer, createElement, DEFAULT_AVATAR, formatDate, formatTime } from './domHelpers.js';
 
 
 window.userCache = userCache; // Expose user cache for debugging
+
+async function declineGameInvite(gameId, userId) {
+    console.log('Declining game invite:', gameId);
+    var response = await declineGameInvitation(gameId);
+    console.log('Decline game invite response:', response);
+    if (!response.error) {
+        showToast('Success', 'Game invitation declined.');
+        sendChatRoomMessage(gameId, `§DECLINE_G_INVITE§ Game ID:${gameId} Game invitation declined.`);
+    } else {
+        showToast('Error', 'Failed to decline game invitation. Please try again.');
+    }
+}
 
 let currentChatUserId = null
 document.addEventListener('DOMContentLoaded', () => {
@@ -69,45 +81,66 @@ document.addEventListener('DOMContentLoaded', () => {
                 chatRoomMessagesContainer.appendChild(dateElement);
                 lastMessageDate = messageDate;
             }
-
+            var showMsg = true;
             let messageContent = content;
             if (content.startsWith('§GAME_INVITE§')) {
                 const gameId = content.match(/Game ID:(\d+)/)[1];
                 const inviter = content.match(/invited(\d+)/)[1];
                 messageContent = `
-                    <p>${nickname} has invited you to join a game!</p>
-                    <a href="/home/game/?game=${gameId}" class="btn btn-primary">Join Game</a>
+                    <p id="inviteMessage${gameId}">${nickname} has invited you to join a game!</p>
+                    <a id="joinButton${gameId}" data-game-id="${gameId}" href="/home/game/?game=${gameId}" class="btn btn-primary">Join Game</a>
+                    <button id="declineGame${gameId}" class="btn btn-danger" data-game-id="${gameId}">Decline</button>
                 `;
             }
+            if (content.startsWith('§DECLINE_G_INVITE§')) {
+                const gameId = content.match(/Game ID:(\d+)/)[1];
+                const inviteMessage = document.getElementById(`inviteMessage${gameId}`);
+                const joinButton = document.getElementById(`joinButton${gameId}`);
+                const declineButton = document.getElementById(`declineGame${gameId}`);
+                if (inviteMessage) inviteMessage.innerText = `${nickname} has declined the game invitation.`;
+                if (joinButton) joinButton.remove();
+                if (declineButton) declineButton.remove();
+                showMsg = false;
+            }
 
-            const messageElement = createElement(
-                'li',
-                `
-                <div class="d-flex ${isOwnMessage ? 'flex-row-reverse align-self-end' : 'flex-row align-self-start'}">
-                <div class="d-flex flex-column align-items-center justify-content-center">
-                    <a href="/home/profile/${sender_id}">
-                        <img src="${avatar}" alt="avatar" class="rounded-circle d-flex ${isOwnMessage ? 'ms-3' : 'me-3'} shadow-1-strong object-fit-cover" width="60" height="60" style="flex-shrink: 0;">
-                    </a>
-                    <p class="text-light small text-center mb-0">
-                        <i class="far fa-clock mt-1"> ${formattedTime} </i>
-                    </p>
-                </div>
-                    <div class="card flex-grow-1 ${isOwnMessage ? 'text-end' : 'text-start'}">
-                        <div class="card-header d-flex ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'} py-1">
-                            <p class="text-muted mb-0" style="font-size: 0.875rem;">${nickname}</p>
-                        </div>
-                        <div class="card-body" style="background-color: #202020; color: #ffffff;">
-                            <p class="mb-0">${messageContent}</p>
+            if (showMsg) {
+                const messageElement = createElement(
+                    'li',
+                    `
+                    <div class="d-flex ${isOwnMessage ? 'flex-row-reverse align-self-end' : 'flex-row align-self-start'}">
+                    <div class="d-flex flex-column align-items-center justify-content-center">
+                        <a href="/home/profile/${sender_id}">
+                            <img src="${avatar}" alt="avatar" class="rounded-circle d-flex ${isOwnMessage ? 'ms-3' : 'me-3'} shadow-1-strong object-fit-cover" width="60" height="60" style="flex-shrink: 0;">
+                        </a>
+                        <p class="text-light small text-center mb-0">
+                            <i class="far fa-clock mt-1"> ${formattedTime} </i>
+                        </p>
+                    </div>
+                        <div class="card flex-grow-1 ${isOwnMessage ? 'text-end' : 'text-start'}">
+                            <div class="card-header d-flex ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'} py-1">
+                                <p class="text-muted mb-0" style="font-size: 0.875rem;">${nickname}</p>
+                            </div>
+                            <div class="card-body" style="background-color: #202020; color: #ffffff;">
+                                <p class="mb-0">${messageContent}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
-                `,
-                `chat-message d-flex flex-row ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'} mb-3`, {
-                maxWidth: '100%'
+                    `,
+                    `chat-message d-flex flex-row ${isOwnMessage ? 'justify-content-end' : 'justify-content-start'} mb-3`, {
+                    maxWidth: '100%'
+                }
+                );
+                chatRoomMessagesContainer.appendChild(messageElement);
+                const declineButton = messageElement.querySelector('.btn-danger');
+                if (declineButton) {
+                    declineButton.addEventListener('click', (event) => {
+                        const gameId = event.target.getAttribute('data-game-id');
+                        declineGameInvite(gameId, userId);
+                    });
+                }
             }
-            );
-            chatRoomMessagesContainer.appendChild(messageElement);
         };
+
 
         const onError = (error) => {
             showToast('Error populating messages:', error);
