@@ -371,19 +371,20 @@ const renderProfiles = (profiles, profilesContainer) => {
     let flattenedFriendships = Array.isArray(cachedFriendships) ? cachedFriendships.flat() : [];
 
     profiles.forEach((profile) => {
-        userCache[profile.userId] = {profile};
-        const isFriendAlready = flattenedFriendships.some(
-            (friendship) => friendship.friendId == profile.userId && friendship.accepted
-        );
-        const isBlocked = flattenedFriendships.some(
-            (friendship) => friendship.friendId == profile.userId && friendship.blocked
-        );
-        const friendship = flattenedFriendships.find(
-            (friendship) => friendship.friendId == profile.userId
-        );
-        const friendshipId = friendship ? friendship.id : 0;
-        const avatarHtml = generateUserAvatarHTML(profile.userId, 50);
-        const profileHTML = `
+        if(profile.userId !== userId) {
+            userCache[profile.userId] = {profile};
+            const isFriendAlready = flattenedFriendships.some(
+                (friendship) => friendship.friendId == profile.userId && friendship.accepted
+            );
+            const isBlocked = flattenedFriendships.some(
+                (friendship) => friendship.friendId == profile.userId && friendship.blocked
+            );
+            const friendship = flattenedFriendships.find(
+                (friendship) => friendship.friendId == profile.userId
+            );
+            const friendshipId = friendship ? friendship.id : 0;
+            const avatarHtml = generateUserAvatarHTML(profile.userId, 50);
+            const profileHTML = `
         <li class="list-group-item bg-dark text-light d-flex justify-content-between align-items-center p-3 rounded-3 mb-2">
             <div class="d-flex align-items-center">
                 <div class="avatar me-3">
@@ -414,7 +415,8 @@ const renderProfiles = (profiles, profilesContainer) => {
             </div>
         </li>
             `;
-        profilesContainer.innerHTML += profileHTML;
+            profilesContainer.innerHTML += profileHTML;
+        }
     });
     const buttons = profilesContainer.querySelectorAll('.btn-success');
 
@@ -429,6 +431,7 @@ const renderProfiles = (profiles, profilesContainer) => {
             }
 
             try {
+                if(friendId !== userId){
                 const response = await addFriend(friendId);
 
                 if (response && response.success) {
@@ -440,6 +443,8 @@ const renderProfiles = (profiles, profilesContainer) => {
                     cachedFriendships.push({friendId});
                 } else {
                     showToast(`Failed to add friend: ${response.message}`);
+                }
+                    showToast(`418 I'm a teapot`);
                 }
             } catch (error) {
                 showToast("An unexpected error occurred:", error);
@@ -502,6 +507,7 @@ const fetchAndRenderProfiles = async (
         const data = await fetchProfiles(limit, offset);
         if (data && data.getAllProfiles) {
             const profiles = data.getAllProfiles.profiles;
+
             renderProfiles(profiles, profilesContainer);
             initializeOnlineStatusSubscriptions();
             prevPageBtn.disabled = offset === 0;
