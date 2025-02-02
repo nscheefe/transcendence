@@ -203,10 +203,10 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                     width: 100px;
                     height: 100px;
                     border-radius: 50%;
-                    background: conic-gradient(
-                       ${stats.totalLosses > stats.totalWins ? '#dc3545' : '#0d6efd'} 0% calc(var(--wins) * 1%), /* Winning portion (Bootstrap \`primary\`) */
-                       ${stats.totalLosses < stats.totalWins ? '#dc3545' : '#0d6efd'} calc(var(--wins) * 1%) 100% /* Losing portion (Bootstrap \`danger\`) */
-                    );
+                     background: conic-gradient(
+        #0d6efd 0% calc(var(--wins) * 1%),  
+        #dc3545 calc(var(--wins) * 1%) 100%
+         );
                     margin: auto;
                   }
 
@@ -255,7 +255,7 @@ const renderUserProfile = async (user, stats, statsByUser, profileContainer) => 
                     </div>
                 </div>
                  <div class="card bg-dark text-light shadow-sm rounded-3 p-3 " style="width:33%">
-                    <div class="pie-chart" style="--wins: ${(stats.totalWins / stats.totalLosses) * 100};">
+                    <div class="pie-chart" style="--wins: ${(stats.totalGames > 0 ? (stats.totalWins / stats.totalGames) * 100 : 0)};">
                       <div class="center-text">
                             <h6>${stats.totalGames}</h6>
                             <span>Total Games</span>

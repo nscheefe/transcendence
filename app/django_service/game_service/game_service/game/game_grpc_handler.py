@@ -460,8 +460,28 @@ class GameServiceHandler(game_pb2_grpc.GameServiceServicer):
                 finished=False,
                 player_b_id=request.player_b
             ).first()
+            existing_exact_game = Game.objects.filter(
+                finished=False,
+                player_a_id=request.player_a,
+                player_b_id=request.player_b
+            ).first() or Game.objects.filter(
+                finished=False,
+                player_a_id=request.player_b,
+                player_b_id=request.player_a
+            ).first()
 
             if existing_game_a or existing_game_b:
+                if existing_exact_game:
+                    response = game_pb2.Game(
+                        id=existing_exact_game.id,
+                        state=existing_exact_game.state,
+                        points_player_a=existing_exact_game.points_player_a,
+                        points_player_b=existing_exact_game.points_player_b,
+                        player_a_id=existing_exact_game.player_a_id,
+                        player_b_id=existing_exact_game.player_b_id,
+                        finished=existing_exact_game.finished,
+                    )
+                    return response
                 context.set_details("One of the players is already in an active game.")
                 context.set_code(grpc.StatusCode.ALREADY_EXISTS)
                 return game_pb2.Game()

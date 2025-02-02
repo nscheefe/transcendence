@@ -217,6 +217,8 @@ async function renderStateButton() {
             } catch (e) {
                 console.error("Error starting the game:", e);
             }
+        }else if (currentUser.state === 'PLAYING') {
+            window.location.href = `/home/game/?game=${tournamentGame.create_tournament_game.game_id}` ;
         }
     };
 
@@ -341,7 +343,7 @@ export const iniTournamenDetailPage = async () => {
 
     setInterval(() => {
         run();
-    }, 30000);
+    }, 300000);
 };
 
 
