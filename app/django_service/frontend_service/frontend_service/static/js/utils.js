@@ -115,11 +115,14 @@ export function executeSubscription(
  * @param {string} errorMessage - The error message to display.
  */
 export const showError = (container, errorMessage) => {
-    const errorElement = document.createElement('p');
-    errorElement.className = 'text-danger';
-    errorElement.innerText = errorMessage;
-    container.innerHTML = '';
-    container.appendChild(errorElement);
+    if (!container) {
+
+        const errorElement = document.createElement('p');
+        errorElement.className = 'text-danger';
+        errorElement.innerText = errorMessage;
+        container.innerHTML = '';
+        container.appendChild(errorElement);
+    }
 };
 
 /**
