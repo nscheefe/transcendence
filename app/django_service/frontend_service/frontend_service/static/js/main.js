@@ -46,3 +46,17 @@ async function query(uri, query) {
     }
     return await response.json();
 }
+
+
+function loadContent(url) {
+    fetch(url, {
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.text())
+    .then(html => {
+        document.getElementById('app').innerHTML = html;
+        window.history.pushState({}, '', url);
+    });
+}

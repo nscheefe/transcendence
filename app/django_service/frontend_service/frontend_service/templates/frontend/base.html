@@ -6,7 +6,7 @@
     <title>
       {% block title %}
 
-      {% endblock %}
+      {% endblock title %}
     </title>
     <meta name="description" content="Your description here" />
     <meta name="keywords" content="keyword1, keyword2, keyword3" />
@@ -35,54 +35,53 @@
     </script>
     {% block extra_head %}
 
-    {% endblock %}
+    {% endblock extra_head %}
   </head>
   <body class="body">
-    {% if show_nav %}
-    <div class="navigation w-nav">
-      <div class="nav-container">
-        <a href="https://profile.intra.42.fr/" class="brand-2 w-nav-brand">{% include 'frontend/svg-42-hn.html' %}</a>
-        <nav role="navigation" class="w-nav-menu">
+    <div id="app">
+      {% if show_nav %}
+      <div class="navigation w-nav">
+        <div class="nav-container">
+          <a href="https://profile.intra.42.fr/" class="brand-2 w-nav-brand">{% include 'frontend/svg-42-hn.html' %}</a>
+          <nav role="navigation" class="w-nav-menu">
+            <span class="nav-item-group">
+              <a href="{% url 'stats' %}" class="nav-link w-nav-link">Stats</a>
+              <a href="{% url 'home' %}" class="nav-link w-nav-link">Home</a>
+              <a href="{% url 'community' %}#profile" class="nav-link w-nav-link">Community</a>
+            </span>
+          </nav>
           <span class="nav-item-group">
-            <a href="{% url 'stats' %}" class="nav-link w-nav-link">Stats</a>
-            <a href="{% url 'home' %}" class="nav-link w-nav-link">Home</a>
-            <a href="{% url 'community' %}#profile" class="nav-link w-nav-link">Community</a>
+            <div class="dropdown-center h-100" style="padding-top: 0%;">
+              <!-- Bell Icon -->
+              <button class="btn btn-secondary bg-transparent border-0 notification-button dropdown-toggle d-flex align-items-center me-2" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                <div class="d-flex align-items-center position-relative" >
+                  <img src="/static/images/bell.png" alt="Bell Icon" style="margin-left: 10px"/>
+                  <span id="notificationIndicator" class="position-absolute top-10 start-80 translate-middle p-2 bg-danger rounded-circle d-none"></span>
+                </div>
+              </button>
+              <ul class="dropdown-menu" id="dropdownMenu" >
+                <li class="dropdown-item">No notifications</li>
+              </ul>
+            </div>
+            <span class="nav-item-group">
+              <a class="profile-link-wrapper" href="{% url 'profile' %}" aria-expanded="false">
+                <div class="profile-link-wrapper">
+                  <span class="intra-name-42" data-login="{{ user.profile.nickname }}">{{ user.profile.nickname }}</span>
+                  <img class="user-profile-picture visible-sidebars" src="{{ user.profile.avatarUrl }}" alt="User Profile Picture">
+                </div>
+              </a>
+            </span>
           </span>
-        </nav>
-        <span class="nav-item-group">
-          <div class="dropdown-center h-100" style="padding-top: 0%;">
-            <!-- Bell Icon -->
-            <button class="btn btn-secondary bg-transparent border-0 notification-button dropdown-toggle d-flex align-items-center me-2" id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-              <div class="d-flex align-items-center position-relative" >
-                <img src="/static/images/bell.png" alt="Bell Icon" style="margin-left: 10px"/>
-                <span id="notificationIndicator" class="position-absolute top-10 start-80 translate-middle p-2 bg-danger rounded-circle d-none"></span>
-              </div>
-            </button>
-            <ul class="dropdown-menu" id="dropdownMenu" >
-              <li class="dropdown-item">No notifications</li>
-            </ul>
+          <div class="w-nav-button">
+            <div class="w-icon-nav-menu"></div>
           </div>
-          <span class="nav-item-group">
-            <a class="profile-link-wrapper" href="{% url 'profile' %}" aria-expanded="false">
-              <div class="profile-link-wrapper">
-                <span class="intra-name-42" data-login="{{ user.profile.nickname }}">{{ user.profile.nickname }}</span>
-                <img class="user-profile-picture visible-sidebars" src="{{ user.profile.avatarUrl }}" alt="User Profile Picture">
-              </div>
-            </a>
-          </span>
-        </span>
-        <div class="w-nav-button">
-          <div class="w-icon-nav-menu"></div>
         </div>
       </div>
+      {% endif %}
+      {% block content %}{% endblock %}
+      {% block extra_js %}{% endblock %}
+      {% include "frontend/chatWidget.html" %}
+      <div id="toast" class="toast"></div>
     </div>
-    {% endif %}
-    {% block content %}
-
-    {% endblock %}
-    {% block extra_js %}
-    {% endblock %}
-    {% include "frontend/chatWidget.html" %}
-    <div id="toast" class="toast"></div>
   </body>
 </html>
