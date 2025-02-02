@@ -41,12 +41,13 @@ read -r CLIENT_ID
 echo -e "${GREEN}Enter CLIENT_SECRET:${NC}"
 read -r CLIENT_SECRET
 
-echo -e "${GREEN}Enter REDIRECT_URI:${NC}"
-read -r REDIRECT_URI
+echo -e "${GREEN}Enter Host:${NC}"
+read -r HOST
 
 echo -e "${GREEN}Enter JWT_SECRET:${NC}"
 read -r JWT_SECRET
 
+REDIRECT_URI="http://$HOST/oauth_callback/"
 DATABASE_URL="postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@postgres_db:5432/$POSTGRES_DB"
 
 services=("user_service" "stat_service" "game_service" "chat_service" "auth_service" "main_service" "frontend_service")
@@ -64,11 +65,12 @@ CLIENT_SECRET=$CLIENT_SECRET
 REDIRECT_URI=$REDIRECT_URI
 JWT_SECRET=$JWT_SECRET
 SECRET_KEY=$SECRET_KEY
+HOST=$HOST
 EOL
   echo -e "${GREEN}.env.$service file generated successfully.${NC}"
 done
 
-cat <<EOL > .env.postgres
+cat <<EOL > .env
 POSTGRES_USER=$POSTGRES_USER
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 POSTGRES_DB=$POSTGRES_DB

@@ -34,7 +34,8 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'default-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '109.193.98.181', '192.168.1.20' ,'*']
+HOST = os.getenv('HOST', 'localhost')
+ALLOWED_HOSTS = [HOST, '0.0.0.0', 'localhost']
 
 SECURE_COOKIE = os.getenv('SECURE_COOKIE', 'True').lower() in ['true', '1', 't']
 
