@@ -84,24 +84,19 @@ const initializeNotificationSubscription = async () => {
   }
 };
 
-// Manual dropdown toggle functionality
 const dropdownToggle = document.getElementById("notificationDropdown");
 const dropdownMenu = document.getElementById("dropdownMenu");
+if (dropdownToggle) {
+  dropdownToggle.addEventListener("click", () => {
+    if (dropdownMenu.style.display !== "none") {
+      const notificationIndicator = document.getElementById("notificationIndicator");
+      notificationIndicator.classList.add('d-none');
+      localStorage.setItem('hasUnreadNotifications', 'false');
+    }
+  });
+  initializeNotificationSubscription();
 
-dropdownToggle.addEventListener("click", () => {
-
-  // Hide the notification indicator when the dropdown is opened
-  if (dropdownMenu.style.display !== "none") {
-    const notificationIndicator = document.getElementById("notificationIndicator");
-    notificationIndicator.classList.add('d-none');
-
-    // Update the state in local storage
-    localStorage.setItem('hasUnreadNotifications', 'false');
-  }
-});
-
-// Initialize the notification subscription
-initializeNotificationSubscription();
+}
 
 // Check local storage for unread notifications on page load
 document.addEventListener('DOMContentLoaded', () => {

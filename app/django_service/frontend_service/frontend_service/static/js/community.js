@@ -551,6 +551,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const elementToRemove = document.getElementById(`friendship-${friendshipId}`);
                         if (elementToRemove) {
                             elementToRemove.remove(); // Remove from the DOM
+                            refetchFriends();
                         } else {
                             showToast(`Element with id "friendship-${friendshipId}" not found.`);
                         }
